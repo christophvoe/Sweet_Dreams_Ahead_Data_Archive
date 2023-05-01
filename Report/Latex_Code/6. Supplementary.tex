@@ -1,0 +1,96 @@
+
+\begin{sm}
+
+
+\renewcommand{\thetable}{A}
+\sf\centering
+\begin{longtable}
+{p{0.02\textwidth}|p{0.095\textwidth}|p{0.08\textwidth}|p{0.50\textwidth}|p{0.025\textwidth}|p{0.025\textwidth}}
+\caption*{\textbf{Supplemental material A - Variable Descriptions and Inclusion Decisions}}\
+\label{tab:sup_1}\\
+\hline
+\textbf{No.} & \textbf{Abbreviation} & \textbf{Category} & \textbf{Feature Description} & \textbf{Full} & \textbf{Life} \\
+\hline
+\endhead
+1 & Hypo\_out & Outcome & BG at night $<$ 3.9 mmol/L (Level 1 hypoglycemia) & X & X \\
+\hline
+2 & mean\_0\_1 & CGM & Mean BG value int. - 0-60 min pre-bedtime & X & \\
+3 & mean\_1\_2 & CGM & Mean BG value int. - 60-120 min pre-bedtime & X & \\
+4 & mean\_2\_3 & CGM & Mean BG value int. - 120-180 min pre-bedtime & X & \\
+5 & mean\_3\_4 & CGM & Mean BG value int. - 180-240 min pre-bedtime & X & \\
+6 & mean\_4\_5 & CGM & Mean BG value int. - 240-300 min pre-bedtime & X & \\
+7 & mean\_5\_6 & CGM & Mean BG value int. - 300-360 min pre-bedtime & X & \\
+8 & mean\_6pl & CGM & Mean BG value int. - start day to 360 min pre-bedtime & X & \\
+9 & sd\_0\_1 & CGM & Standard Deviation BG int. - 0-60 min pre-bedtime & & \\
+10 & sd\_1\_2 & CGM & Standard Deviation BG int. - 60-120 min pre-bedtime & & \\
+11 & sd\_2\_3 & CGM & Standard Deviation BG int. - 120-180 min pre-bedtime & & \\
+12 & sd\_3\_4 & CGM & Standard Deviation BG int. - 180-240 min pre-bedtime & & \\
+13 & sd\_4\_5 & CGM & Standard Deviation BG int. - 240-300 min pre-bedtime & & \\
+14 & sd\_5\_6 & CGM & Standard Deviation BG int. - 300-360 min pre-bedtime & & \\
+15 & sd\_6pl & CGM & Standard Deviation BG int. - start day to 360 min pre-bedtime & X & \\
+16 & min\_0\_1 & CGM & Minimum BG value int. - 0-60 min pre-bedtime & X & \\
+17 & min\_1\_2 & CGM & Minimum BG value int. - 60-120 min pre-bedtime & X & \\
+18 & min\_2\_3 & CGM & Minimum BG value int. - 120-180 min pre-bedtime & X & \\
+19 & min\_3\_4 & CGM & Minimum BG value int. - 180-240 min pre-bedtime & X & \\
+20 & min\_4\_5 & CGM & Minimum BG value int. - 240-300 min pre-bedtime & X & \\
+21 & min\_5\_6 & CGM & Minimum BG value int. - 300-360 min pre-bedtime & & \\
+22 & min\_6pl & CGM & Minimum BG value int. - start day to 360 min pre-bedtime & X &\\
+23 & max\_0\_1 & CGM & Maximum BG value int. - 0-60 min pre-bedtime & X & \\
+24 & max\_1\_2 & CGM & Maximum BG value int. - 60-120 min pre-bedtime & X & \\
+25 & max\_2\_3 & CGM & Maximum BG value int. - 120-180 min pre-bedtime & X & \\
+26 & max\_3\_4 & CGM & Maximum BG value int. - 180-240 min pre-bedtime & X & \\
+27 & max\_4\_5 & CGM & Maximum BG value int. - 240-300 min pre-bedtime & & \\
+28 & max\_5\_6 & CGM & Maximum BG value int. - 300-360 min pre-bedtime & & \\
+29 & max\_6pl & CGM & Maximum BG value int. - start day to 360 min pre-bedtime & X & \\
+30 & mean\_day & CGM & Mean BG value - day & X & \\
+31 & sd\_day & CGM & Standard Deviation BG - day & X & \\
+32 & min\_day & CGM & Minimum BG value - day & X & \\
+33 & max\_day & CGM & Maximum BG value - day & X & \\
+34 & Hyper\_n & CGM & Count - Hyper events - day & X & \\
+35 & Hypo\_n & CGM & Count - Hypo events - day & X & \\
+36 & slope\_0\_1 & CGM & Reg. coef. of CGM in OLS with time as DV for 0-60 min & X & \\ 
+37 & slope\_1\_2 & CGM & Reg. coef. of CGM in OLS with time as DV for 60-120 min &  & \\
+38 & slope\_day & CGM & Reg. coef. of CGM in OLS with time as DV - day &  & \\
+39 & tir\_3.5\_7.75 & CGM\_Ind & Time in range BG - 3.5-7.75 mmol/L \% & X & \\
+40 & tir\_3.9\_10 & CGM\_Ind & Time in range BG - 3.9-10 mmol/L \% & X & \\
+41 & hypo\_Ind & CGM\_Ind & Hypoglycemia Index & X & \\
+42 & hyper\_Ind & CGM\_Ind & Hyperglycemia Index & X & \\
+43 & GMI & CGM\_Ind & Glucose Management Indicator & X & \\
+44 & GRADE & CGM\_Ind & Glycaemic Risk Assessment Diabetes Equation & X & \\
+45 & LBGI & CGM\_Ind & Low Blood Glucose Index & X & \\
+46 & HBGI & CGM\_Ind & High Blood Glucose Index & X & \\
+\hline
+47 & COB & Dietary & Carbohydrates on Board - Decreasing influence on BG over time & & X \\
+48 & Carbs & Dietary & Ingested Carbohydrates - day & & X \\
+49 & Calories & Dietary & Ingested Calories - day & & X \\
+50 & Fat & Dietary & Ingested Fat - day & & X \\
+51 & Num\_Meals & Dietary & Separate meal times - day & & X \\
+52 & Last\_meal & Dietary & Time of the last pre-bedtime meal & & X \\
+\hline
+53 & AOB & Activity & Activity on Board - Decreasing influence on BG over time  & X & X \\
+54 & Steps & Activity & Total number of steps - day & & X \\
+\hline
+55  & wday & Temporal & Day of the week - Factor &  &  \\
+56  & weekend & Temporal & Weekend or Work-day - Factor &  &  \\
+\hline
+57  & Gender & Baseline & Gender (male/female) &  &  \\
+58  & Age & Baseline & Age in years - baseline & X & X \\
+59  & T2D\_Dur & Baseline & Time since T2D in years - baseline & X & X \\
+60  & T2D\_Start & Baseline & Age of patient start T2D in years &  & X \\
+61  & Height & Baseline & Height in cm - baseline & X & X \\
+62  & Weight & Baseline & Weight in kg - baseline & X & X \\
+63  & BMI & Baseline & Body Mass Index (kg/m2) - baseline & X & X \\
+64  & HbA1c & Baseline & HbA1c (glycated hemoglobin) mmol/mol - baseline & X & X \\
+\hline
+65  & insulin & Medication & Insulin use &  & \\
+66  & long\_ins & Medication & Long-acting insulin &  &  \\
+67  & dos\_long & Medication & Dose - Long &  & X \\
+68  & fast\_ins & Medication & Fast-acting insulin &  &  \\
+69  & dos\_fast & Medication & Dose - Fast &  & X \\
+70  & int\_long & Medication & Inter/long combined with fast &  &  \\
+71  & dos\_int\_long         & Medication & Dose - Comb &  &  \\
+72  & SU\_der & Medication & Sulfonylureas (SU derivates) &  &  \\
+73  & dos\_SU & Medication & Dose - SU &  &  \\
+\hline
+\end{longtable}
+\end{sm}

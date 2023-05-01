@@ -1,0 +1,60 @@
+% sage_latex_guidelines.tex V1.20, 14 January 2017
+
+\documentclass[Afour,sagev,times]{sagej}
+\usepackage{float}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{longtable}
+\usepackage{caption}
+\usepackage{moreverb,url}
+
+\usepackage[colorlinks,bookmarksopen,bookmarksnumbered,allcolors=black]{hyperref}
+
+\newcommand\BibTeX{{\rmfamily B\kern-.05em \textsc{i\kern-.025em b}\kern-.08em
+T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\def\volumeyear{2023}
+
+\begin{document}
+
+\runninghead{Völtzke}
+
+\title{Sweet Dreams Ahead: Machine Learning Models for Nocturnal Hypoglycemia Prediction in Diabetes Type 2 Patients}
+
+\author{Christoph Völtzke\affilnum{1}}
+
+\affiliation{\affilnum{1}Utrecht University, Netherlands}
+
+\corrauth{Christoph Völtzke, Utrecht University, Netherlands.}
+
+\email{c.voltzke@stud.uu.nl}
+
+\begin{abstract}
+\textbf{Background and Aims:} Continuous glucose monitoring (CGM) is known to prevent adverse events such as nocturnal hypoglycemia (NH) in diabetes patients. However, due to its high cost, it is not feasible to provide CGM for the majority of Type 2 diabetes (T2D) patients, which implies a need for additional features to CGM that can help predict NH. While lifestyle factors such as diet and activity level are known to be related to T2D prevalence, the extent to which these factors can accurately predict NH has not yet been explored. To address this gap, this study developed predictive models for NH in T2D patients and compared the predictive performance of two feature conditions: one with CGM features included (Full data condition) and one without (Lifestyle condition).
+\newline
+\newline
+\textbf{Methods:} Multiple machine learning (ML) algorithms were applied to data from 76 patients, where data is obtained from CGM, food diaries, physical activity trackers, and patient characteristics. Population models with multiple resampling and tuning strategies were trained with 10-fold cross-validation on a training set (75\%). The area under the receiver operating curve (AUC), Sensitivity (SENS), and Specificity (SPEC) were evaluated on a separate test set (25\%). For both data conditions, models across each ML algorithm were trained.
+\newline
+\newline
+\textbf{Results:} In the Full data condition, a Random Forest (RF) model produced the best results(AUC=0.91, Se=0.89, Sp=0.83). In the Lifestyle condition, the best results were also achieved with an RF model (AUC=0.81, Se=0.81, Sp=0.71). Results were heterogeneous among the various machine learning algorithms and tuning strategies, indicating the need to compare multiple strategies.
+\newline
+\newline
+\textbf{Conclusion:} Predictive performance is highest for models including CGM, however, in the absence of CGM the Lifestyle conditions indicated high AUC and SENS. These results demonstrated a cost- and time-effective way to identify T2D patients at risk.
+\end{abstract}
+
+\keywords{Decision-Support-System, Diabetes Type 2, Machine Learning, Nocturnal Hypoglycemia, Continous Glucose Measurement}
+
+\maketitle
+
+\input{1. Introduction}
+\input{2. Method}
+\input{3. Results}
+\input{4. Discussion}
+\input{5. Conclusion}
+\bibliographystyle{SageV}
+\bibliography{refs}
+\clearpage
+\input{6. Supplementary}
+\end{document}

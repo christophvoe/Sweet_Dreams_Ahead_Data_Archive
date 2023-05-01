@@ -3,7 +3,9 @@ DATA ARCHIVE - Sweet_Dreams_Ahead_Master_thesis_Code_ONLY
 
 *Background and Aims:* 
 
-Continuous glucose monitoring (CGM) is known to prevent adverse events such as nocturnal hypoglycemia (NH) in diabetes patients. However, due to its high cost, it is not feasible to provide CGM for the majority of Type 2 diabetes (T2D) patients, which implies a need for additional features to CGM that can help predict NH. While lifestyle factors such as diet and activity level are known to be related to T2D prevalence, the extent to which these factors can accurately predict NH has not yet been explored. To address this gap, this study developed predictive models for NH in T2D patients and compared the predictive performance of two feature conditions: one with CGM features included (Full data condition) and one without (Lifestyle condition). For more information see the final [report](https://github.com/christophvoe/Sweet_Dreams_Ahead_Master_thesis_Code_ONLY/blob/main/Report/Sweet_Dreams_Ahead__Machine_Learning_Models_for_Accurate_Nocturnal_Hypoglycemia_Prediction_in_Diabetes_Type_2_Patients.pdf).
+Continuous glucose monitoring (CGM) is known to prevent adverse events such as nocturnal hypoglycemia (NH) in diabetes patients. However, due to its high cost, it is not feasible to provide CGM for the majority of Type 2 diabetes (T2D) patients, which implies a need for additional features to CGM that can help predict NH. While lifestyle factors such as diet and activity level are known to be related to T2D prevalence, the extent to which these factors can accurately predict NH has not yet been explored. To address this gap, this study developed predictive models for NH in T2D patients and compared the predictive performance of two feature conditions: one with CGM features included (Full data condition) and one without (Lifestyle condition). 
+
+For more information see the final [report](https://github.com/christophvoe/Sweet_Dreams_Ahead_Master_thesis_Code_ONLY/blob/main/Report/Sweet_Dreams_Ahead__Machine_Learning_Models_for_Accurate_Nocturnal_Hypoglycemia_Prediction_in_Diabetes_Type_2_Patients.pdf).
 
 ---
 *Study Information:*
@@ -11,6 +13,7 @@ Continuous glucose monitoring (CGM) is known to prevent adverse events such as n
 Data for the present study originates from the “Diabetes and Lifestyle Cohort Twente” (DIALECT). DIALECT is an observational cohort study performed in the Ziekenhuis Groep Twente (Netherlands) and is designed to investigate the effect of lifestyle and dietary habits as well as pharmacological treatment on outcomes in patients with T2D. The study included adult male and female patients with T2D (N=76) who were monitored with a CGM system, a physical activity tracker, and kept dietary entries for up to 14 days.
 
 ---
+*Disclaimer:*
 
 Due to the sensitive nature of the patient data, it cannot be made public. For more information about the study, please refer to the local institutional review boards (FERB, Filed number: 22-1863) and the Netherlands Trial Register (NTR5855). The study was performed according to the declaration of Helsinki, and written informed consent was obtained from all patients before participation.
 
@@ -36,7 +39,9 @@ If you obtained the data in the indicated way, data needs to be stored according
 
 ---
 
-*Process:* First, data processing, feature extraction, and feature selection have been applied. 
+*Process:*
+
+First, data processing, feature extraction, and feature selection have been applied. 
 Second, multiple ML algorithms have been trained and optimized for two subsets of features with one including (Full data condition) and one excluding CGM (Lifestyle condition) to build population models.
 Third, the predictive performance between ML algorithms and also between the two data conditions have been compared. 
 Last, the results have been critically evaluated to assess their impact on the existing literature and their contribution to the diabetes management of T2D patients.

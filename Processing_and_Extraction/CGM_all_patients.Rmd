@@ -1,0 +1,825 @@
+---
+title: "CGM_all_patients"
+author: "Christoph Völtzke"
+date: "2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Needed packages
+```{r}
+library(lubridate) # manipulate dates
+library(tidyverse) # data processing
+library(ggplot2) # plotting
+library(broom) # data processing
+library(iglu) # CGM indices
+```
+
+
+## Loading the data sets
+```{r}
+# All patients with CGM data
+cgm_574 <- read.table("Patients_all_sources/574/cgm_574.txt",sep ="", dec=",", header=T)
+cgm_597 <- read.table("Patients_all_sources/597/cgm_597.txt",sep ="", dec=",", header=T)
+cgm_598 <- read.table("Patients_all_sources/598/cgm_598.txt",sep ="", dec=",", header=T)
+cgm_601 <- read.table("Patients_all_sources/601/cgm_601.txt",sep ="", dec=",", header=T)
+cgm_608 <- read.table("Patients_all_sources/608/cgm_608.txt",sep ="", dec=",", header=T)
+cgm_605 <- read.table("Patients_all_sources/605/cgm_605.txt",sep ="", dec=",", header=T)
+cgm_606 <- read.table("Patients_all_sources/606/cgm_606.txt",sep ="", dec=",", header=T)
+cgm_607 <- read.table("Patients_all_sources/607/cgm_607.txt",sep ="", dec=",", header=T)
+cgm_609 <- read.table("Patients_all_sources/609/cgm_609.txt",sep ="", dec=",", header=T)
+cgm_611 <- read.table("Patients_all_sources/611/cgm_611.txt",sep ="", dec=",", header=T)
+cgm_612 <- read.table("Patients_all_sources/612/cgm_612.txt",sep ="", dec=",", header=T)
+cgm_615 <- read.table("Patients_all_sources/615/cgm_615.txt",sep ="", dec=",", header=T)
+cgm_616 <- read.table("Patients_all_sources/616/cgm_616.txt",sep ="", dec=",", header=T)
+cgm_617 <- read.table("Patients_all_sources/617/cgm_617.txt",sep ="", dec=",", header=T)
+cgm_618 <- read.table("Patients_all_sources/618/cgm_618.txt",sep ="", dec=",", header=T)
+cgm_619 <- read.table("Patients_all_sources/619/cgm_619.txt",sep ="", dec=",", header=T)
+cgm_621 <- read.table("Patients_all_sources/621/cgm_621.txt",sep ="", dec=",", header=T)
+cgm_623 <- read.table("Patients_all_sources/623/cgm_623.txt",sep ="", dec=",", header=T)
+cgm_624 <- read.table("Patients_all_sources/624/cgm_624.txt",sep ="", dec=",", header=T)
+cgm_628 <- read.table("Patients_all_sources/628/cgm_628.txt",sep ="", dec=",", header=T)
+cgm_629 <- read.table("Patients_all_sources/629/cgm_629.txt",sep ="", dec=",", header=T)
+cgm_630 <- read.table("Patients_all_sources/630/cgm_630.txt",sep ="", dec=",", header=T)
+cgm_632 <- read.table("Patients_all_sources/632/632/cgm_632.txt",sep ="", dec=",", header=T)
+cgm_633 <- read.table("Patients_all_sources/633/cgm_633.txt",sep ="", dec=",", header=T)
+cgm_634 <- read.table("Patients_all_sources/634/cgm_634.txt",sep ="", dec=",", header=T)
+cgm_635 <- read.table("Patients_all_sources/635/cgm_635.txt",sep ="", dec=",", header=T)
+cgm_636 <- read.table("Patients_all_sources/636/cgm_636.txt",sep ="", dec=",", header=T)
+cgm_637 <- read.table("Patients_all_sources/637/cgm_637.txt",sep ="", dec=",", header=T)
+cgm_638 <- read.table("Patients_all_sources/638/cgm_638.txt",sep ="", dec=",", header=T)
+cgm_639 <- read.table("Patients_all_sources/639/cgm_639.txt",sep ="", dec=",", header=T)
+cgm_640 <- read.table("Patients_all_sources/640/cgm_640.txt",sep ="", dec=",", header=T)
+cgm_641 <- read.table("Patients_all_sources/641/cgm_641.txt",sep ="", dec=",", header=T)
+cgm_642 <- read.table("Patients_all_sources/642/cgm_642.txt",sep ="", dec=",", header=T)
+cgm_643 <- read.table("Patients_all_sources/643/cgm_643.txt",sep ="", dec=",", header=T)
+cgm_644 <- read.table("Patients_all_sources/644/cgm_644.txt",sep ="", dec=",", header=T)
+cgm_645 <- read.table("Patients_all_sources/645/cgm_645.txt",sep ="", dec=",", header=T)
+cgm_646 <- read.table("Patients_all_sources/646/cgm_646.txt",sep ="", dec=",", header=T)
+cgm_647 <- read.table("Patients_all_sources/647/cgm_647.txt",sep ="", dec=",", header=T)
+cgm_648 <- read.table("Patients_all_sources/648/cgm_648.txt",sep ="", dec=",", header=T)
+cgm_649 <- read.table("Patients_all_sources/649/cgm_649.txt",sep ="", dec=",", header=T)
+cgm_650 <- read.table("Patients_all_sources/650/cgm_650.txt",sep ="", dec=",", header=T)
+cgm_651 <- read.table("Patients_all_sources/651/cgm_651.txt",sep ="", dec=",", header=T)
+cgm_654 <- read.table("Patients_all_sources/654/654/cgm_654.txt",sep ="", dec=",", header=T)
+cgm_656 <- read.table("Patients_all_sources/656/656/cgm_656.txt",sep ="", dec=",", header=T)
+cgm_658 <- read.table("Patients_all_sources/658/cgm_658.txt",sep ="", dec=",", header=T)
+cgm_660 <- read.table("Patients_all_sources/660/cgm_660.txt",sep ="", dec=",", header=T)
+cgm_661 <- read.table("Patients_all_sources/661/cgm_661.txt",sep ="", dec=",", header=T)
+cgm_662 <- read.table("Patients_all_sources/662/cgm_662.txt",sep ="", dec=",", header=T)
+cgm_663 <- read.table("Patients_all_sources/663/cgm_663.txt",sep ="", dec=",", header=T)
+cgm_664 <- read.table("Patients_all_sources/664/cgm_664.txt",sep ="", dec=",", header=T)
+cgm_665 <- read.table("Patients_all_sources/665/cgm_665.txt",sep ="", dec=",", header=T)
+cgm_666 <- read.table("Patients_all_sources/666/cgm_666.txt",sep ="", dec=",", header=T)
+cgm_667 <- read.table("Patients_all_sources/667/cgm_667.txt",sep ="", dec=",", header=T)
+cgm_669 <- read.table("Patients_all_sources/669/cgm_669.txt",sep ="", dec=",", header=T)
+cgm_671 <- read.table("Patients_all_sources/671/cgm_671.txt",sep ="", dec=",", header=T)
+cgm_672 <- read.table("Patients_all_sources/672/cgm_672.txt",sep ="", dec=",", header=T)
+cgm_674 <- read.table("Patients_all_sources/674/cgm_674.txt",sep ="", dec=",", header=T)
+cgm_676 <- read.table("Patients_all_sources/676/cgm_676.txt",sep ="", dec=",", header=T)
+cgm_677 <- read.table("Patients_all_sources/677/cgm_677.txt",sep ="", dec=",", header=T)
+cgm_678 <- read.table("Patients_all_sources/678/cgm_678.txt",sep ="", dec=",", header=T,row.names=NULL)
+cgm_678 <- cgm_678[,-1]
+cgm_680 <- read.table("Patients_all_sources/680/cgm_680.txt",sep ="", dec=",", header=T)
+cgm_681 <- read.table("Patients_all_sources/681/cgm_681.txt",sep ="", dec=",", header=T)
+cgm_682 <- read.table("Patients_all_sources/682/cgm_682.txt",sep ="", dec=",", header=T)
+cgm_683 <- read.table("Patients_all_sources/683/cgm_683.txt",sep ="", dec=",", header=T)
+cgm_684 <- read.table("Patients_all_sources/684/cgm_684.txt",sep ="", dec=",", header=T)
+cgm_686 <- read.table("Patients_all_sources/686/cgm_686.txt",sep ="", dec=",", header=T)
+cgm_687 <- read.table("Patients_all_sources/687/cgm_687.txt",sep ="", dec=",", header=T)
+cgm_688 <- read.table("Patients_all_sources/688/cgm_688.txt",sep ="", dec=",", header=T)
+cgm_690 <- read.table("Patients_all_sources/690/cgm_690.txt",sep ="", dec=",", header=T)
+cgm_691 <- read.table("Patients_all_sources/691/cgm_691.txt",sep ="", dec=",", header=T)
+cgm_692 <- read.table("Patients_all_sources/692/cgm_692.txt",sep ="", dec=",", header=T)
+cgm_694 <- read.table("Patients_all_sources/694/cgm_694.txt",sep ="", dec=",", header=T)
+cgm_695 <- read.table("Patients_all_sources/695/cgm_695.txt",sep ="", dec=",", header=T)
+cgm_696 <- read.table("Patients_all_sources/696/cgm_696.txt",sep ="", dec=",", header=T)
+cgm_697 <- read.table("Patients_all_sources/697/cgm_697.txt",sep ="", dec=",", header=T)
+cgm_698 <- read.table("Patients_all_sources/698/cgm_698.txt",sep ="", dec=",", header=T)
+cgm_699 <- read.table("Patients_all_sources/699/cgm_699.txt",sep ="", dec=",", header=T)
+cgm_702 <- read.table("Patients_all_sources/702/cgm_702.txt",sep ="", dec=",", header=T)
+cgm_703 <- read.table("Patients_all_sources/703/cgm_703.txt",sep ="", dec=",", header=T)
+cgm_708 <- read.table("Patients_all_sources/708/cgm_708.txt",sep ="", dec=",", header=T)
+cgm_709 <- read.table("Patients_all_sources/709/cgm_709.txt",sep ="", dec=",", header=T)
+cgm_712 <- read.table("Patients_all_sources/712/cgm_712.txt",sep ="", dec=",", header=T)
+rownames(cgm_712) <- NULL
+cgm_713 <- read.table("Patients_all_sources/713/cgm_713.txt",sep ="", dec=",", header=T)
+rownames(cgm_713) <- NULL
+cgm_716 <- read.table("Patients_all_sources/716/cgm_716.txt",sep ="", dec=",", header=T)
+rownames(cgm_716) <- NULL
+cgm_719 <- read.table("Patients_all_sources/719/cgm_719.txt",sep ="", dec=",", header=T)
+rownames(cgm_719) <- NULL
+cgm_729 <- read.table("Patients_all_sources/729/cgm_729.txt",sep ="", dec=",", header=T,row.names=NULL)
+cgm_729 <- cgm_729 %>%
+  rename("ID" = "row.names")
+cgm_745 <- read.table("Patients_all_sources/745/cgm_745.txt",sep ="", dec=",", header=T,row.names=NULL)
+cgm_745 <- cgm_745[,-1]
+cgm_746 <- read.table("Patients_all_sources/746/cgm_746.txt",sep ="", dec=",", header=T, row.names=NULL)
+cgm_746 <- cgm_746[,-1]
+cgm_748 <- read.table("Patients_all_sources/748/cgm_748.txt",sep ="", dec=",", header=T, row.names=NULL)
+cgm_748 <- cgm_748[,-1]
+cgm_749 <- read.table("Patients_all_sources/749/cgm_749.txt",sep ="", dec=",", header=T, row.names=NULL)
+cgm_749 <- cgm_749[,-1]
+cgm_750 <- read.table("Patients_all_sources/750/cgm_750.txt",sep ="", dec=",", header=T, row.names=NULL)
+cgm_750 <- cgm_750[,-1]
+cgm_751 <- read.table("Patients_all_sources/751/cgm_751.txt",sep ="", dec=",", header=T, row.names=NULL)
+cgm_751 <- cgm_751[,-1]
+cgm_752 <- read.table("Patients_all_sources/752/cgm_752.txt",sep ="", dec=",", header=T,row.names=NULL)
+cgm_752 <- cgm_752 %>%
+  rename("ID" = "row.names")
+cgm_753 <- read.table("Patients_all_sources/753/cgm_753.txt",sep ="", dec=",", header=T,row.names=NULL)
+cgm_753 <- cgm_753[,-1]
+cgm_754 <- read.table("Patients_all_sources/754/cgm_754.txt",sep ="", dec=",", header=T,row.names=NULL)
+cgm_754 <- cgm_754[,-1]
+cgm_755 <- read.table("Patients_all_sources/755/cgm_755.txt",sep ="", dec=",", header=T,row.names=NULL) # new
+cgm_755 <- cgm_755[,-1]
+cgm_756 <- read.table("Patients_all_sources/756/cgm_756.txt",sep ="", dec=",", header=T,row.names=NULL)
+cgm_756 <- cgm_756[,-1]
+cgm_757 <- read.table("Patients_all_sources/757/cgm_757.txt",sep ="", dec=",", header=T,row.names=NULL)
+cgm_757 <- cgm_757[,-1]
+cgm_759 <- read.table("Patients_all_sources/759/cgm_759.txt",sep ="", dec=",", header=T,row.names=NULL)
+cgm_759 <- cgm_759[,-1]
+cgm_760 <- read.table("Patients_all_sources/760/cgm_760.txt",sep ="", dec=",", header=T,row.names=NULL)
+cgm_760 <- cgm_760[,-1]
+cgm_761 <- read.table("Patients_all_sources/761/cgm_761.txt",sep ="", dec=",", header=T,row.names=NULL)
+cgm_761 <- cgm_761[,-1]
+cgm_762 <- read.table("Patients_all_sources/762/cgm_762.txt",sep ="", dec=",", header=T,row.names=NULL)
+cgm_762 <- cgm_762[,-1]
+cgm_1001 <- read.table("Patients_all_sources/1001/cgm_1001.txt",sep ="", dec=",", header=T)
+```
+
+```{r}
+# adding the patient number to identify each patient
+# this is needed as there are some differences in the data. So the first part needs to be done separately 
+cgm_574$patient <- 574
+cgm_597$patient <- 597
+cgm_598$patient <- 598
+cgm_601$patient <- 601
+cgm_605$patient <- 605
+cgm_606$patient <- 606
+cgm_607$patient <- 607
+cgm_608$patient <- 608
+cgm_609$patient <- 609
+cgm_611$patient <- 611
+cgm_612$patient <- 612
+cgm_615$patient <- 615
+cgm_616$patient <- 616
+cgm_617$patient <- 617
+cgm_618$patient <- 618
+cgm_619$patient <- 619
+cgm_621$patient <- 621
+cgm_623$patient <- 623
+cgm_624$patient <- 624
+cgm_628$patient <- 628
+cgm_629$patient <- 629
+cgm_630$patient <- 630
+cgm_632$patient <- 632
+cgm_633$patient <- 633
+cgm_634$patient <- 634
+cgm_635$patient <- 635
+cgm_636$patient <- 636
+cgm_637$patient <- 637
+cgm_638$patient <- 638
+cgm_639$patient <- 639
+cgm_640$patient <- 640
+cgm_641$patient <- 641
+cgm_642$patient <- 642
+cgm_643$patient <- 643
+cgm_644$patient <- 644
+cgm_645$patient <- 645
+cgm_646$patient <- 646
+cgm_647$patient <- 647
+cgm_648$patient <- 648
+cgm_649$patient <- 649
+cgm_650$patient <- 650
+cgm_651$patient <- 651
+cgm_654$patient <- 654
+cgm_656$patient <- 656
+cgm_658$patient <- 658
+cgm_660$patient <- 660
+cgm_661$patient <- 661
+cgm_662$patient <- 662
+cgm_663$patient <- 663
+cgm_664$patient <- 664
+cgm_665$patient <- 665
+cgm_666$patient <- 666
+cgm_667$patient <- 667
+cgm_669$patient <- 669
+cgm_671$patient <- 671
+cgm_672$patient <- 672
+cgm_674$patient <- 674
+cgm_676$patient <- 676
+cgm_677$patient <- 677
+cgm_678$patient <- 678
+cgm_680$patient <- 680
+cgm_681$patient <- 681
+cgm_682$patient <- 682
+cgm_683$patient <- 683
+cgm_684$patient <- 684
+cgm_686$patient <- 686
+cgm_687$patient <- 687
+cgm_688$patient <- 688
+cgm_690$patient <- 690
+cgm_691$patient <- 691
+cgm_692$patient <- 692
+cgm_694$patient <- 694
+cgm_695$patient <- 695
+cgm_696$patient <- 696
+cgm_697$patient <- 697
+cgm_698$patient <- 698
+cgm_699$patient <- 699
+cgm_702$patient <- 702
+cgm_703$patient <- 703
+cgm_708$patient <- 708
+cgm_709$patient <- 709
+cgm_712$patient <- 712
+cgm_713$patient <- 713
+cgm_716$patient <- 716
+cgm_719$patient <- 719
+cgm_729$patient <- 729
+cgm_745$patient <- 745
+cgm_746$patient <- 746
+cgm_748$patient <- 748
+cgm_749$patient <- 749
+cgm_750$patient <- 750
+cgm_751$patient <- 751
+cgm_752$patient <- 752
+cgm_753$patient <- 753
+cgm_754$patient <- 754
+cgm_755$patient <- 755
+cgm_756$patient <- 756
+cgm_757$patient <- 757
+cgm_759$patient <- 759
+cgm_760$patient <- 760
+cgm_761$patient <- 761
+cgm_762$patient <- 762
+cgm_1001$patient <- 1001
+```
+
+# Feature Engineering
+
+## Basic preprocessing
+- Creation of time and date features
+- Definition of thresholds based on ADA for Hypoglycemia events
+- Definition of Episodes based on Night and Day time definition
+
+### First data set
+```{r}
+# this step must be performed 2 times as there are some structural differences between the loaded data
+cgm_all_extra <- list()
+cgm_all_extra <- list(cgm_745,cgm_746,cgm_748,cgm_749,cgm_750,cgm_751,cgm_752,cgm_753,cgm_754,cgm_755,cgm_756,cgm_757,cgm_759,cgm_760,cgm_761)
+
+for(i in 1:length(cgm_all_extra)){
+cgm_all_extra[[i]] <- cgm_all_extra[[i]] %>%
+  mutate(date = dmy(ID),  # this date format is differently
+         time = hm(Tijd),
+         time_num = as.numeric(time),
+         year = year(date),
+         month = month(date),
+         mday = mday(date),
+         wday = wday(date, label =TRUE),
+         weekend = as.factor(case_when(wday == "Sa" |wday == "So" ~ "Weekend",
+                                       wday == "Mo" |wday == "Di" | wday == "Mi" |wday == "Do" |wday == "Fr" ~ "Week")),
+         hour = hour(time),
+         minute = minute(time),
+         full_date = make_datetime(year,month,mday,hour,minute),
+         full_date_num = as.numeric(full_date)) %>%
+  mutate(Status = as.factor(case_when(Historie_glucose>10 ~ "Hyperglycaemia",
+                            Historie_glucose>=3.9 & Historie_glucose<=10 ~ "Regular",
+                            Historie_glucose< 3.9 ~ "Hypoglycaemia"))) %>%
+  mutate(Nocturnal_dicho = as.factor(case_when(as.numeric(time) >= 21600 ~ "Day",
+                                         as.numeric(time) > 10800 & as.numeric(time) < 21600 ~ "Night_late",
+                                         as.numeric(time) <= 10800 ~ "Night_early"))) %>%
+  mutate(Nocturnal = as.factor(ifelse(as.numeric(time) > 21600 , "Day", "Night"))) %>%
+  mutate(Noc_variability = as.factor(case_when(Nocturnal == "Night" & Status =="Hyperglycaemia" ~ "Nocturnal Hyperglycaemia",
+                                        Nocturnal == "Night" & Status =="Hypoglycaemia" ~ "Nocturnal Hypoglycaemia",
+                                        Status == "Regular"| Status == "Hypoglycaemia" | Nocturnal == "Day" & Status =="Hyperglycaemia" ~ "Regular"))) %>%
+  mutate(Night_class_hypo = ifelse( Nocturnal == "Night" & Status =="Hypoglycaemia",1,0),
+         Night_class_hyper = ifelse( Nocturnal == "Night" & Status =="Hyperglycaemia",1,0)) %>%
+  mutate(Intervals_before_bedtime = as.factor(case_when(as.numeric(time) < 21600 ~ "Night_time",
+                                                        as.numeric(time) > 82800 ~ "hour_0_1_before",
+                                                        as.numeric(time) > 79200 & as.numeric(time) <= 82800 ~ "hours_1_2_before",
+                                                        as.numeric(time) > 75600 & as.numeric(time) <= 79200 ~ "hours_2_3_before",
+                                                        as.numeric(time) > 72000 & as.numeric(time) <= 75600 ~ "hours_3_4_before",
+                                                        as.numeric(time) > 68400 & as.numeric(time) <= 72000 ~ "hours_4_5_before",
+                                                        as.numeric(time) > 64800 & as.numeric(time) <= 68400 ~ "hours_5_6_before",
+                                                        as.numeric(time) >= 21600 & as.numeric(time) <= 64800 ~ "hours_7_plus")))
+
+}
+```
+
+### Second data set
+```{r}
+# Second time - with exactly the same approach
+cgm_all <- list()
+cgm_all <- list(cgm_574,cgm_597,cgm_598,cgm_605,cgm_606,cgm_607,cgm_609,cgm_611,cgm_612,cgm_615,cgm_616,cgm_617,cgm_618,cgm_619,cgm_621,cgm_623,cgm_624,cgm_628,cgm_629,cgm_630,cgm_632,cgm_633,cgm_634,cgm_635,cgm_636,cgm_637,cgm_638,cgm_639,cgm_640,cgm_641,cgm_642,cgm_643,cgm_644,cgm_645,cgm_646,cgm_647,cgm_648,cgm_649,cgm_650,cgm_656,cgm_658,cgm_660,cgm_661,cgm_663,cgm_664,cgm_666,cgm_669,cgm_671,cgm_674,cgm_677,cgm_1001,cgm_601,cgm_608,cgm_662,cgm_667,cgm_672,cgm_676,cgm_680,cgm_683,cgm_684,cgm_687,cgm_690,cgm_691,cgm_692,cgm_695,cgm_699,cgm_702,cgm_703,cgm_708,cgm_709,cgm_712,cgm_713,cgm_716,cgm_719,
+                cgm_612,cgm_651,cgm_654,cgm_729,cgm_665)
+
+for(i in 1:length(cgm_all)){
+cgm_all[[i]] <- cgm_all[[i]] %>%
+  mutate(date = ymd(ID),
+         time = hm(Tijd),
+         time_num = as.numeric(time),
+         year = year(date),
+         month = month(date),
+         mday = mday(date),
+         wday = wday(date, label =TRUE),
+         weekend = as.factor(case_when(wday == "Sa" |wday == "So" ~ "Weekend",
+                                       wday == "Mo" |wday == "Di" | wday == "Mi" |wday == "Do" |wday == "Fr" ~ "Week")),
+         hour = hour(time),
+         minute = minute(time),
+         full_date = make_datetime(year,month,mday,hour,minute),
+         full_date_num = as.numeric(full_date)) %>%
+  mutate(Status = as.factor(case_when(Historie_glucose>10 ~ "Hyperglycaemia",
+                            Historie_glucose>=3.9 & Historie_glucose<=10 ~ "Regular",
+                            Historie_glucose< 3.9 ~ "Hypoglycaemia"))) %>%
+  mutate(Nocturnal_dicho = as.factor(case_when(as.numeric(time) >= 21600 ~ "Day",
+                                         as.numeric(time) > 10800 & as.numeric(time) < 21600 ~ "Night_late",
+                                         as.numeric(time) <= 10800 ~ "Night_early"))) %>%
+  mutate(Nocturnal = as.factor(ifelse(as.numeric(time) > 21600 , "Day", "Night"))) %>%
+  mutate(Noc_variability = as.factor(case_when(Nocturnal == "Night" & Status =="Hyperglycaemia" ~ "Nocturnal Hyperglycaemia",
+                                        Nocturnal == "Night" & Status =="Hypoglycaemia" ~ "Nocturnal Hypoglycaemia",
+                                        Status == "Regular"| Status == "Hypoglycaemia" | Nocturnal == "Day" & Status =="Hyperglycaemia" ~ "Regular"))) %>%
+  mutate(Night_class_hypo = ifelse( Nocturnal == "Night" & Status =="Hypoglycaemia",1,0),
+         Night_class_hyper = ifelse( Nocturnal == "Night" & Status =="Hyperglycaemia",1,0)) %>%
+  mutate(Intervals_before_bedtime = as.factor(case_when(as.numeric(time) < 21600 ~ "Night_time",
+                                                        as.numeric(time) > 82800 ~ "hour_0_1_before",
+                                                        as.numeric(time) > 79200 & as.numeric(time) <= 82800 ~ "hours_1_2_before",
+                                                        as.numeric(time) > 75600 & as.numeric(time) <= 79200 ~ "hours_2_3_before",
+                                                        as.numeric(time) > 72000 & as.numeric(time) <= 75600 ~ "hours_3_4_before",
+                                                        as.numeric(time) > 68400 & as.numeric(time) <= 72000 ~ "hours_4_5_before",
+                                                        as.numeric(time) > 64800 & as.numeric(time) <= 68400 ~ "hours_5_6_before",
+                                                        as.numeric(time) >= 21600 & as.numeric(time) <= 64800 ~ "hours_7_plus")))
+
+}
+```
+
+### Merging of all data sets
+```{r}
+# combine the two lists into a single list
+cgm_all <- list(cgm_all[[1]],cgm_all[[2]],cgm_all[[3]],cgm_all[[4]],cgm_all[[5]],cgm_all[[6]],cgm_all[[7]],cgm_all[[8]],cgm_all[[9]],cgm_all[[10]],cgm_all[[11]],cgm_all[[12]],cgm_all[[13]],cgm_all[[14]],cgm_all[[15]],cgm_all[[16]],cgm_all[[17]],cgm_all[[18]],cgm_all[[19]],cgm_all[[20]],cgm_all[[21]],cgm_all[[22]],cgm_all[[23]],cgm_all[[24]],cgm_all[[25]],cgm_all[[26]],cgm_all[[27]],cgm_all[[28]],cgm_all[[29]],cgm_all[[30]],cgm_all[[31]],cgm_all[[32]],cgm_all[[33]],cgm_all[[34]],cgm_all[[35]],cgm_all[[36]], cgm_all[[37]],cgm_all[[38]],cgm_all[[39]],cgm_all[[40]],cgm_all[[41]],cgm_all[[42]],cgm_all[[43]],cgm_all[[44]],cgm_all[[45]],cgm_all[[46]],cgm_all[[47]],cgm_all[[48]],cgm_all[[49]],cgm_all[[50]],cgm_all[[51]],cgm_all[[52]],cgm_all[[53]],cgm_all[[54]],cgm_all[[55]],cgm_all[[56]],cgm_all[[57]],cgm_all[[58]],cgm_all[[59]],cgm_all[[60]],cgm_all[[61]],cgm_all[[62]],cgm_all[[63]],cgm_all[[64]],cgm_all[[65]], cgm_all[[66]],cgm_all[[67]],cgm_all[[68]],cgm_all[[69]],cgm_all[[70]],cgm_all[[71]],cgm_all[[72]],cgm_all[[73]],cgm_all[[74]],cgm_all[[75]],cgm_all[[76]],cgm_all[[77]],cgm_all[[78]],cgm_all[[79]],
+ cgm_all_extra[[1]],cgm_all_extra[[2]],cgm_all_extra[[3]],cgm_all_extra[[4]],cgm_all_extra[[5]],cgm_all_extra[[6]],cgm_all_extra[[7]],cgm_all_extra[[8]],cgm_all_extra[[9]],cgm_all_extra[[10]],cgm_all_extra[[11]],cgm_all_extra[[12]],cgm_all_extra[[13]],cgm_all_extra[[14]],cgm_all_extra[[15]])
+```
+
+## Advanced pre processing
+- Creation of periods - One period per patient in a single row
+- Bringing all in the same format regarding start of a new period
+- Exclusion criterion of at least two observations per assigned time interval per period
+
+### Interval creation
+```{r}
+# there are different filtering options for the different intervals before the night time as I need to have the same starting format for each new observation
+for(i in 1:length(cgm_all)){
+  if(cgm_all[[i]]$Intervals_before_bedtime[1] == "hour_0_1_before" | cgm_all[[i]]$Intervals_before_bedtime[1] == "hours_1_2_before" | cgm_all[[i]]$Intervals_before_bedtime[1] == "hours_2_3_before" | cgm_all[[i]]$Intervals_before_bedtime[1] == "hours_3_4_before" | cgm_all[[i]]$Intervals_before_bedtime[1] == "hours_4_5_before" | cgm_all[[i]]$Intervals_before_bedtime[1] == "hours_5_6_before"){
+    cgm_all[[i]] <- cgm_all[[i]] %>% 
+      filter(!(date == date[1]))
+    
+    intervals <- as.numeric(seq(ymd_hms(cgm_all[[i]]$full_date[1]), by = "24 hours", length.out = length(unique(cgm_all[[i]]$date))))
+    intervals <- intervals + 21600
+    
+    cgm_all[[i]] <- cgm_all[[i]] %>%
+       mutate(periods = case_when(full_date_num <= intervals[1] ~ 0,
+                                  full_date_num >= intervals[1] & full_date_num < intervals[2] ~ 1,
+                                  full_date_num >= intervals[2] & full_date_num < intervals[3] ~ 2,
+                                  full_date_num >= intervals[3] & full_date_num < intervals[4] ~ 3,
+                                  full_date_num >= intervals[4] & full_date_num < intervals[5] ~ 4,
+                                  full_date_num >= intervals[5] & full_date_num < intervals[6] ~ 5,
+                                  full_date_num >= intervals[6] & full_date_num < intervals[7] ~ 6,
+                                  full_date_num >= intervals[7] & full_date_num < intervals[8] ~ 7,
+                                  full_date_num >= intervals[8] & full_date_num < intervals[9] ~ 8,
+                                  full_date_num >= intervals[9] & full_date_num < intervals[10] ~ 9,
+                                  full_date_num >= intervals[10] & full_date_num < intervals[11] ~ 10,
+                                  full_date_num >= intervals[11] & full_date_num < intervals[12] ~ 11,
+                                  full_date_num >= intervals[12] & full_date_num < intervals[13] ~ 12,
+                                  full_date_num >= intervals[13] & full_date_num < intervals[14] ~ 13)) %>%
+    filter(periods > 0)
+    
+  }
+  
+  if(cgm_all[[i]]$Intervals_before_bedtime[1] == "hours_7_plus" ){
+    cgm_all[[i]] <- cgm_all[[i]] %>%
+      filter(!(date == date[1] & time_num <= 60200))
+    
+    intervals <- as.numeric(seq(ymd_hms(cgm_all[[i]]$full_date[1]), by = "24 hours", length.out = length(unique(cgm_all[[i]]$date))))
+    intervals <- intervals + 47700
+    
+    cgm_all[[i]] <- cgm_all[[i]] %>%
+       mutate(periods = case_when(full_date_num <= intervals[1] ~ 1,
+                                  full_date_num >= intervals[1] & full_date_num < intervals[2] ~ 2,
+                                  full_date_num >= intervals[2] & full_date_num < intervals[3] ~ 3,
+                                  full_date_num >= intervals[3] & full_date_num < intervals[4] ~ 4,
+                                  full_date_num >= intervals[4] & full_date_num < intervals[5] ~ 5,
+                                  full_date_num >= intervals[5] & full_date_num < intervals[6] ~ 6,
+                                  full_date_num >= intervals[6] & full_date_num < intervals[7] ~ 7,
+                                  full_date_num >= intervals[7] & full_date_num < intervals[8] ~ 8,
+                                  full_date_num >= intervals[8] & full_date_num < intervals[9] ~ 9,
+                                  full_date_num >= intervals[9] & full_date_num < intervals[10] ~ 10,
+                                  full_date_num >= intervals[10] & full_date_num < intervals[11] ~ 11,
+                                  full_date_num >= intervals[11] & full_date_num < intervals[12] ~ 12,
+                                  full_date_num >= intervals[12] & full_date_num < intervals[13] ~ 13,
+                                  full_date_num >= intervals[13] & full_date_num < intervals[14] ~ 14))
+  }
+  
+  if(cgm_all[[i]]$Intervals_before_bedtime[1] == "Night_time"){
+    cgm_all[[i]] <- cgm_all[[i]] %>%
+      filter(full_date_num >= (full_date_num[1] + 60200))
+    
+    intervals <- as.numeric(seq(ymd_hms(cgm_all[[i]]$full_date[1]), by = "24 hours", length.out = length(unique(cgm_all[[i]]$date))))
+    intervals <- intervals + 47700
+    
+    cgm_all[[i]] <- cgm_all[[i]] %>%
+       mutate(periods = case_when(full_date_num <= intervals[1] ~ 1,
+                                  full_date_num >= intervals[1] & full_date_num < intervals[2] ~ 2,
+                                  full_date_num >= intervals[2] & full_date_num < intervals[3] ~ 3,
+                                  full_date_num >= intervals[3] & full_date_num < intervals[4] ~ 4,
+                                  full_date_num >= intervals[4] & full_date_num < intervals[5] ~ 5,
+                                  full_date_num >= intervals[5] & full_date_num < intervals[6] ~ 6,
+                                  full_date_num >= intervals[6] & full_date_num < intervals[7] ~ 7,
+                                  full_date_num >= intervals[7] & full_date_num < intervals[8] ~ 8,
+                                  full_date_num >= intervals[8] & full_date_num < intervals[9] ~ 9,
+                                  full_date_num >= intervals[9] & full_date_num < intervals[10] ~ 10,
+                                  full_date_num >= intervals[10] & full_date_num < intervals[11] ~ 11,
+                                  full_date_num >= intervals[11] & full_date_num < intervals[12] ~ 12,
+                                  full_date_num >= intervals[12] & full_date_num < intervals[13] ~ 13,
+                                  full_date_num >= intervals[13] & full_date_num < intervals[14] ~ 14))
+  }
+}
+```
+
+### Exclusion criterion
+```{r}
+# delete periods with less than 1 observation per interval to have an estimate for each category
+cgm_all_count <- list()
+for(i in 1:length(cgm_all)){
+  cgm_all_count[[i]] <- cgm_all[[i]] %>%
+    group_by(periods, patient) %>%
+    count(Intervals_before_bedtime, .drop = FALSE) %>%
+      mutate(Low_class = ifelse(n <2,1,0),
+             Sum_class = sum(Low_class)) %>%
+  filter(Intervals_before_bedtime == "Night_time") %>%
+  select(periods,patient,Sum_class)
+  
+  cgm_all[[i]] <-  merge(x=cgm_all[[i]],y=cgm_all_count[[i]], 
+             by=c("periods","patient")) 
+  
+  cgm_all[[i]] <- cgm_all[[i]] %>% 
+    filter(!(Sum_class >= 1))
+}
+```
+
+# Features and outcome extraction 
+
+## Indices calculation with Iglu
+
+- New data set to avoid problems with original dataset
+- Exclusion of Nights to only calculate indices based on day time - otherwise we would use information we wouldn't have for the normal prediction (Last before bed - LBB)
+```{r}
+# all days per person with valid features
+iglu_data <- rbind(cgm_all[[1]],cgm_all[[2]],cgm_all[[3]],cgm_all[[4]],cgm_all[[5]],cgm_all[[6]],cgm_all[[7]],cgm_all[[8]],cgm_all[[9]],cgm_all[[10]],cgm_all[[11]],cgm_all[[12]],cgm_all[[13]],cgm_all[[14]],cgm_all[[15]],cgm_all[[16]],cgm_all[[17]],cgm_all[[18]],cgm_all[[19]],cgm_all[[20]],cgm_all[[21]],cgm_all[[22]],cgm_all[[23]],cgm_all[[24]],cgm_all[[25]],cgm_all[[26]],cgm_all[[27]],cgm_all[[28]],cgm_all[[29]],cgm_all[[30]],cgm_all[[31]],cgm_all[[32]],cgm_all[[33]],cgm_all[[34]],cgm_all[[35]],cgm_all[[36]], cgm_all[[37]],cgm_all[[38]],cgm_all[[39]],cgm_all[[40]],cgm_all[[41]],cgm_all[[42]],cgm_all[[43]],cgm_all[[44]],cgm_all[[45]],cgm_all[[46]],cgm_all[[47]],cgm_all[[48]],cgm_all[[49]],cgm_all[[50]],cgm_all[[51]],cgm_all[[52]],cgm_all[[53]],cgm_all[[54]],cgm_all[[55]],cgm_all[[56]],cgm_all[[57]],cgm_all[[58]],cgm_all[[59]],cgm_all[[60]],cgm_all[[61]],cgm_all[[62]],cgm_all[[63]],cgm_all[[64]],cgm_all[[65]],cgm_all[[66]],cgm_all[[67]],cgm_all[[68]],cgm_all[[69]],cgm_all[[70]],cgm_all[[71]],cgm_all[[72]],cgm_all[[73]],cgm_all[[74]],cgm_all[[75]],cgm_all[[76]],cgm_all[[77]],cgm_all[[78]],cgm_all[[79]],cgm_all[[80]],cgm_all[[81]],cgm_all[[82]],cgm_all[[83]],cgm_all[[84]],cgm_all[[85]],cgm_all[[86]],cgm_all[[87]],cgm_all[[88]],cgm_all[[89]],cgm_all[[90]],cgm_all[[91]],cgm_all[[92]],cgm_all[[93]],cgm_all[[94]])
+```
+
+```{r}
+iglu_data$Historie_glucose[iglu_data$Nocturnal == "Night"] <- NA # to have before bed indices and not the information of the night, other studies just included it what of course increased the accuracy
+
+iglu_processed <- iglu_data %>%
+  group_split(periods)
+
+iglu_periods <- list()
+for(i in 1:length(iglu_processed)){
+iglu_periods[[i]]  <- iglu_processed[[i]]  %>%
+rename(id = patient, "gl_mmol/l" = Historie_glucose, time_old = time, time = full_date) %>%
+  select(id,time,"gl_mmol/l")
+}
+
+for(i in 1:length(iglu_periods)){
+iglu_periods[[i]]  <- process_data(iglu_periods[[i]], id = "id", timestamp = "time", glu = "gl_mmol/l")
+}
+```
+## Indices
+```{r}
+hbgi <- list()
+for(i in 1:length(iglu_periods)){
+hbgi[[i]] <- hbgi(iglu_periods[[i]])
+}
+
+lbgi <- list()
+for(i in 1:length(iglu_periods)){
+lbgi[[i]] <- lbgi(iglu_periods[[i]])
+}
+
+grade <- list()
+for(i in 1:length(iglu_periods)){
+grade[[i]] <- grade(iglu_periods[[i]])
+}
+
+gmi <- list()
+for(i in 1:length(iglu_periods)){
+gmi[[i]] <- gmi(iglu_periods[[i]])
+}
+
+hyper_index <- list()
+for(i in 1:length(iglu_periods)){
+hyper_index[[i]] <- hyper_index(iglu_periods[[i]])
+}
+
+hypo_index <- list()
+for(i in 1:length(iglu_periods)){
+hypo_index[[i]] <- hypo_index(iglu_periods[[i]])
+}
+
+in_range_percent <- list()
+for(i in 1:length(iglu_periods)){
+in_range_percent[[i]] <- in_range_percent(iglu_periods[[i]])
+}
+```
+
+```{r}
+indic_per_1 <- list(in_range_percent[[1]],hypo_index[[1]],hyper_index[[1]],gmi[[1]],grade[[1]],lbgi[[1]],hbgi[[1]])
+indic_per_1 <- indic_per_1 %>%
+  reduce(full_join, by="id") %>%
+  mutate(periods = 1)
+
+indic_per_2 <- list(in_range_percent[[2]],hypo_index[[2]],hyper_index[[2]],gmi[[2]],grade[[2]],lbgi[[2]],hbgi[[2]])
+indic_per_2 <- indic_per_2 %>%
+  reduce(full_join, by="id") %>%
+  mutate(periods = 2)
+
+indic_per_3 <- list(in_range_percent[[3]],hypo_index[[3]],hyper_index[[3]],gmi[[3]],grade[[3]],lbgi[[3]],hbgi[[3]])
+indic_per_3 <- indic_per_3 %>%
+  reduce(full_join, by="id") %>%
+  mutate(periods = 3)
+
+indic_per_4 <- list(in_range_percent[[4]],hypo_index[[4]],hyper_index[[4]],gmi[[4]],grade[[4]],lbgi[[4]],hbgi[[4]])
+indic_per_4 <- indic_per_4 %>%
+  reduce(full_join, by="id") %>%
+  mutate(periods = 4)
+
+indic_per_5 <- list(in_range_percent[[5]],hypo_index[[5]],hyper_index[[5]],gmi[[5]],grade[[5]],lbgi[[5]],hbgi[[5]])
+indic_per_5 <- indic_per_5 %>%
+  reduce(full_join, by="id") %>%
+  mutate(periods = 5)
+
+indic_per_6 <- list(in_range_percent[[6]],hypo_index[[6]],hyper_index[[6]],gmi[[6]],grade[[6]],lbgi[[6]],hbgi[[6]])
+indic_per_6 <- indic_per_6 %>%
+  reduce(full_join, by="id") %>%
+  mutate(periods = 6)
+
+indic_per_7 <- list(in_range_percent[[7]],hypo_index[[7]],hyper_index[[7]],gmi[[7]],grade[[7]],lbgi[[7]],hbgi[[7]])
+indic_per_7 <- indic_per_7 %>%
+  reduce(full_join, by="id") %>%
+  mutate(periods = 7)
+
+indic_per_8 <- list(in_range_percent[[8]],hypo_index[[8]],hyper_index[[8]],gmi[[8]],grade[[8]],lbgi[[8]],hbgi[[8]])
+indic_per_8 <- indic_per_8 %>%
+  reduce(full_join, by="id") %>%
+  mutate(periods = 8)
+
+indic_per_9 <- list(in_range_percent[[9]],hypo_index[[9]],hyper_index[[9]],gmi[[9]],grade[[9]],lbgi[[9]],hbgi[[9]])
+indic_per_9 <- indic_per_9 %>%
+  reduce(full_join, by="id") %>%
+  mutate(periods = 9)
+
+indic_per_10 <- list(in_range_percent[[10]],hypo_index[[10]],hyper_index[[10]],gmi[[10]],grade[[10]],lbgi[[10]],hbgi[[10]])
+indic_per_10 <- indic_per_10 %>%
+  reduce(full_join, by="id") %>%
+  mutate(periods = 10)
+
+indic_per_11 <- list(in_range_percent[[11]],hypo_index[[11]],hyper_index[[11]],gmi[[11]],grade[[11]],lbgi[[11]],hbgi[[11]])
+indic_per_11 <- indic_per_11 %>%
+  reduce(full_join, by="id") %>%
+  mutate(periods = 11)
+
+indic_per_12 <- list(in_range_percent[[12]],hypo_index[[12]],hyper_index[[12]],gmi[[12]],grade[[12]],lbgi[[12]],hbgi[[12]])
+indic_per_12 <- indic_per_12 %>%
+  reduce(full_join, by="id") %>%
+  mutate(periods = 12)
+
+indic_per_13 <- list(in_range_percent[[13]],hypo_index[[13]],hyper_index[[13]],gmi[[13]],grade[[13]],lbgi[[13]],hbgi[[13]])
+indic_per_13 <- indic_per_13 %>%
+  reduce(full_join, by="id") %>%
+  mutate(periods = 13)
+
+indic_per_14 <- list(in_range_percent[[14]],hypo_index[[14]],hyper_index[[14]],gmi[[14]],grade[[14]],lbgi[[14]],hbgi[[14]])
+indic_per_14 <- indic_per_14 %>%
+  reduce(full_join, by="id") %>%
+  mutate(periods = 14)
+
+indic_per_15 <- list(in_range_percent[[15]],hypo_index[[15]],hyper_index[[15]],gmi[[15]],grade[[15]],lbgi[[15]],hbgi[[15]])
+indic_per_15 <- indic_per_15 %>%
+  reduce(full_join, by="id") %>%
+  mutate(periods = 15)
+
+indic_per <- rbind(indic_per_1,indic_per_2,indic_per_3,indic_per_4,indic_per_5,indic_per_6,indic_per_7,indic_per_8,indic_per_9,indic_per_10,indic_per_11,indic_per_12,indic_per_13,indic_per_14,indic_per_15)
+indic_per <- indic_per %>%
+  rename(patient = id)
+```
+
+## Features per time interval
+```{r}
+# This is needed to have this information in the data frame with the Historical glucose values
+# basic features are created based on other studies as well as definitions of the outcome variables
+for(i in 1:length(cgm_all)){
+  cgm_all[[i]] <- cgm_all[[i]] %>%
+    group_by(periods,Intervals_before_bedtime) %>%
+    mutate(mean_glucose_ti = mean(Historie_glucose, na.rm = TRUE),
+           median_glucose_ti = median(Historie_glucose, na.rm = TRUE),
+           sd_glucose_ti = sd(Historie_glucose, na.rm = TRUE),
+           mad_glucose_ti = mad(Historie_glucose, na.rm = TRUE),
+           min_glucose_ti = min(Historie_glucose, na.rm = TRUE),
+           max_glucose_ti = max(Historie_glucose, na.rm = TRUE),
+           Night_class_hypo_ti = as.factor(ifelse(sum(Night_class_hypo) >= 1, 1,0)),
+           Night_class_hyper_ti = as.factor(ifelse(sum(Night_class_hyper) >= 1, 1,0))) %>%
+    ungroup()
+}
+
+for(i in 1:length(cgm_all)){
+  cgm_all[[i]] <- cgm_all[[i]] %>%
+  group_by(periods) %>%
+     mutate(Night_class_hyper_30 = ifelse(sum(Night_class_hyper == 1 & Nocturnal == "Night") >= sum(Night_class_hyper == 0 & Nocturnal == "Night")*0.3, 1,0)) %>%
+    ungroup()
+}
+```
+
+# Working with a single data set
+```{r}
+# all days per person with valid features
+all_patients_cgm <- rbind(cgm_all[[1]],cgm_all[[2]],cgm_all[[3]],cgm_all[[4]],cgm_all[[5]],cgm_all[[6]],cgm_all[[7]],cgm_all[[8]],cgm_all[[9]],cgm_all[[10]],cgm_all[[11]],cgm_all[[12]],cgm_all[[13]],cgm_all[[14]],cgm_all[[15]],cgm_all[[16]],cgm_all[[17]],cgm_all[[18]],cgm_all[[19]],cgm_all[[20]],cgm_all[[21]],cgm_all[[22]],cgm_all[[23]],cgm_all[[24]],cgm_all[[25]],cgm_all[[26]],cgm_all[[27]],cgm_all[[28]],cgm_all[[29]],cgm_all[[30]],cgm_all[[31]],cgm_all[[32]],cgm_all[[33]],cgm_all[[34]],cgm_all[[35]],cgm_all[[36]], cgm_all[[37]],cgm_all[[38]],cgm_all[[39]],cgm_all[[40]],cgm_all[[41]],cgm_all[[42]],cgm_all[[43]],cgm_all[[44]],cgm_all[[45]],cgm_all[[46]],cgm_all[[47]],cgm_all[[48]],cgm_all[[49]],cgm_all[[50]],cgm_all[[51]],cgm_all[[52]],cgm_all[[53]],cgm_all[[54]],cgm_all[[55]],cgm_all[[56]],cgm_all[[57]],cgm_all[[58]],cgm_all[[59]],cgm_all[[60]],cgm_all[[61]],cgm_all[[62]],cgm_all[[63]],cgm_all[[64]],cgm_all[[65]],cgm_all[[66]],cgm_all[[67]],cgm_all[[68]],cgm_all[[69]],cgm_all[[70]],cgm_all[[71]],cgm_all[[72]],cgm_all[[73]],cgm_all[[74]],cgm_all[[75]],cgm_all[[76]],cgm_all[[77]],cgm_all[[78]],cgm_all[[79]],cgm_all[[80]],cgm_all[[81]],cgm_all[[82]],cgm_all[[83]],cgm_all[[84]],cgm_all[[85]],cgm_all[[86]],cgm_all[[87]],cgm_all[[88]],cgm_all[[89]],cgm_all[[90]],cgm_all[[91]],cgm_all[[92]],cgm_all[[93]],cgm_all[[94]])
+  
+all_patients_cgm <- all_patients_cgm %>%
+  select(patient,full_date,date,time_num,periods,wday,weekend,Nocturnal,Nocturnal_dicho,Intervals_before_bedtime,Historie_glucose,Status,Noc_variability,mean_glucose_ti,median_glucose_ti,sd_glucose_ti,mad_glucose_ti,min_glucose_ti,max_glucose_ti,Night_class_hypo_ti,Night_class_hyper_ti,Night_class_hypo,Night_class_hyper,Night_class_hyper_30)
+
+all_patients_cgm <- all_patients_cgm %>%
+ distinct(patient, full_date, .keep_all = T)
+```
+
+## Feature extraction - CGM point estimates
+
+## Feature extraction - Slopes
+```{r, warning=FALSE}
+  by_noc_per <- all_patients_cgm %>%
+    group_by(Nocturnal, periods,patient)
+  
+  slope_day <- do(by_noc_per,
+   tidy(lm(Historie_glucose ~ time_num, data = .)$coef[2]))
+  
+  slope_day <- slope_day %>%
+    filter(Nocturnal == "Day") %>%
+    rename(slope_day = x) %>%
+    ungroup() %>%
+    select(periods,patient,slope_day)
+```
+
+```{r, warning=FALSE}
+by_int_per <- all_patients_cgm %>% 
+  group_by(Intervals_before_bedtime, periods,patient)
+
+slope_interval <- do(by_int_per,
+   tidy(lm(Historie_glucose ~ time_num, data = .)$coef[2]))
+
+slope_interval <- slope_interval %>%
+  filter(Intervals_before_bedtime== "hour_0_1_before" | Intervals_before_bedtime == "hours_1_2_before") %>%
+  rename(slope_day = x) %>%
+  ungroup() %>%
+  select(periods,Intervals_before_bedtime,patient,slope_day) %>%
+  pivot_wider(names_from = Intervals_before_bedtime, 
+              values_from = c(slope_day), 
+              names_glue = "{Intervals_before_bedtime}_{.value}") %>%
+  na.omit()
+```
+
+### Extraction per Time interval
+```{r}
+# Feature extraction to have the features for each observation separately
+cgm_per_day <- all_patients_cgm %>%
+  group_by(patient,Intervals_before_bedtime,periods) %>%
+  summarise(mean_glucose_ti = mean(Historie_glucose, na.rm = TRUE),
+         sd_glucose_ti = sd(Historie_glucose, na.rm = TRUE),
+         min_glucose_ti = min(Historie_glucose, na.rm = TRUE),
+         max_glucose_ti = max(Historie_glucose, na.rm = TRUE)
+         ) %>%
+  ungroup()
+```
+
+### Extraction per Day time 
+```{r}
+# Feature extraction to have the features for each observation separately
+cgm_per_day_noc <- all_patients_cgm %>%
+  group_by(patient,Nocturnal_dicho,periods) %>%
+  summarise(mean_glucose = mean(Historie_glucose, na.rm = TRUE),
+         sd_glucose = sd(Historie_glucose, na.rm = TRUE),
+         min_glucose = min(Historie_glucose, na.rm = TRUE),
+         max_glucose = max(Historie_glucose, na.rm = TRUE)) %>%
+  ungroup()
+```
+
+```{r}
+# adding the number of hypo and hyper events in different time intervals
+cgm_all_patients_noc_extra <- all_patients_cgm %>%
+  group_by(patient,periods,Nocturnal_dicho) %>%
+    summarise(Hyper_events = sum(Status == "Hyperglycaemia"),
+         Hypo_events = sum(Status == "Hypoglycaemia"),
+         Night_class_hypo_out = as.factor(ifelse(sum(Night_class_hypo) >= 1, 1,0)),
+         Night_class_hyper_out = as.factor(ifelse(sum(Night_class_hyper) >= 1, 1,0)),
+         Night_class_hyper_30 = ifelse(sum(Night_class_hyper == 1) >= sum(Night_class_hyper == 0)*0.3, 1,0)) %>%
+  na.omit()
+```
+
+### Pivoting the data sets 
+```{r}
+# Features for full day and for early and late night
+ cgm_all_patients_noc <- cgm_per_day_noc %>%
+  dplyr::select(patient,periods,Nocturnal_dicho,mean_glucose,sd_glucose,min_glucose,max_glucose) %>%
+    pivot_wider(names_from = Nocturnal_dicho, 
+              values_from = c(mean_glucose,sd_glucose,min_glucose,max_glucose), 
+              names_glue = "{Nocturnal_dicho}_{.value}") %>%
+  na.omit()
+```
+
+```{r}
+cgm_all_patients_noc_extra <- cgm_all_patients_noc_extra %>%
+  dplyr::select(patient,periods,Nocturnal_dicho,Hyper_events,Hypo_events,Night_class_hypo_out,Night_class_hyper_out,Night_class_hyper_30) %>%
+    pivot_wider(names_from = Nocturnal_dicho, 
+              values_from = c(Hyper_events,Hypo_events,Night_class_hypo_out,Night_class_hyper_out,Night_class_hyper_30), 
+              names_glue = "{Nocturnal_dicho}_{.value}") %>%
+  na.omit()
+
+cgm_all_patients_noc <- merge(cgm_all_patients_noc, cgm_all_patients_noc_extra, by=c("periods", "patient"))
+```
+
+```{r}
+# features for every time interval including full night
+ cgm_all_patients <- cgm_per_day %>%
+  dplyr::select(patient,periods,Intervals_before_bedtime,mean_glucose_ti,sd_glucose_ti,min_glucose_ti,max_glucose_ti) %>%
+    pivot_wider(names_from = Intervals_before_bedtime, 
+              values_from = c(mean_glucose_ti,sd_glucose_ti,min_glucose_ti,max_glucose_ti), 
+              names_glue = "{Intervals_before_bedtime}_{.value}") %>%
+  na.omit()
+
+cgm_all_patients <- merge(cgm_all_patients, cgm_all_patients_noc, by=c("periods", "patient"))
+```
+
+### Merging the data frames
+```{r}
+# Outcome variables defined
+merge_all_patients <- all_patients_cgm %>%
+  group_by(periods, patient) %>%
+    summarise(Night_class_hypo_out = as.factor(ifelse(sum(Night_class_hypo) >= 1, 1,0)),
+              Night_class_hyper_out = as.factor(ifelse(sum(Night_class_hyper) >= 1, 1,0)),
+              Night_class_hyper_30 = ifelse(sum(Night_class_hyper == 1 & Nocturnal == "Night") >= sum(Night_class_hyper == 0 & Nocturnal == "Night")*0.3, 1,0)) %>%
+  na.omit()
+
+cgm_all_patients <- merge(cgm_all_patients, merge_all_patients, by=c("periods", "patient"))
+```
+
+### Merging Indices and Slope data sets
+```{r}
+# adding the indices calculated from iglu package
+cgm_all_patients <- merge(cgm_all_patients, indic_per, by=c("periods", "patient"))
+```
+
+```{r}
+slopes <- merge(slope_interval, slope_day, by=c("periods", "patient"))
+cgm_all_patients <- merge(cgm_all_patients, slopes, by=c("periods", "patient"))
+```
+
+### Temporal location features
+```{r}
+# adding time based information
+week_inf <- all_patients_cgm %>%
+  distinct(patient, periods, .keep_all = T) %>%
+  select(patient,periods,wday,weekend)
+
+```
+### Check distribution of days over patients
+
+cgm_all_patients <- merge(cgm_all_patients, week_inf, by=c("periods", "patient"))
+```{r}
+#check this with 1 obs per interval
+number_of_days_pp <- cgm_all_patients %>%
+  group_by(patient) %>%
+  summarise(n= n())
+sort(number_of_days_pp$n)
+nrow(number_of_days_pp)
+```
+
+```{r}
+# based on this information filter out patients with less than 5 days full observations
+all_patients_cgm <- all_patients_cgm %>%
+  filter(!(patient == 619 | patient == 623 | patient == 654 | patient == 661 | patient == 612 | patient == 713 | patient == 755))
+
+cgm_all_patients <- cgm_all_patients %>%
+  filter(!(patient == 619 | patient == 623 | patient == 654 | patient == 661 | patient == 612 | patient == 713 | patient == 755))
+```
+
+### Save data sets
+```{r}
+# this data frame consists the general information about the hypoglycamic state based on the used definitions
+#write.csv(all_patients_cgm,"Data_processed/all_patients_cgm.csv", row.names = FALSE)
+#write.csv(cgm_all_patients,"Data_processed/cgm_all_patients.csv", row.names = FALSE)
+
+#View(all_patients_cgm)
+#View(cgm_all_patients)
+```

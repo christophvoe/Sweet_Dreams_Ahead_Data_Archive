@@ -1,0 +1,575 @@
+---
+title: "Final models and Tables/Figures"
+author: "Christoph Völtzke"
+date: "2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## packages
+```{r}
+library(readr) # read data
+library(tidyverse) # data manipulation
+library(RColorBrewer) # color palettes
+library(xtable) # latex code for main results
+library(yardstick) # ROC curves with multiple curves
+library(stargazer) # latex code for descriptive stats
+library(data.table) # data frame preparation for descriptive stats
+```
+
+```{r}
+source("Functions/calibration_helper.R") # helper function to make calibration plots
+```
+
+## Full data
+```{r}
+# All produced data frames from the Model building docs
+full <- read_csv("Data/Model_results/all_models_full_123.csv") # 1. fold
+life <- read_csv("Data/Model_results/all_models_lifestyle_123.csv") # 1. fold
+
+full_1 <- read_csv("Data/Model_results/all_models_full_41263.csv") # 2. fold
+life_1 <- read_csv("Data/Model_results/all_models_lifestyle_41263.csv") # 2. fold
+
+full_2 <- read_csv("Data/Model_results/all_models_full_2408.csv") # 3. fold
+life_2 <- read_csv("Data/Model_results/all_models_lifestyle_2408.csv") # 3. fold
+```
+
+# Creating Estimates over folds
+Get the mean and SD over the three folds for each of the evaluation metrics.
+```{r}
+all_full <- rbind(full,full_1,full_2)
+
+all_full <- all_full %>%
+  group_by(model,Condition,ML) %>%
+  summarise(mean_AUC = round(mean(AUC),3),
+            mean_SENS = round(mean(Sensitivity),3),
+            mean_SPEC = round(mean(Specificity),3),
+            sd_AUC = round(sd(AUC),3),
+            sd_SENS = round(sd(Sensitivity),3),
+            sd_SPEC = round(sd(Specificity),3))
+
+all_life <- rbind(life,life_1,life_2)
+
+all_life <- all_life %>%
+  group_by(model,Condition,ML) %>%
+  summarise(mean_AUC = round(mean(AUC),4),
+            mean_SENS = round(mean(Sensitivity),4),
+            mean_SPEC = round(mean(Specificity),4),
+            sd_AUC = round(sd(AUC),4),
+            sd_SENS = round(sd(Sensitivity),4),
+            sd_SPEC = round(sd(Specificity),4))
+
+all_full_cross <-  rbind(all_full,all_life)
+```
+
+# Pre-Processing for Table
+```{r}
+data <- all_full_cross 
+
+data <- data %>%
+  extract(model,c("Resample", "grid"), "([[:alnum:]]+)_([[:alnum:]]+)",remove=FALSE) # make columns in a way that the best model performance across all ML, Sampling and Tuning Strategy, and data condition
+
+data$Resample[is.na(data$Resample)] <- "original"
+data$grid[is.na(data$grid)] <- "thres"
+
+data <- data %>%
+  mutate(Thres = ifelse(grid =="thres",TRUE,FALSE)) %>% # Always identify the no cost-sensitive learning models as these are always selected
+  select(-model)
+
+data <- data %>%
+  group_by(Resample,ML,Condition) %>%
+  mutate(Best = ifelse(mean_AUC == max(mean_AUC),TRUE,FALSE)) %>% # first filter based on best AUC
+  filter(Best == TRUE | Thres == TRUE) 
+
+data <- data %>%
+  group_by(Resample,ML,Condition, Thres) %>%
+  mutate(Best_Sp = ifelse(mean_SENS == max(mean_SENS),TRUE,FALSE)) %>% # next filter based on best SENS
+  filter(Best_Sp == TRUE | Thres == TRUE)
+
+data <- data %>%
+  group_by(Resample,ML,Condition, Thres) %>%
+  mutate(Best_Sens = ifelse(mean_SPEC == max(mean_SPEC),TRUE,FALSE)) %>% # last filter based on best SPEC
+  filter(Best_Sens == TRUE | Thres == TRUE)
+```
+
+## Pre processing with only best 32 models
+```{r}
+data <- data %>%
+  ungroup()
+
+# Make sure for each ML that the models are in the right order in which I want them to be depicted in the table
+# This step is repeated for each of the 4 MLs
+
+data_long_rf <- data %>% 
+  filter(ML == "RF") %>%
+  mutate(Order = case_when(Condition == "Full_data" & Resample == "original" & Thres == TRUE ~ 1,
+                           Condition == "Full_data" & Resample == "original" & Thres == FALSE ~ 2,
+                           Condition == "Full_data" & Resample == "smote" & Thres == FALSE ~ 3,
+                           Condition == "Full_data" & Resample == "up" & Thres == FALSE ~ 4,
+                           Condition == "Lifestyle" & Resample == "original" & Thres == TRUE ~ 5,
+                           Condition == "Lifestyle" & Resample == "original" & Thres == FALSE ~ 6,
+                           Condition == "Lifestyle" & Resample == "smote" & Thres == FALSE ~ 7,
+                           Condition == "Lifestyle" & Resample == "up" & Thres == FALSE ~ 8)) %>%
+  arrange(Order) %>% distinct(Order, .keep_all = TRUE)
+
+colnames(data_long_rf) <- paste(colnames(data_long_rf),"RF",sep="_")
+
+data_long_rf <- data_long_rf %>%
+  select(mean_AUC_RF,mean_SENS_RF,mean_SPEC_RF,
+         sd_AUC_RF,sd_SENS_RF,sd_SPEC_RF)
+
+data_long_svm <- data %>%
+  filter(ML == "SVM") %>%
+  mutate(Order = case_when(Condition == "Full_data" & Resample == "original" & Thres == TRUE ~ 1,
+                           Condition == "Full_data" & Resample == "original" & Thres == FALSE ~ 2,
+                           Condition == "Full_data" & Resample == "smote" & Thres == FALSE ~ 3,
+                           Condition == "Full_data" & Resample == "up" & Thres == FALSE ~ 4,
+                           Condition == "Lifestyle" & Resample == "original" & Thres == TRUE ~ 5,
+                           Condition == "Lifestyle" & Resample == "original" & Thres == FALSE ~ 6,
+                           Condition == "Lifestyle" & Resample == "smote" & Thres == FALSE ~ 7,
+                           Condition == "Lifestyle" & Resample == "up" & Thres == FALSE ~ 8)) %>%
+  arrange(Order) %>% distinct(Order, .keep_all = TRUE)
+
+colnames(data_long_svm) <- paste(colnames(data_long_svm),"SVM",sep="_")
+
+data_long_svm <- data_long_svm %>%
+  select(mean_AUC_SVM,mean_SENS_SVM,mean_SPEC_SVM,
+         sd_AUC_SVM,sd_SENS_SVM,sd_SPEC_SVM)
+
+data_long_xgb <- data %>%
+  filter(ML == "XGB") %>%
+  mutate(Order = case_when(Condition == "Full_data" & Resample == "original" & Thres == TRUE ~ 1,
+                           Condition == "Full_data" & Resample == "original" & Thres == FALSE ~ 2,
+                           Condition == "Full_data" & Resample == "smote" & Thres == FALSE ~ 3,
+                           Condition == "Full_data" & Resample == "up" & Thres == FALSE ~ 4,
+                           Condition == "Lifestyle" & Resample == "original" & Thres == TRUE ~ 5,
+                           Condition == "Lifestyle" & Resample == "original" & Thres == FALSE ~ 6,
+                           Condition == "Lifestyle" & Resample == "smote" & Thres == FALSE ~ 7,
+                           Condition == "Lifestyle" & Resample == "up" & Thres == FALSE ~ 8)) %>%
+  arrange(Order) %>% distinct(Order, .keep_all = TRUE)
+
+colnames(data_long_xgb) <- paste(colnames(data_long_xgb),"XGB",sep="_")
+
+data_long_xgb <- data_long_xgb %>%
+  select(mean_AUC_XGB,mean_SENS_XGB,mean_SPEC_XGB,
+         sd_AUC_XGB,sd_SENS_XGB,sd_SPEC_XGB)
+
+data_long_lasso <- data %>%
+  filter(ML == "Lasso") %>%
+  mutate(Order = case_when(Condition == "Full_data" & Resample == "original" & Thres == TRUE ~ 1,
+                           Condition == "Full_data" & Resample == "original" & Thres == FALSE ~ 2,
+                           Condition == "Full_data" & Resample == "smote" & Thres == FALSE ~ 3,
+                           Condition == "Full_data" & Resample == "up" & Thres == FALSE ~ 4,
+                           Condition == "Lifestyle" & Resample == "original" & Thres == TRUE ~ 5,
+                           Condition == "Lifestyle" & Resample == "original" & Thres == FALSE ~ 6,
+                           Condition == "Lifestyle" & Resample == "smote" & Thres == FALSE ~ 7,
+                           Condition == "Lifestyle" & Resample == "up" & Thres == FALSE ~ 8)) %>%
+  arrange(Order) %>% distinct(Order, .keep_all = TRUE)
+  
+
+colnames(data_long_lasso) <- paste(colnames(data_long_lasso),"Lasso",sep="_")
+
+data_long_lasso <- data_long_lasso %>%
+  select(mean_AUC_Lasso,mean_SENS_Lasso,mean_SPEC_Lasso,
+         sd_AUC_Lasso,sd_SENS_Lasso,sd_SPEC_Lasso)
+
+all_table <- cbind(data_long_rf,data_long_svm,data_long_xgb,data_long_lasso) # The four MLs are combined and then transposed so I have it exactly in the format needed for my table
+all_table <- t(all_table)
+```
+
+```{r}
+# Crearing Latex code based on x_table package
+tbl <- xtable(all_table)
+tbl
+```
+
+--------------------------------------------------------------------------------
+
+## ROC
+
+# Load the probabilities for each patient in the test data set
+```{r}
+probabilities_full <- readRDS("Data/Model_results/Trained_models/probs_full_123.RData")
+probabilities_full_1 <- readRDS("Data/Model_results/Trained_models/probs_full_41263.RData")
+probabilities_full_2 <- readRDS("Data/Model_results/Trained_models/probs_full_2408.RData")
+probabilities_life <- readRDS("Data/Model_results/Trained_models/probs_lifestyle_123.RData")
+probabilities_life_1 <- readRDS("Data/Model_results/Trained_models/probs_lifestyle_41263.RData")
+probabilities_life_2 <- readRDS("Data/Model_results/Trained_models/probs_lifestyle_2408.RData")
+```
+
+# Pre-Processing - Making it possible to have distinct MLs, Sampling and Tuning strategies, and data conditions
+This step needs to be repeated for each of the three folds. The same code with different data sets is shown here.
+
+## For 1. Fold
+```{r}
+probabilities_full$rf$ML <- "RF"
+probabilities_full$svm$ML <- "SVM"
+probabilities_full$xgb$ML <- "XGB"
+probabilities_full$lasso$ML <- "Lasso"
+
+probabilities_life$rf$ML <- "RF"
+probabilities_life$svm$ML <- "SVM"
+probabilities_life$xgb$ML <- "XGB"
+probabilities_life$lasso$ML <- "Lasso"
+
+
+probs_full_new <- rbind(probabilities_full$rf,probabilities_full$svm,probabilities_full$xgb,probabilities_full$lasso)
+
+probs_full_new_raw <- probs_full_new %>%
+  pivot_longer(cols = c("original","original_cost","smote_def",
+                        "up_def","up_own","smote_own","original_own","up_ran","smote_ran","original_ran"),
+               names_to = "model", values_to = "Probs")
+
+# Here the ROC curves are caluclated based on yardstick package
+probs_full_new <- probs_full_new_raw %>%
+group_by(model,ML) %>%
+  roc_curve(outcome,Probs, event_level="second")
+probs_full_new$Condition <- "Full_data"
+
+probs_full_new_auc <- probs_full_new_raw %>%
+group_by(model,ML) %>%
+  roc_auc(outcome,Probs, event_level="second") %>%
+  rename("auc" = ".estimate") %>%
+  subset( select = -c(.metric,.estimator))
+
+probs_full_new <- left_join(probs_full_new,probs_full_new_auc, by= c("model","ML"))
+
+
+probs_life_new <- rbind(probabilities_life$rf,probabilities_life$svm,probabilities_life$xgb,probabilities_life$lasso)
+
+probs_life_new_raw <- probs_life_new %>%
+  pivot_longer(cols = c("original","original_cost","smote_def",
+                        "up_def","up_own","smote_own","original_own","up_ran","smote_ran","original_ran"),
+               names_to = "model", values_to = "Probs")
+
+probs_life_new <- probs_life_new_raw %>%
+group_by(model,ML) %>%
+  roc_curve(outcome,Probs, event_level="second")
+probs_life_new$Condition <- "Lifestyle"
+
+probs_life_new_auc <- probs_life_new_raw %>%
+group_by(model,ML) %>%
+  roc_auc(outcome,Probs, event_level="second") %>%
+  rename("auc" = ".estimate") %>%
+  subset( select = -c(.metric,.estimator))
+
+probs_life_new <- left_join(probs_life_new,probs_life_new_auc, by= c("model","ML"))
+
+probs_new <- rbind(probs_full_new,probs_life_new) 
+
+probs_new$Fold <- "Fold 1"
+```
+
+## For 2. Fold
+```{r}
+probabilities_full_1$rf$ML <- "RF"
+probabilities_full_1$svm$ML <- "SVM"
+probabilities_full_1$xgb$ML <- "XGB"
+probabilities_full_1$lasso$ML <- "Lasso"
+
+probabilities_life_1$rf$ML <- "RF"
+probabilities_life_1$svm$ML <- "SVM"
+probabilities_life_1$xgb$ML <- "XGB"
+probabilities_life_1$lasso$ML <- "Lasso"
+
+
+probs_full_new_1 <- rbind(probabilities_full_1$rf,probabilities_full_1$svm,probabilities_full_1$xgb,probabilities_full_1$lasso)
+
+probs_full_new_raw_1 <- probs_full_new_1 %>%
+  pivot_longer(cols = c("original","original_cost","smote_def",
+                        "up_def","up_own","smote_own","original_own","up_ran","smote_ran","original_ran"),
+               names_to = "model", values_to = "Probs")
+
+probs_full_new_1 <- probs_full_new_raw_1 %>%
+group_by(model,ML) %>%
+  roc_curve(outcome,Probs, event_level="second")
+probs_full_new_1$Condition <- "Full_data"
+
+probs_full_new_1_auc <- probs_full_new_raw_1 %>%
+group_by(model,ML) %>%
+  roc_auc(outcome,Probs, event_level="second") %>%
+  rename("auc" = ".estimate") %>%
+  subset( select = -c(.metric,.estimator))
+
+probs_full_new_1 <- left_join(probs_full_new_1,probs_full_new_1_auc, by= c("model","ML"))
+
+
+probs_life_new_1 <- rbind(probabilities_life_1$rf,probabilities_life_1$svm,probabilities_life_1$xgb,probabilities_life_1$lasso)
+
+probs_life_new_raw_1 <- probs_life_new_1 %>%
+  pivot_longer(cols = c("original","original_cost","smote_def",
+                        "up_def","up_own","smote_own","original_own","up_ran","smote_ran","original_ran"),
+               names_to = "model", values_to = "Probs")
+
+probs_life_new_1 <- probs_life_new_raw_1 %>%
+group_by(model,ML) %>%
+  roc_curve(outcome,Probs, event_level="second")
+probs_life_new_1$Condition <- "Lifestyle"
+
+probs_life_new_1_auc <- probs_life_new_raw_1 %>%
+group_by(model,ML) %>%
+  roc_auc(outcome,Probs, event_level="second") %>%
+  rename("auc" = ".estimate") %>%
+  subset( select = -c(.metric,.estimator))
+
+probs_life_new_1 <- left_join(probs_life_new_1,probs_life_new_1_auc, by= c("model","ML"))
+
+probs_new_fold_1 <- rbind(probs_full_new_1,probs_life_new_1) 
+
+probs_new_fold_1$Fold <- "Fold 2"
+```
+
+## For 3. Fold
+```{r}
+probabilities_full_2$rf$ML <- "RF"
+probabilities_full_2$svm$ML <- "SVM"
+probabilities_full_2$xgb$ML <- "XGB"
+probabilities_full_2$lasso$ML <- "Lasso"
+
+probabilities_life_2$rf$ML <- "RF"
+probabilities_life_2$svm$ML <- "SVM"
+probabilities_life_2$xgb$ML <- "XGB"
+probabilities_life_2$lasso$ML <- "Lasso"
+
+
+probs_full_new_2 <- rbind(probabilities_full_2$rf,probabilities_full_2$svm,probabilities_full_2$xgb,probabilities_full_2$lasso)
+
+probs_full_new_raw_2 <- probs_full_new_2 %>%
+  pivot_longer(cols = c("original","original_cost","smote_def",
+                        "up_def","up_own","smote_own","original_own","up_ran","smote_ran","original_ran"),
+               names_to = "model", values_to = "Probs")
+
+probs_full_new_2 <- probs_full_new_raw_2 %>%
+group_by(model,ML) %>%
+  roc_curve(outcome,Probs, event_level="second")
+probs_full_new_2$Condition <- "Full_data"
+
+probs_full_new_2_auc <- probs_full_new_raw_2 %>%
+group_by(model,ML) %>%
+  roc_auc(outcome,Probs, event_level="second") %>%
+  rename("auc" = ".estimate") %>%
+  subset( select = -c(.metric,.estimator))
+
+probs_full_new_2 <- left_join(probs_full_new_2,probs_full_new_2_auc, by= c("model","ML"))
+
+
+probs_life_new_2 <- rbind(probabilities_life_2$rf,probabilities_life_2$svm,probabilities_life_2$xgb,probabilities_life_2$lasso)
+
+probs_life_new_raw_2 <- probs_life_new_2 %>%
+  pivot_longer(cols = c("original","original_cost","smote_def",
+                        "up_def","up_own","smote_own","original_own","up_ran","smote_ran","original_ran"),
+               names_to = "model", values_to = "Probs")
+
+probs_life_new_2 <- probs_life_new_raw_2 %>%
+group_by(model,ML) %>%
+  roc_curve(outcome,Probs, event_level="second")
+probs_life_new_2$Condition <- "Lifestyle"
+
+probs_life_new_2_auc <- probs_life_new_raw_2 %>%
+group_by(model,ML) %>%
+  roc_auc(outcome,Probs, event_level="second") %>%
+  rename("auc" = ".estimate") %>%
+  subset( select = -c(.metric,.estimator))
+
+probs_life_new_2 <- left_join(probs_life_new_2,probs_life_new_2_auc, by= c("model","ML"))
+
+probs_new_fold_2 <- rbind(probs_full_new_2,probs_life_new_2) 
+
+probs_new_fold_2$Fold <- "Fold 3"
+```
+
+## Combining all three folds
+
+```{r}
+probs_final <- rbind(probs_new,probs_new_fold_1,probs_new_fold_2)
+```
+
+
+## Last Pre-processing 
+Here the means are calculated to have the best performing model based on all model building choices, corresponding to the best model selected for the tables.
+```{r}
+full$Fold <- "Fold 1"
+full_1$Fold <- "Fold 2"
+full_2$Fold <- "Fold 3"
+life$Fold <- "Fold 1"
+life_1$Fold <- "Fold 2"
+life_2$Fold <- "Fold 3"
+for_roc <- rbind(full,full_1,full_2,life,life_1,life_2)
+for_roc <- for_roc %>%
+  group_by(model,Condition,ML) %>%
+  mutate(mean_AUC = round(mean(AUC),3),
+         mean_SENS = round(mean(Sensitivity),3),
+         mean_SPEC = round(mean(Specificity),3)) %>%
+  ungroup()
+```
+
+## Final data set needed to visualize ROC curves
+```{r}
+probs_new_final <- left_join(probs_final,for_roc, by= c("model","ML","Condition","Fold")) # combine the roc curves data with the tables data
+
+probs_new_final <- probs_new_final %>%
+  mutate(Condition = recode(Condition, "Full_data" = "Full data", "Lifestyle" = "Lifestyle data")) %>% 
+  group_by(ML,Condition,Fold) %>%
+  mutate(Best = ifelse(mean_AUC == max(mean_AUC),TRUE,FALSE)) %>%  # first filter based on best AUC, same as Tables
+  filter(Best == TRUE) 
+
+probs_new_final <- probs_new_final %>%
+  group_by(ML,Condition,Fold) %>%
+  mutate(Best_Sp = ifelse(mean_SENS == max(mean_SENS),TRUE,FALSE)) %>%  # next filter based on best S
+  filter(Best_Sp == TRUE)
+
+probs_new_final <- probs_new_final %>%
+  group_by(ML,Condition,Fold) %>%
+  mutate(Best_Sens = ifelse(mean_SPEC == max(mean_SPEC),TRUE,FALSE)) %>%
+  filter(Best_Sens == TRUE)
+```
+
+## Seperate data sets for Mean depiction
+```{r}
+auc_values_full_mean <- probs_new_final %>%
+  group_by(ML, Condition, Fold) %>%
+  summarise(AUC = max(mean_AUC)) %>%
+  filter(Condition == "Full data") %>% distinct(AUC, .keep_all = TRUE) 
+  
+
+auc_values_life_mean <- probs_new_final %>%
+  group_by(ML, Condition, Fold) %>%
+  summarise(AUC = max(mean_AUC)) %>%
+  filter(Condition == "Lifestyle data") %>% distinct(AUC, .keep_all = TRUE)
+```
+## ROC plot across all folds
+
+```{r}
+ROC_compare_fold <- probs_new_final%>%
+  ggplot(aes(1 - specificity, sensitivity, fill = Fold, color=Condition)) +
+  geom_abline(lty = 2, color = "gray", size = 1,alpha = 0.8) +
+  geom_path(alpha = 0.6, size = 1.2) +
+  coord_equal() +
+  labs(x = "1 - Specificity", y = "Sensitivity") +
+  facet_wrap(~ ML) +
+    geom_text(data = auc_values_full_mean, aes(label = paste0("Mean AUC = ", AUC)), 
+            x = 0.7, y = 0.15, show.legend = FALSE) +
+  geom_text(data = auc_values_life_mean, aes(label = paste0("Mean AUC = ", AUC)), 
+            x = 0.7, y = 0.05, show.legend = FALSE) +
+  theme_bw(base_size = 12) +
+  theme(legend.position = "top",
+        panel.border = element_blank(),  # remove panel borders
+        panel.grid.major = element_blank(),  # remove major grid lines
+        panel.grid.minor = element_blank(),  # remove minor grid lines
+        axis.line = element_line(),  # set axis lines to bold
+        axis.text = element_text(),  # set axis text to bold
+        axis.title = element_text(size = 14, face = "bold"),  # set axis title to bold
+        plot.background = element_blank(),  # remove plot background
+        panel.background = element_blank(),  # remove panel background
+        legend.text = element_text(size = 12, face = "bold"),  # set legend text to bold
+        legend.title = element_blank()  # remove legend title
+  ) +
+  scale_color_brewer(palette = "Dark2")
+print(ROC_compare_fold)
+#ggsave("cb_compare_sets.png")
+```
+
+------------------------------------------------------------------------------------------------------------------------
+## Descirptives Table 
+```{r}
+full_data <- read_csv("Data/Full_data/full_data.csv")
+
+# Preparation of dataset needed for descriptive stats
+names <- c("patient","Age","Height","Weight","BMI","HbA1c","T2D_Dur")
+descriptives <- full_data %>%
+  select(patient,Age,Height,Weight,BMI,HbA1c,T2D_Dur) 
+names(descriptives) <- c(names)
+
+DT <- data.table(descriptives)
+DT[, sapply(.SD, function(x) list(mean=round(mean(x), 2))), by=patient]
+names(DT) <- c(names)
+DT <- as.data.frame(DT)
+```
+
+# Proportions and counts for factor variables
+```{r}
+table(full_data$Night_class_hypo_out)
+round(table(full_data$Night_class_hypo_out)[1]/(table(full_data$Night_class_hypo_out)[1]+table(full_data$Night_class_hypo_out)[2]),3)
+round(table(full_data$Night_class_hypo_out)[2]/(table(full_data$Night_class_hypo_out)[1]+table(full_data$Night_class_hypo_out)[2]),3)
+table(full_data$Gender)
+round(table(full_data$Gender)[1]/(table(full_data$Gender)[1]+table(full_data$Gender)[2]),3)
+round(table(full_data$Gender)[2]/(table(full_data$Gender)[1]+table(full_data$Gender)[2]),3)
+```
+# Latex code for descriptives
+```{r}
+stargazer(DT, 
+          type = 'latex', min.max=FALSE, mean.sd = TRUE, 
+          nobs = FALSE, median = FALSE, iqr = FALSE,
+          digits=1, align=T,
+          title = "Summary Statistics")
+```
+## Calibration plots - OPTIONAL
+```{r}
+calibration_plots(probabilities_full$rf)
+calibration_plots(probabilities_full$svm)
+calibration_plots(probabilities_full$xgb)
+calibration_plots(probabilities_full$lasso)
+
+calibration_plots(probabilities_life$rf)
+calibration_plots(probabilities_life$svm)
+calibration_plots(probabilities_life$xgb)
+calibration_plots(probabilities_life$lasso)
+```
+
+## Outcome frequency and Distribution of days - OPTIONAL INFORMATION
+```{r}
+descrip <- full_data
+number_of_days_pp <- descrip %>%
+  group_by(patient) %>%
+  summarise(n= n())
+sort(number_of_days_pp$n) # distributions of days per patient
+nrow(number_of_days_pp) # number of patients
+nrow(full_data) # number of individual observations
+```
+```{r}
+# Visualisation for distribution of outcome variable
+ggplot(full_data %>%
+      count(Night_class_hypo_out) %>% #Groups by team and role
+       mutate(pct=n/sum(n)),       #Calculates % for each role
+        aes(Night_class_hypo_out, n, fill=Night_class_hypo_out)) +
+        geom_col(stat="identity", position="stack") +
+  geom_text(aes(label=paste0(sprintf("%1.1f", pct*100),"%")),
+            position=position_stack(vjust=0.5))
+```
+
+
+### CGM visualisation
+Exemplary continous profiles of patients. Nocturnal Hypo-, and Hyperglyceamia are highlighted. On top it gets clear, where periods of glucose values are missing in the intended 14 day period
+```{r}
+all_patients_cgm <- read_csv("~/GitHub/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/Processing_and_Extraction/Data_processed/all_patients_cgm.csv")
+
+all_patients_cgm %>%
+  filter(patient == 761) %>%
+  ggplot(aes(x=full_date, y=Historie_glucose, colour=Noc_variability)) +
+  geom_line(aes(group =3)) +
+  theme_minimal() +
+  labs(title = "Glucose level of one patient over 14 days",
+       x = "Time",
+       y = "Glucose level in mmol/l",
+       colour = "Nocturnal Hyperglycaemia")
+
+all_patients_cgm %>%
+  filter(patient == 601) %>%
+  ggplot(aes(x=full_date, y=Historie_glucose, colour=Noc_variability)) +
+  geom_line(aes(group =3)) +
+  theme_minimal() +
+  labs(title = "Glucose level of one patient over 14 days",
+       x = "Time",
+       y = "Glucose level in mmol/l",
+       colour = "Nocturnal Hyperglycaemia")
+```
+
+## SESSION INFO
+As this is the last code needed to perform the analysis here a session info command is run.
+```{r}
+sessionInfo()
+```
+

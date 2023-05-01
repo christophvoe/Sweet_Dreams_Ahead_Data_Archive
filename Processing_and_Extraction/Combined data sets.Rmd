@@ -1,0 +1,98 @@
+---
+title: "Combining data sets"
+author: "Christoph Völtzke"
+date: "2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Packages
+```{r}
+library(lubridate) # process dates
+library(tidyverse) # process data
+library(ggplot2) # to plot
+library(readxl) # load raw data
+library(haven) # for baseline stats
+```
+
+## Loading and processing baseline characteristics
+```{r}
+baseline_new <- read_sav("Patients_all_sources/new_baseline.sav")
+
+baseline <- baseline_new %>%
+  mutate(Diabetes_Length = 2023 - DMaanvang,
+         BMI = Gewicht_poli1/((Lengte_poli1/100)^2)) %>%
+  select(Subjectnr,DM_type,Geslacht,Leeftijd_poli1,Diabetes_Length,Leeftijd_aanvangDM2,Lengte_poli1,Gewicht_poli1,BMI,SerumHbA1c_1,insulin_bin,atcA10AE,dosA10AE,atcA10AB,dosA10AB,atcA10AD,dosA10AD,atcA10BB,dosA10BB,atcA10AC,dosA10AC) %>%
+  rename(patient =Subjectnr) %>%
+  mutate_all(~replace(., is.na(.), 0))
+#write.csv(baseline, "Data_processed/baseline.csv")
+```
+
+## Loading all data sets
+```{r, warning=FALSE}
+baseline <- read_csv("Data_processed/baseline.csv")
+all_patients_cgm <- read_csv("Data_processed/all_patients_cgm.csv")
+steps_all_patients <- read_csv("Data_processed/steps_all_patients.csv")
+cob_all_patients_new <- read_csv("Data_processed/cob_all_patients.csv")
+```
+
+## Combining the CGM data set with the AOB and the COB
+```{r}
+# new approach to work with all the patients
+all_patients_cgm_cob <- left_join(all_patients_cgm, cob_all_patients_new,by=c("patient","date"))
+all_patients_cgm_cob_steps <- left_join(all_patients_cgm_cob, steps_all_patients,by=c("patient","date"))
+```
+
+```{r}
+# get the final estimates for lifestyle features
+cob_steps_all_patients <- all_patients_cgm_cob_steps %>%
+  group_by(patient,periods) %>%
+  summarise(COB = mean(COB, na.rm=TRUE),
+            Sum_carbs = mean(Sum_C, na.rm=TRUE),
+            Sum_steps = mean(Sum_steps, na.rm=TRUE),
+            AOB = mean(AOB, na.rm=TRUE),
+            Sum_calories = mean(Sum_Cal, na.rm=TRUE),
+            Sum_Fat = mean(Sum_F, na.rm=TRUE),
+            Num_Meals = mean(Num_Meals, na.rm=TRUE),
+            Last_meal = mean(Last_meal_time, na.rm=TRUE)) %>%
+  ungroup()
+```
+```{r}
+#wide format for cgm features, needed to have full information about features
+cgm_all_patients <- read_csv("Data_processed/cgm_all_patients.csv")
+cgm_cob_steps_all_patients <- left_join(cgm_all_patients, cob_steps_all_patients,by=c("patient","periods"))
+```
+
+## Full data sets
+```{r}
+full_data <- left_join(cgm_cob_steps_all_patients, baseline,by="patient")
+
+full_data <- full_data %>%
+   mutate(Night_class_hyper_30 = as.factor(Night_class_hyper_30),
+         Night_class_hypo_out = as.factor(Night_class_hypo_out)) %>%
+  select(-"...1")
+```
+
+## FINAL Data
+```{r}
+full_data <- full_data %>%
+  filter(!(patient == 597 ))
+```
+
+```{r}
+#write.csv(full_data,"Data_processed/full_data.csv", row.names = FALSE)
+#write.csv(full_data,"~/GitHub/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/Analyses/Data/Full_data/full_data.csv", row.names = FALSE)
+```
+
+## OPTIONAL - Data Summary
+```{r}
+#check this with 1 obs per interval
+number_of_days_pp <- full_data %>%
+  group_by(patient) %>%
+  summarise(n= n())
+sort(number_of_days_pp$n)
+nrow(number_of_days_pp)
+```

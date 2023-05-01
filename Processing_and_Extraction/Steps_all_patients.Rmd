@@ -1,0 +1,271 @@
+---
+title: "Physical activity_all_patients"
+author: "Christoph Völtzke"
+date: "2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(lubridate)
+library(tidyverse)
+library(ggplot2)
+library(readxl)
+```
+
+# Loading all data sets
+```{r}
+X574_steps <- read_excel("Patients_all_sources/574/574-steps.xlsx")
+X597_steps <- read_excel("Patients_all_sources/597/597-steps.xlsx")
+X598_steps <- read_excel("Patients_all_sources/598/598-steps.xlsx")
+X601_steps <- read_excel("Patients_all_sources/601/601-steps.xlsx")
+X605_steps <- read_excel("Patients_all_sources/605/605-steps.xlsx")
+X606_steps <- read_excel("Patients_all_sources/606/606-steps.xlsx")
+X607_steps <- read_excel("Patients_all_sources/607/607-steps.xlsx")
+X608_steps <- read_excel("Patients_all_sources/608/608-steps.xlsx")
+X609_steps <- read_excel("Patients_all_sources/609/609-steps.xlsx")
+X611_steps <- read_excel("Patients_all_sources/611/611-steps.xlsx")
+X612_steps <- read_excel("Patients_all_sources/612/612-steps.xlsx")
+X615_steps <- read_excel("Patients_all_sources/615/615-steps.xlsx")
+X616_steps <- read_excel("Patients_all_sources/616/616-steps.xlsx")
+X617_steps <- read_excel("Patients_all_sources/617/617-steps.xlsx")
+X618_steps <- read_excel("Patients_all_sources/618/618-steps.xlsx")
+X621_steps <- read_excel("Patients_all_sources/621/621-steps.xlsx")
+X623_steps <- read_excel("Patients_all_sources/623/623-steps.xlsx")
+X624_steps <- read_excel("Patients_all_sources/624/624-steps.xlsx")
+X628_steps <- read_excel("Patients_all_sources/628/628-steps.xlsx")
+X629_steps <- read_excel("Patients_all_sources/629/629-steps.xlsx")
+X630_steps <- read_excel("Patients_all_sources/630/630-steps.xlsx")
+X632_steps <- read_excel("Patients_all_sources/632/632-steps.xlsx")
+X633_steps <- read_excel("Patients_all_sources/633/633-steps.xlsx")
+X634_steps <- read_excel("Patients_all_sources/634/634-steps.xlsx")
+X635_steps <- read_excel("Patients_all_sources/635/635-steps.xlsx")
+X636_steps <- read_excel("Patients_all_sources/636/636-steps.xlsx")
+X637_steps <- read_excel("Patients_all_sources/637/637-steps.xlsx")
+X638_steps <- read_excel("Patients_all_sources/638/638-steps.xlsx")
+X639_steps <- read_excel("Patients_all_sources/639/639-steps.xlsx")
+X640_steps <- read_excel("Patients_all_sources/640/640-steps.xlsx")
+X641_steps <- read_excel("Patients_all_sources/641/641-steps.xlsx")
+X642_steps <- read_excel("Patients_all_sources/642/642-steps.xlsx")
+X643_steps <- read_excel("Patients_all_sources/643/643-steps.xlsx")
+X644_steps <- read_excel("Patients_all_sources/644/644-steps.xlsx")
+X645_steps <- read_excel("Patients_all_sources/645/645-steps.xlsx")
+X646_steps <- read_excel("Patients_all_sources/646/646-steps.xlsx")
+X647_steps <- read_excel("Patients_all_sources/647/647-steps.xlsx")
+X648_steps <- read_excel("Patients_all_sources/648/648-steps.xlsx")
+X649_steps <- read_excel("Patients_all_sources/649/649-steps.xlsx")
+X650_steps <- read_excel("Patients_all_sources/650/650-steps.xlsx")
+X651_steps <- read_excel("Patients_all_sources/651/651-steps.xlsx")
+X654_steps <- read_excel("Patients_all_sources/654/654-steps.xlsx")
+X656_steps <- read_excel("Patients_all_sources/656/656-steps.xlsx")
+X658_steps <- read_excel("Patients_all_sources/658/658-steps.xlsx")
+X660_steps <- read_excel("Patients_all_sources/660/660-steps.xlsx")
+X661_steps <- read_excel("Patients_all_sources/661/661-steps.xlsx")
+X662_steps <- read_excel("Patients_all_sources/662/662-steps.xlsx")
+X664_steps <- read_excel("Patients_all_sources/664/664-steps.xlsx")
+X665_steps <- read_excel("Patients_all_sources/665/665-steps.xlsx")
+X666_steps <- read_excel("Patients_all_sources/666/666-steps.xlsx")
+X667_steps <- read_excel("Patients_all_sources/667/667-steps.xlsx")
+X669_steps <- read_excel("Patients_all_sources/669/669-steps.xlsx")
+X671_steps <- read_excel("Patients_all_sources/671/671-steps.xlsx")
+X672_steps <- read_excel("Patients_all_sources/672/672-steps.xlsx")
+X674_steps <- read_excel("Patients_all_sources/674/674-steps.xlsx")
+X676_steps <- read_excel("Patients_all_sources/676/676-steps.xlsx")
+X677_steps <- read_excel("Patients_all_sources/677/677-steps.xlsx")
+X678_steps <- read_excel("Patients_all_sources/678/678-steps.xlsx")
+X680_steps <- read_excel("Patients_all_sources/680/680-steps.xlsx")
+X681_steps <- read_excel("Patients_all_sources/681/681-steps.xlsx")
+X682_steps <- read_excel("Patients_all_sources/682/682-steps.xlsx")
+X683_steps <- read_excel("Patients_all_sources/683/683-steps.xlsx")
+X684_steps <- read_excel("Patients_all_sources/684/684-steps.xlsx")
+X686_steps <- read_excel("Patients_all_sources/686/686-steps.xlsx")
+X687_steps <- read_excel("Patients_all_sources/687/687-steps.xlsx")
+X688_steps <- read_excel("Patients_all_sources/688/688-steps.xlsx")
+X690_steps <- read_excel("Patients_all_sources/690/690-steps.xlsx")
+X691_steps <- read_excel("Patients_all_sources/691/691-steps.xlsx")
+X692_steps <- read_excel("Patients_all_sources/692/692-steps.xlsx")
+X694_steps <- read_excel("Patients_all_sources/694/694-steps.xlsx")
+X695_steps <- read_excel("Patients_all_sources/695/695-steps.xlsx")
+X696_steps <- read_excel("Patients_all_sources/696/696-steps.xlsx")
+X697_steps <- read_excel("Patients_all_sources/697/697-steps.xlsx")
+X698_steps <- read_excel("Patients_all_sources/698/698-steps.xlsx")
+X699_steps <- read_excel("Patients_all_sources/699/699-steps.xlsx")
+X702_steps <- read_excel("Patients_all_sources/702/702-steps.xlsx")
+X703_steps <- read_excel("Patients_all_sources/703/703-steps.xlsx")
+X708_steps <- read_excel("Patients_all_sources/708/708-steps.xlsx")
+X709_steps <- read_excel("Patients_all_sources/709/709-steps.xlsx")
+X712_steps <- read_excel("Patients_all_sources/712/712-steps.xlsx")
+X713_steps <- read_excel("Patients_all_sources/713/713-steps.xlsx")
+X716_steps <- read_excel("Patients_all_sources/716/716-steps.xlsx")
+X719_steps <- read_excel("Patients_all_sources/719/719-steps.xlsx")
+X729_steps <- read_excel("Patients_all_sources/729/729-steps.xlsx")
+X745_steps <- read_excel("Patients_all_sources/745/745-steps.xlsx")
+X746_steps <- read_excel("Patients_all_sources/746/746-steps.xlsx")
+X748_steps <- read_excel("Patients_all_sources/748/748-steps.xlsx")
+X749_steps <- read_excel("Patients_all_sources/749/749-steps.xlsx")
+X750_steps <- read_excel("Patients_all_sources/750/750-steps.xlsx")
+X751_steps <- read_excel("Patients_all_sources/751/751-steps.xlsx")
+X752_steps <- read_excel("Patients_all_sources/752/752-steps.xlsx")
+X753_steps <- read_excel("Patients_all_sources/753/753-steps.xlsx")
+X754_steps <- read_excel("Patients_all_sources/754/754-steps.xlsx")
+X756_steps <- read_excel("Patients_all_sources/756/756-steps.xlsx")
+X757_steps <- read_excel("Patients_all_sources/757/757-steps.xlsx")
+X759_steps <- read_excel("Patients_all_sources/759/759-steps.xlsx")
+X760_steps <- read_excel("Patients_all_sources/760/760-steps.xlsx")
+X761_steps <- read_excel("Patients_all_sources/761/761-steps.xlsx")
+X1001_steps <- read_excel("Patients_all_sources/1001/1001-steps.xlsx")
+```
+
+```{r}
+# adding the patient number to identify each patient
+X574_steps$patient <- 574
+X597_steps$patient <- 597
+X598_steps$patient <- 598
+X601_steps$patient <- 601
+X605_steps$patient <- 605
+X606_steps$patient <- 606
+X607_steps$patient <- 607
+X608_steps$patient <- 608
+X609_steps$patient <- 609
+X611_steps$patient <- 611
+X612_steps$patient <- 612
+X615_steps$patient <- 615
+X616_steps$patient <- 616
+X617_steps$patient <- 617
+X618_steps$patient <- 618
+X621_steps$patient <- 621
+X623_steps$patient <- 623
+X624_steps$patient <- 624
+X628_steps$patient <- 628
+X629_steps$patient <- 629
+X630_steps$patient <- 630
+X632_steps$patient <- 632
+X633_steps$patient <- 633
+X634_steps$patient <- 634
+X635_steps$patient <- 635
+X636_steps$patient <- 636
+X637_steps$patient <- 637
+X638_steps$patient <- 638
+X639_steps$patient <- 639
+X640_steps$patient <- 640
+X641_steps$patient <- 641
+X642_steps$patient <- 642
+X643_steps$patient <- 643
+X644_steps$patient <- 644
+X645_steps$patient <- 645
+X646_steps$patient <- 646
+X647_steps$patient <- 647
+X648_steps$patient <- 648
+X649_steps$patient <- 649
+X650_steps$patient <- 650
+X651_steps$patient <- 651
+X654_steps$patient <- 654
+X656_steps$patient <- 656
+X658_steps$patient <- 658
+X660_steps$patient <- 660
+X661_steps$patient <- 661
+X662_steps$patient <- 662
+X664_steps$patient <- 664
+X665_steps$patient <- 665
+X666_steps$patient <- 666
+X667_steps$patient <- 667
+X669_steps$patient <- 669
+X671_steps$patient <- 671
+X672_steps$patient <- 672
+X674_steps$patient <- 674
+X676_steps$patient <- 676
+X677_steps$patient <- 677
+X678_steps$patient <- 678
+X680_steps$patient <- 680
+X681_steps$patient <- 681
+X682_steps$patient <- 682
+X683_steps$patient <- 683
+X684_steps$patient <- 684
+X686_steps$patient <- 686
+X687_steps$patient <- 687
+X688_steps$patient <- 688
+X690_steps$patient <- 690
+X691_steps$patient <- 691
+X692_steps$patient <- 692
+X694_steps$patient <- 694
+X695_steps$patient <- 695
+X696_steps$patient <- 696
+X697_steps$patient <- 697
+X698_steps$patient <- 698
+X699_steps$patient <- 699
+X702_steps$patient <- 702
+X703_steps$patient <- 703
+X708_steps$patient <- 708
+X709_steps$patient <- 709
+X712_steps$patient <- 712
+X713_steps$patient <- 713
+X716_steps$patient <- 716
+X719_steps$patient <- 719
+X729_steps$patient <- 729
+X745_steps$patient <- 745
+X746_steps$patient <- 746
+X748_steps$patient <- 748
+X749_steps$patient <- 749
+X750_steps$patient <- 750
+X751_steps$patient <- 751
+X752_steps$patient <- 752
+X753_steps$patient <- 753
+X754_steps$patient <- 754
+X756_steps$patient <- 756
+X757_steps$patient <- 757
+X759_steps$patient <- 759
+X760_steps$patient <- 760
+X761_steps$patient <- 761
+X1001_steps$patient <- 1001
+```
+
+```{r}
+steps_all <- list()
+steps_all <- list(X574_steps,X597_steps,X598_steps,X605_steps,X606_steps,X607_steps,X609_steps,X611_steps,X612_steps,X615_steps,X616_steps,X617_steps,X618_steps,X621_steps,X623_steps,X624_steps,X628_steps,X629_steps,X630_steps,X632_steps,X634_steps,X635_steps,X637_steps,X638_steps,X640_steps,X641_steps,X642_steps,X643_steps,X644_steps,X645_steps,X646_steps,X647_steps,X648_steps,X650_steps,X654_steps,X656_steps,X660_steps,X1001_steps,X601_steps,X608_steps,X662_steps,X667_steps,X672_steps,X676_steps,X680_steps,X683_steps,X684_steps,X687_steps,X690_steps,X691_steps,X692_steps,X695_steps,X699_steps,X702_steps,X703_steps,X708_steps,X709_steps,X712_steps,X713_steps,X716_steps,X719_steps,X729_steps,X651_steps,X745_steps,X746_steps,X748_steps,X749_steps,X750_steps,X751_steps,X752_steps,X753_steps,X754_steps,X756_steps,X665_steps,X633_steps,X636_steps,X639_steps,X649_steps,X658_steps,X661_steps,X664_steps,X666_steps,X669_steps,X671_steps,X674_steps,X677_steps,X678_steps,X681_steps,X682_steps,X686_steps,X688_steps,X694_steps,X696_steps,X697_steps,X698_steps,X757_steps,X759_steps,X760_steps,X761_steps)
+```
+
+# Apply AOB formula
+```{r}
+# Extracting a feature for AOB
+AOB_f <- function(st,t){st*exp(-0.0115*t)}
+
+for(i in 1:length(steps_all)){
+steps_all[[i]] <- steps_all[[i]] %>%
+  pivot_longer(cols = starts_with("20"),names_to = "date", values_to = "Steps",values_drop_na = TRUE) %>%
+  mutate(time = hms(time),
+         min_num = as.numeric(time)/60,
+         Diff = 1350 - min_num,
+         date = ymd(date)) %>%
+  group_by(patient,date) %>%
+  mutate(Sum_steps = sum(Steps),
+         AOB_f = AOB_f(Steps,Diff),
+         AOB = sum(AOB_f)) %>%
+  filter(Sum_steps > 0)%>%
+  select(patient,date,Sum_steps,AOB)
+
+steps_all[[i]] <- unique(steps_all[[i]])
+  }
+```
+
+
+# All in one data set
+```{r}
+all_steps <- rbind(steps_all[[1]],steps_all[[2]],steps_all[[3]],steps_all[[4]],steps_all[[5]],steps_all[[6]],steps_all[[7]],steps_all[[8]],steps_all[[9]],steps_all[[10]],steps_all[[11]],steps_all[[12]],steps_all[[13]],steps_all[[14]],steps_all[[15]],steps_all[[16]],steps_all[[17]],steps_all[[18]],steps_all[[19]],steps_all[[20]],steps_all[[21]],steps_all[[22]],steps_all[[23]],steps_all[[24]],steps_all[[25]],steps_all[[26]],steps_all[[27]],steps_all[[28]],steps_all[[29]],steps_all[[30]],steps_all[[31]],steps_all[[32]],steps_all[[33]],steps_all[[34]],steps_all[[35]],steps_all[[36]],steps_all[[37]],steps_all[[38]],steps_all[[39]],steps_all[[40]],steps_all[[41]],steps_all[[42]],steps_all[[43]],steps_all[[44]],steps_all[[45]],steps_all[[46]],steps_all[[47]],steps_all[[48]],steps_all[[49]],steps_all[[50]],steps_all[[51]],steps_all[[52]],steps_all[[53]],steps_all[[54]],steps_all[[55]],steps_all[[56]],steps_all[[57]],steps_all[[58]],steps_all[[59]] ,steps_all[[60]],steps_all[[61]],steps_all[[62]],steps_all[[63]],steps_all[[64]],steps_all[[65]],steps_all[[66]],steps_all[[67]],steps_all[[68]],steps_all[[69]],steps_all[[70]],steps_all[[71]],steps_all[[72]],steps_all[[73]],steps_all[[74]],steps_all[[75]],steps_all[[76]],steps_all[[77]],steps_all[[78]],steps_all[[79]],steps_all[[80]],steps_all[[81]],steps_all[[82]],steps_all[[83]],steps_all[[84]],steps_all[[85]],steps_all[[86]],steps_all[[87]],steps_all[[88]],steps_all[[89]],steps_all[[90]],steps_all[[91]],steps_all[[92]],steps_all[[93]],steps_all[[94]],steps_all[[95]],steps_all[[96]],steps_all[[97]],steps_all[[97]],steps_all[[98]],steps_all[[99]])
+```
+
+## Optional - Data summary
+```{r}
+number_of_days_pp <- all_steps %>%
+  group_by(patient) %>%
+  summarise(n= n())
+sort(number_of_days_pp$n)
+nrow(number_of_days_pp)
+number_of_days_pp
+```
+
+```{r}
+#write.csv(all_steps,"Data_processed/steps_all_patients.csv", row.names = FALSE)
+```

@@ -1,0 +1,707 @@
+---
+title: "Food Diaries all patients"
+author: "Christoph Völtzke"
+date: "2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Packages
+```{r}
+library(lubridate) # process dates
+library(tidyverse) # process data
+library(ggplot2) # to plot
+library(readxl) # load raw data
+library(readr) # load raw data
+```
+
+# Data loading
+```{r}
+# Different formats are needed as the data is stored in different ways
+X574_voeding <- read_excel("Patients_all_sources/574/574-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text"))
+X574_voeding <- X574_voeding[!is.na(X574_voeding$...1), ]
+X574_voeding <- X574_voeding[,-2]
+X574_voeding$...33 <- 0
+X574_voeding$...34 <- 0
+X574_voeding$...35<- 0
+X597_voeding <- read_excel("Patients_all_sources/597/Copy of 597-voeding.xlsx")
+X597_voeding <- X597_voeding[!is.na(X597_voeding$...1), ]
+X598_voeding <- read_excel("Patients_all_sources/598/Copy of 598-voeding.xlsx")
+X598_voeding <- X598_voeding[!is.na(X598_voeding$...1), ] 
+X601_voeding <- read_excel("Patients_all_sources/601/Copy of 601-voeding.xlsx")
+X601_voeding <- X601_voeding[!is.na(X601_voeding$...1), ] 
+X605_voeding <- read_excel("Patients_all_sources/605/Copy of 605-voeding.xlsx")
+X605_voeding <- X605_voeding[!is.na(X605_voeding$...1), ]
+X606 <- read_delim("Patients_all_sources/606/606.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X607 <- read_delim("Patients_all_sources/607/607.csv", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+X608_voeding <- read_excel("Patients_all_sources/608/Copy of 608-voeding.xlsx")
+X608_voeding <- X608_voeding[!is.na(X608_voeding$...1), ]
+X609_voeding <- read_excel("Patients_all_sources/609/Copy of 609-voeding.xlsx")
+X609_voeding <- X609_voeding[!is.na(X609_voeding$...1), ]
+X611_voeding <- read_excel("Patients_all_sources/611/Copy of 611-voeding.xlsx")
+X611_voeding <- X611_voeding[!is.na(X611_voeding$...1), ]
+X612 <- read_delim("Patients_all_sources/612/612-voeding.csv", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+X615 <- read_delim("Patients_all_sources/615/615.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X616 <- read_delim("Patients_all_sources/616/616.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X617 <- read_delim("Patients_all_sources/617/617.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X618 <- read_delim("Patients_all_sources/618/618.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X621 <- read_delim("Patients_all_sources/621/621.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X623 <- read_delim("Patients_all_sources/623/623.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X624 <- read_delim("Patients_all_sources/624/624.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X628_voeding <- read_excel("Patients_all_sources/628/Copy of 628-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text"))
+X628_voeding <- X628_voeding[!is.na(X628_voeding$...1), ]
+X629 <- read_delim("Patients_all_sources/629/629.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X630 <- read_delim("Patients_all_sources/630/630.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X632 <- read_delim("Patients_all_sources/632/632-analyse.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X633_voeding <- read_excel("Patients_all_sources/633/633-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X633_voeding <- X633_voeding[!is.na(X633_voeding$...1), ]
+X633_voeding <- X633_voeding[,-2]
+X634_voeding <- read_excel("Patients_all_sources/634/Copy of 634-voeding.xlsx")
+X634_voeding <- X634_voeding[!is.na(X634_voeding$...1), ]
+X635 <- read_delim("Patients_all_sources/635/635.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X636_voeding <- read_excel("Patients_all_sources/636/636-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X636_voeding <- X636_voeding[!is.na(X636_voeding$...1), ]
+X636_voeding <- X636_voeding[,-2]
+X637 <- read_delim("Patients_all_sources/637/637.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X638 <- read_delim("Patients_all_sources/638/638.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X639_voeding <- read_excel("Patients_all_sources/639/639-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X639_voeding <- X639_voeding[!is.na(X639_voeding$...1), ]
+X639_voeding <- X639_voeding[,-2]
+X640 <- read_delim("Patients_all_sources/640/640.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X641 <- read_delim("Patients_all_sources/641/641.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X642_voeding <- read_excel("Patients_all_sources/642/Copy of 642-voeding.xlsx")
+X642_voeding <- X642_voeding[!is.na(X642_voeding$...1), ]
+X643 <- read_delim("Patients_all_sources/643/643.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X644 <- read_delim("Patients_all_sources/644/644.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X645 <- read_delim("Patients_all_sources/645/645-voeding.csv", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+X646 <- read_delim("Patients_all_sources/646/646.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X647 <- read_delim("Patients_all_sources/647/647.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X648_voeding <- read_excel("Patients_all_sources/648/Copy of 648-voeding.xlsx")
+X648_voeding <- X648_voeding[!is.na(X648_voeding$...1), ]
+X649_voeding <- read_excel("Patients_all_sources/649/649-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X649_voeding <- X649_voeding[!is.na(X649_voeding$...1), ]
+X649_voeding <- X649_voeding[,-2]
+X650 <- read_delim("Patients_all_sources/650/650.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X651 <- read_delim("Patients_all_sources/651/651-voeding.csv", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+X654 <- read_delim("Patients_all_sources/654/654.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X656 <- read_delim("Patients_all_sources/656/656.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X658_voeding <- read_excel("Patients_all_sources/658/658-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X658_voeding <- X658_voeding[!is.na(X658_voeding$...1), ]
+X658_voeding <- X658_voeding[,-2]
+X660 <- read_delim("Patients_all_sources/660/660.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X662 <- read_delim("Patients_all_sources/662/662.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X664_voeding <- read_excel("Patients_all_sources/664/664-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X664_voeding <- X664_voeding[!is.na(X664_voeding$...1), ]
+X664_voeding <- X664_voeding[,-2]
+X665 <- read_delim("Patients_all_sources/665/665.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X666_voeding <- read_excel("Patients_all_sources/666/666-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X666_voeding <- X666_voeding[!is.na(X666_voeding$...1), ]
+X666_voeding <- X666_voeding[,-2]
+X667 <- read_delim("Patients_all_sources/667/667.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X669_voeding <- read_excel("Patients_all_sources/669/669-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X669_voeding <- X669_voeding[!is.na(X669_voeding$...1), ]
+X669_voeding <- X669_voeding[,-2]
+X671_voeding <- read_excel("Patients_all_sources/671/671-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X671_voeding <- X671_voeding[!is.na(X671_voeding$...1), ]
+X671_voeding <- X671_voeding[,-2]
+X672 <- read_delim("Patients_all_sources/672/672.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X674_voeding <- read_excel("Patients_all_sources/674/674-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X674_voeding <- X674_voeding[!is.na(X674_voeding$...1), ]
+X674_voeding <- X674_voeding[,-2]
+X676 <- read_delim("Patients_all_sources/676/676.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X677_voeding <- read_excel("Patients_all_sources/677/677-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X677_voeding <- X677_voeding[!is.na(X677_voeding$...1), ]
+X677_voeding <- X677_voeding[,-2]
+X678_voeding <- read_excel("Patients_all_sources/678/678-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X678_voeding <- X678_voeding[!is.na(X678_voeding$...1), ]
+X678_voeding <- X678_voeding[,-2]
+X680 <- read_delim("Patients_all_sources/680/680.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X681_voeding <- read_excel("Patients_all_sources/681/681-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X681_voeding <- X681_voeding[!is.na(X681_voeding$...1), ]
+X681_voeding <- X681_voeding[,-2]
+X682_voeding <- read_excel("Patients_all_sources/682/682-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X682_voeding <- X682_voeding[!is.na(X682_voeding$...1), ]
+X682_voeding <- X682_voeding[,-2]
+X686_voeding <- read_excel("Patients_all_sources/686/686-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X686_voeding <- X686_voeding[!is.na(X686_voeding$...1), ]
+X686_voeding <- X686_voeding[,-2]
+X683 <- read_delim("Patients_all_sources/683/683.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X684 <- read_delim("Patients_all_sources/684/684.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X687 <- read_delim("Patients_all_sources/687/687.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X688_voeding <- read_excel("Patients_all_sources/688/688-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X688_voeding <- X688_voeding[!is.na(X688_voeding$...1), ]
+X688_voeding <- X688_voeding[,-2]
+X690 <- read_delim("Patients_all_sources/690/690.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X691 <- read_delim("Patients_all_sources/691/691.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X692 <- read_delim("Patients_all_sources/692/692.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X694_voeding <- read_excel("Patients_all_sources/694/694-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X694_voeding <- X694_voeding[!is.na(X694_voeding$...1), ]
+X694_voeding <- X694_voeding[,-2]
+X695 <- read_delim("Patients_all_sources/695/695.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X696_voeding <- read_excel("Patients_all_sources/696/696-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X696_voeding <- X696_voeding[!is.na(X696_voeding$...1), ]
+X696_voeding <- X696_voeding[,-2]
+X697_voeding <- read_excel("Patients_all_sources/697/697-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X697_voeding <- X697_voeding[!is.na(X697_voeding$...1), ]
+X697_voeding <- X697_voeding[,-2]
+X698_voeding <- read_excel("Patients_all_sources/698/698-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X698_voeding <- X698_voeding[!is.na(X698_voeding$...1), ]
+X698_voeding <- X698_voeding[,-2]
+X699 <- read_delim("Patients_all_sources/699/699.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X702 <- read_delim("Patients_all_sources/702/702.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X703 <- read_delim("Patients_all_sources/703/703.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X708 <- read_delim("Patients_all_sources/708/708.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X709 <- read_delim("Patients_all_sources/709/709.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X712 <- read_delim("Patients_all_sources/712/712.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X713 <- read_delim("Patients_all_sources/713/713.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X716 <- read_delim("Patients_all_sources/716/716.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X719 <- read_delim("Patients_all_sources/719/719.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X729 <- read_delim("Patients_all_sources/729/729.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+X745_voeding <- read_excel("Patients_all_sources/745/745-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X745_voeding <- X745_voeding[!is.na(X745_voeding$...1), ]
+X745_voeding <- X745_voeding[,-2]
+X746_voeding <- read_excel("Patients_all_sources/746/746-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X746_voeding <- X746_voeding[!is.na(X746_voeding$...1), ]
+X746_voeding <- X746_voeding[,-2]
+X748_voeding <- read_excel("Patients_all_sources/748/748-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X748_voeding <- X748_voeding[!is.na(X748_voeding$...1), ]
+X748_voeding <- X748_voeding[,-2]
+X749_voeding <- read_excel("Patients_all_sources/749/749-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X749_voeding <- X749_voeding[!is.na(X749_voeding$...1), ]
+X749_voeding <- X749_voeding[,-2]
+X750_voeding <- read_excel("Patients_all_sources/750/750-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X750_voeding <- X750_voeding[!is.na(X750_voeding$...1), ]
+X750_voeding <- X750_voeding[,-2]
+X751_voeding <- read_excel("Patients_all_sources/751/751-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X751_voeding <- X751_voeding[!is.na(X751_voeding$...1), ]
+X751_voeding <- X751_voeding[,-2]
+X752_voeding <- read_excel("Patients_all_sources/752/752-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X752_voeding <- X752_voeding[!is.na(X752_voeding$...1), ]
+X752_voeding <- X752_voeding[,-2]
+X753_voeding <- read_excel("Patients_all_sources/753/753-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X753_voeding <- X753_voeding[!is.na(X753_voeding$...1), ]
+X753_voeding <- X753_voeding[,-2]
+X754_voeding <- read_excel("Patients_all_sources/754/754-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X754_voeding <- X754_voeding[!is.na(X754_voeding$...1), ]
+X754_voeding <- X754_voeding[,-2]
+X755_voeding <- read_excel("Patients_all_sources/755/755-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X757_voeding <- read_excel("Patients_all_sources/757/757-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X757_voeding <- X757_voeding[!is.na(X757_voeding$...1), ]
+X757_voeding <- X757_voeding[,-2]
+X759_voeding <- read_excel("Patients_all_sources/759/759-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X759_voeding <- X759_voeding[!is.na(X759_voeding$...1), ]
+X759_voeding <- X759_voeding[,-2]
+X760_voeding <- read_excel("Patients_all_sources/760/760-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X760_voeding <- X760_voeding[!is.na(X760_voeding$...1), ]
+X760_voeding <- X760_voeding[,-2]
+X761_voeding <- read_excel("Patients_all_sources/761/761-voeding.xlsx", 
+    col_types = c("date", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text"))
+X761_voeding <- X761_voeding[!is.na(X761_voeding$...1), ]
+X761_voeding <- X761_voeding[,-2]
+X1001 <- read_delim("Patients_all_sources/1001/1001-voeding.csv", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+```
+
+```{r}
+# Some of the data frames dont include patient IDs
+X574_voeding$patient <- 574
+X597_voeding$patient <- 597
+X598_voeding$patient <- 598
+X601_voeding$patient <- 601
+X605_voeding$patient <- 605
+X608_voeding$patient <- 608
+X609_voeding$patient <- 609
+X611_voeding$patient <- 611
+X628_voeding$patient <- 628
+X633_voeding$patient <- 633
+X634_voeding$patient <- 634
+X636_voeding$patient <- 636
+X639_voeding$patient <- 639
+X642_voeding$patient <- 642
+X648_voeding$patient <- 648
+X649_voeding$patient <- 649
+X658_voeding$patient <- 658
+X664_voeding$patient <- 664
+X666_voeding$patient <- 666
+X669_voeding$patient <- 669
+X671_voeding$patient <- 671
+X674_voeding$patient <- 674
+X677_voeding$patient <- 677
+X678_voeding$patient <- 678
+X681_voeding$patient <- 681
+X682_voeding$patient <- 682
+X686_voeding$patient <- 686
+X688_voeding$patient <- 688
+X694_voeding$patient <- 694
+X696_voeding$patient <- 696
+X697_voeding$patient <- 697
+X698_voeding$patient <- 698
+X745_voeding$patient <- 745
+X746_voeding$patient <- 746
+X748_voeding$patient <- 748
+X749_voeding$patient <- 749
+X750_voeding$patient <- 750
+X751_voeding$patient <- 751
+X752_voeding$patient <- 752
+X753_voeding$patient <- 753
+X754_voeding$patient <- 754
+X757_voeding$patient <- 757
+X759_voeding$patient <- 759
+X760_voeding$patient <- 760
+X761_voeding$patient <- 761
+```
+
+# Process data frames
+```{r}
+# The column names differ over the data frames so they need to be manually brought into the same format
+extra_cob <- rbind(X597_voeding,X598_voeding,X601_voeding,X605_voeding,X608_voeding,X609_voeding,X611_voeding,X628_voeding,X634_voeding,X642_voeding,X648_voeding)
+extra_cob <- extra_cob %>%
+  rename(datetime=...1, carb=`Koolhydr (g)`,calories=`Energie (kcal)`,fat_in_g=`Vet (g)`) %>%
+  select(patient,datetime,carb, calories, fat_in_g)
+
+extra_cob2 <- rbind(X574_voeding,X745_voeding,X746_voeding,X748_voeding,X749_voeding,X750_voeding,X751_voeding,X752_voeding,X753_voeding,X754_voeding)
+extra_cob2 <- extra_cob2 %>%
+  rename(datetime=...1, carb=...10,calories=...7,fat_in_g=...8) %>%
+  select(patient,datetime,carb, calories, fat_in_g)
+
+extra_cob3 <- rbind(X633_voeding,X636_voeding,X639_voeding,X649_voeding,X658_voeding,X664_voeding,X666_voeding,X669_voeding,X671_voeding,X674_voeding,X677_voeding,X678_voeding,X681_voeding,X682_voeding,X686_voeding,X688_voeding,X694_voeding,X696_voeding,X697_voeding,X698_voeding,X757_voeding,X759_voeding,X760_voeding,X761_voeding)
+extra_cob3 <- extra_cob3 %>%
+  rename(datetime=...1, carb=...10,calories=...7,fat_in_g=...8) %>%
+  select(patient,datetime,carb, calories, fat_in_g)
+
+
+extra_cob <- rbind(extra_cob,extra_cob2,extra_cob3)
+```
+
+```{r}
+# The date format is different between these two, therefore almost the same code is applied and brought in the same version
+all_days_cob1 <- rbind(X606,X615,X616,X618,X630,X635,X650,X662,X667,X672,X676,X680,X683,X684,X687,X690,X691,X692,X695,X699,X702,X703,X708,X709,X712,X713,X716,X719,X729,X632)
+
+# there are problems with this one variable, therefore these three lines need to be added
+all_days_cob1$created_at <- 0
+X665$created_at <- 0
+all_days_cob1 <- rbind(all_days_cob1,X665)
+
+all_days_cob2 <- rbind(X660,X656,X654,X647,X646,X644,X645,X643,X641,X640,X637,X638,X629,X621,X623,X624,X617,X607,
+                       X612,X651,X1001)
+
+all_days_cob1 <- all_days_cob1 %>%
+  mutate(datetime = as_datetime(datetime, format="%d-%m-%Y %H:%M")) %>%
+  rename(calories = "field_01001",
+         fat_in_g = "field_01002",
+         carb = "field_02002",
+         patient = "patient_id") %>%
+  select(patient,datetime,carb,calories,fat_in_g)
+
+all_days_cob2 <- all_days_cob2 %>%
+  rename(calories = "field_01001",
+         fat_in_g = "field_01002",
+         carb = "field_02002",
+         patient = "patient_id") %>%
+  select(patient,datetime,carb,calories,fat_in_g)
+```
+
+# Combine all datasets
+```{r}
+all_days_cob <- rbind(all_days_cob1,all_days_cob2)
+# combine all data frames
+all_days_cob <- rbind(all_days_cob,extra_cob)
+```
+
+# Creating features based on single data set
+```{r}
+all_days_cob <- all_days_cob %>%
+  na.omit() %>%
+  mutate(time = format(as.POSIXct(datetime), format = "%H:%M"),
+         date = as.Date(datetime),
+         time_num = as.numeric(hm(time)))
+
+all_days_cob <- all_days_cob %>%
+  mutate(mins_num = as.numeric(round(time_num/60)),
+         Diff = 1350 - mins_num,
+         Diff = replace(Diff, Diff < 0, 0),
+         Diff = as.numeric(Diff),
+         carb = as.numeric(carb),
+         fat_in_g = as.numeric(fat_in_g),
+         calories = as.numeric(calories))
+```
+
+## Apply COB formula 
+Applying the COB formula as part of the feature extraction.
+```{r, warning=FALSE}
+COB_fr <- function(c,x){c * 0.8 - as.numeric(integrate(function(t){(c*0.8*t*exp((-t)/60))/(60^2)}, lower =0, upper=x)[1])}
+for(i in 1:nrow(all_days_cob)){
+  all_days_cob$COB_new[i] <- COB_fr(all_days_cob$carb[i],all_days_cob$Diff[i])
+}
+all_days_cob <- all_days_cob %>%
+  mutate(COB_new = round(COB_new,6))
+```
+
+```{r}
+# extract more relevant features
+food_pp_pd_1 <- all_days_cob %>%
+  group_by(patient,date) %>%
+  summarise(COB= sum(COB_new),
+            Sum_C = sum(carb),
+            Sum_F = sum(fat_in_g),
+            Sum_Cal = sum(calories),
+            Last_meal_time = min(Diff),
+            Num_Meals=n_distinct(time))
+```
+
+```{r}
+#write.csv(food_pp_pd_1,"Data_processed/cob_all_patients.csv", row.names = FALSE)
+```
+
+# OPTIONAL - Data Summary
+```{r}
+number_of_days_pp <- food_pp_pd_1 %>%
+  group_by(patient) %>%
+  summarise(n= n())
+sort(number_of_days_pp$n)
+nrow(number_of_days_pp)
+```

@@ -18,9 +18,16 @@ library(readxl) # load raw data
 library(readr) # load raw data
 ```
 
+# Information
+- In this document the food entry data is processed and features are extracted.
+- Data is in very different formats and needs to first be compiled in a generalized framework.
+- Raw data from each patient needs to be processed in a way that all relevant features can get extracted.
+- Several features are extracted and data is saved.
+
+
 # Data loading
+Different formats are needed as the data is stored in different ways
 ```{r}
-# Different formats are needed as the data is stored in different ways
 X574_voeding <- read_excel("Patients_all_sources/574/574-voeding.xlsx", 
     col_types = c("date", "text", "text", 
         "text", "text", "text", "text", "text", 
@@ -546,8 +553,9 @@ X1001 <- read_delim("Patients_all_sources/1001/1001-voeding.csv",
     trim_ws = TRUE)
 ```
 
+
+Some of the data frames dont include patient IDs, so they are included manually
 ```{r}
-# Some of the data frames dont include patient IDs
 X574_voeding$patient <- 574
 X597_voeding$patient <- 597
 X598_voeding$patient <- 598
@@ -596,6 +604,9 @@ X761_voeding$patient <- 761
 ```
 
 # Process data frames
+This is to bring the dfs in the same format. So each column is named accordingly and only columns of interest are selected
+
+This is for the first part of patients.
 ```{r}
 # The column names differ over the data frames so they need to be manually brought into the same format
 extra_cob <- rbind(X597_voeding,X598_voeding,X601_voeding,X605_voeding,X608_voeding,X609_voeding,X611_voeding,X628_voeding,X634_voeding,X642_voeding,X648_voeding)
@@ -617,6 +628,7 @@ extra_cob3 <- extra_cob3 %>%
 extra_cob <- rbind(extra_cob,extra_cob2,extra_cob3)
 ```
 
+This is for the second part of patients, with very different data strucutre.
 ```{r}
 # The date format is different between these two, therefore almost the same code is applied and brought in the same version
 all_days_cob1 <- rbind(X606,X615,X616,X618,X630,X635,X650,X662,X667,X672,X676,X680,X683,X684,X687,X690,X691,X692,X695,X699,X702,X703,X708,X709,X712,X713,X716,X719,X729,X632)
@@ -646,6 +658,7 @@ all_days_cob2 <- all_days_cob2 %>%
 ```
 
 # Combine all datasets
+Now we got all data in one df!
 ```{r}
 all_days_cob <- rbind(all_days_cob1,all_days_cob2)
 # combine all data frames
@@ -653,6 +666,7 @@ all_days_cob <- rbind(all_days_cob,extra_cob)
 ```
 
 # Creating features based on single data set
+Some formating is needed to extract all features accordingly
 ```{r}
 all_days_cob <- all_days_cob %>%
   na.omit() %>%
@@ -671,7 +685,7 @@ all_days_cob <- all_days_cob %>%
 ```
 
 ## Apply COB formula 
-Applying the COB formula as part of the feature extraction.
+Applying the COB formula as part of the feature extraction. This includes some pre set values accorrding to similar studies.,
 ```{r, warning=FALSE}
 COB_fr <- function(c,x){c * 0.8 - as.numeric(integrate(function(t){(c*0.8*t*exp((-t)/60))/(60^2)}, lower =0, upper=x)[1])}
 for(i in 1:nrow(all_days_cob)){
@@ -681,6 +695,7 @@ all_days_cob <- all_days_cob %>%
   mutate(COB_new = round(COB_new,6))
 ```
 
+Further features of interest get extracted.
 ```{r}
 # extract more relevant features
 food_pp_pd_1 <- all_days_cob %>%
@@ -693,15 +708,16 @@ food_pp_pd_1 <- all_days_cob %>%
             Num_Meals=n_distinct(time))
 ```
 
-```{r}
-#write.csv(food_pp_pd_1,"Data_processed/cob_all_patients.csv", row.names = FALSE)
-```
-
 # OPTIONAL - Data Summary
+mall data summary about the food entry data. Also the data is saved for further analyses.
 ```{r}
 number_of_days_pp <- food_pp_pd_1 %>%
   group_by(patient) %>%
   summarise(n= n())
 sort(number_of_days_pp$n)
 nrow(number_of_days_pp)
+```
+
+```{r}
+#write.csv(food_pp_pd_1,"Data_processed/cob_all_patients.csv", row.names = FALSE)
 ```

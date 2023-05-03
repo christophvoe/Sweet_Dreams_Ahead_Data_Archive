@@ -20,11 +20,25 @@ library(stargazer) # latex code for descriptive stats
 library(data.table) # data frame preparation for descriptive stats
 ```
 
+# Information
+- In this document the results of the data modeling are combined over the 3 folds and estimates are caluclated. 
+- Then the results table of the report is created with final latex code in the end.
+- Then the Figure for the ROC curves over the 3 folds for each ML and data condition is created. With the final being a plot. 
+- Then the table for the descriptive data is included. Here the full patient data is used and not only the training or test data. 
+- Last an optional section is included with some further visualizations to understand the data.
+  - This includes:
+  - Calibration curves for multiple models
+  - Outcome frequency as a Figure
+  - CGM continuous profiles as a Figure to see how it fluctuates over the monitored period
+- A Session Info command is the last code chunk as this is the last needed script to be run for this study.
+
+## Load Helper functions needed for analysis
 ```{r}
 source("Functions/calibration_helper.R") # helper function to make calibration plots
 ```
 
 ## Full data
+Load all results on evaluation metrics obtained by the model building scripts when run with different folds indicated by document name.
 ```{r}
 # All produced data frames from the Model building docs
 full <- read_csv("Data/Model_results/all_models_full_123.csv") # 1. fold
@@ -65,6 +79,8 @@ all_life <- all_life %>%
 all_full_cross <-  rbind(all_full,all_life)
 ```
 
+# Table of Model Results
+This is the pre-processing for the table with the best 32 models depicted in the report.
 # Pre-Processing for Table
 ```{r}
 data <- all_full_cross 
@@ -96,6 +112,7 @@ data <- data %>%
 ```
 
 ## Pre processing with only best 32 models
+Models are ordered in the way that it is strucured across all MLs
 ```{r}
 data <- data %>%
   ungroup()
@@ -113,7 +130,7 @@ data_long_rf <- data %>%
                            Condition == "Lifestyle" & Resample == "original" & Thres == FALSE ~ 6,
                            Condition == "Lifestyle" & Resample == "smote" & Thres == FALSE ~ 7,
                            Condition == "Lifestyle" & Resample == "up" & Thres == FALSE ~ 8)) %>%
-  arrange(Order) %>% distinct(Order, .keep_all = TRUE)
+  arrange(Order) %>% distinct(Order, .keep_all = TRUE) # If a model would produce the exact same estimates for multiple models only one is chosen.
 
 colnames(data_long_rf) <- paste(colnames(data_long_rf),"RF",sep="_")
 
@@ -186,7 +203,7 @@ tbl <- xtable(all_table)
 tbl
 ```
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 
 ## ROC
 
@@ -204,6 +221,7 @@ probabilities_life_2 <- readRDS("Data/Model_results/Trained_models/probs_lifesty
 This step needs to be repeated for each of the three folds. The same code with different data sets is shown here.
 
 ## For 1. Fold
+For each fold some further pre-processing is needed.
 ```{r}
 probabilities_full$rf$ML <- "RF"
 probabilities_full$svm$ML <- "SVM"
@@ -215,7 +233,8 @@ probabilities_life$svm$ML <- "SVM"
 probabilities_life$xgb$ML <- "XGB"
 probabilities_life$lasso$ML <- "Lasso"
 
-
+-------------------------------------
+  # Only for Full data condition
 probs_full_new <- rbind(probabilities_full$rf,probabilities_full$svm,probabilities_full$xgb,probabilities_full$lasso)
 
 probs_full_new_raw <- probs_full_new %>%
@@ -226,7 +245,7 @@ probs_full_new_raw <- probs_full_new %>%
 # Here the ROC curves are caluclated based on yardstick package
 probs_full_new <- probs_full_new_raw %>%
 group_by(model,ML) %>%
-  roc_curve(outcome,Probs, event_level="second")
+  roc_curve(outcome,Probs, event_level="second") # here the ROC curves are obtained.
 probs_full_new$Condition <- "Full_data"
 
 probs_full_new_auc <- probs_full_new_raw %>%
@@ -236,7 +255,8 @@ group_by(model,ML) %>%
   subset( select = -c(.metric,.estimator))
 
 probs_full_new <- left_join(probs_full_new,probs_full_new_auc, by= c("model","ML"))
-
+--------------------------------------
+  # THis needs to be repeated for Lifestyle Condition
 
 probs_life_new <- rbind(probabilities_life$rf,probabilities_life$svm,probabilities_life$xgb,probabilities_life$lasso)
 
@@ -382,7 +402,6 @@ probs_new_fold_2$Fold <- "Fold 3"
 ```
 
 ## Combining all three folds
-
 ```{r}
 probs_final <- rbind(probs_new,probs_new_fold_1,probs_new_fold_2)
 ```
@@ -407,6 +426,7 @@ for_roc <- for_roc %>%
 ```
 
 ## Final data set needed to visualize ROC curves
+Again only the best performing Tuning and Sampling strategy is chosen to be depicted. However, this is depicted for each of the data folds to highlight the data variability in this data set. 
 ```{r}
 probs_new_final <- left_join(probs_final,for_roc, by= c("model","ML","Condition","Fold")) # combine the roc curves data with the tables data
 
@@ -428,6 +448,7 @@ probs_new_final <- probs_new_final %>%
 ```
 
 ## Seperate data sets for Mean depiction
+These extra dfs are containing information about the mean values which will be included in the plot.
 ```{r}
 auc_values_full_mean <- probs_new_final %>%
   group_by(ML, Condition, Fold) %>%
@@ -441,7 +462,7 @@ auc_values_life_mean <- probs_new_final %>%
   filter(Condition == "Lifestyle data") %>% distinct(AUC, .keep_all = TRUE)
 ```
 ## ROC plot across all folds
-
+The code which produces exactly the code needed for the figure in the report.
 ```{r}
 ROC_compare_fold <- probs_new_final%>%
   ggplot(aes(1 - specificity, sensitivity, fill = Fold, color=Condition)) +
@@ -469,13 +490,13 @@ ROC_compare_fold <- probs_new_final%>%
   ) +
   scale_color_brewer(palette = "Dark2")
 print(ROC_compare_fold)
-#ggsave("cb_compare_sets.png")
 ```
 
 ------------------------------------------------------------------------------------------------------------------------
 ## Descirptives Table 
+Estimates are obtained for all included patients on baseline stats.
 ```{r}
-full_data <- read_csv("Data/Full_data/full_data.csv")
+full_data <- read_csv("Data/Full_data/full_data.csv") # raw data set is loaded
 
 # Preparation of dataset needed for descriptive stats
 names <- c("patient","Age","Height","Weight","BMI","HbA1c","T2D_Dur")
@@ -490,6 +511,7 @@ DT <- as.data.frame(DT)
 ```
 
 # Proportions and counts for factor variables
+For factors a different approach is used and values need to be included manually.
 ```{r}
 table(full_data$Night_class_hypo_out)
 round(table(full_data$Night_class_hypo_out)[1]/(table(full_data$Night_class_hypo_out)[1]+table(full_data$Night_class_hypo_out)[2]),3)
@@ -506,6 +528,9 @@ stargazer(DT,
           digits=1, align=T,
           title = "Summary Statistics")
 ```
+
+------------------------------------------------------------------------------------------------------------------------
+
 ## Calibration plots - OPTIONAL
 ```{r}
 calibration_plots(probabilities_full$rf)
@@ -529,6 +554,7 @@ sort(number_of_days_pp$n) # distributions of days per patient
 nrow(number_of_days_pp) # number of patients
 nrow(full_data) # number of individual observations
 ```
+
 ```{r}
 # Visualisation for distribution of outcome variable
 ggplot(full_data %>%

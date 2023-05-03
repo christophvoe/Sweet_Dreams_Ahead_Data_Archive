@@ -18,6 +18,11 @@ library(broom) # data processing
 library(iglu) # CGM indices
 ```
 
+# Information
+- In this document the historical glucose values are used to extract features based on CGM data.
+- First raw data from each patient needs to be processed in a way that a generalized approach is available for all patients.
+- This includes categorizing the data in specific times and also to extract outcome variables like Hypoglycemia or Hyperglycemia
+- In the last steps the features need to be extracted which are based on literature and expert knowledge
 
 ## Loading the data sets
 ```{r}
@@ -267,6 +272,7 @@ cgm_1001$patient <- 1001
 - Definition of Episodes based on Night and Day time definition
 
 ### First data set
+A for loop and a list format is used first as there were many structual differences within the raw data in order to avoid to filter wanted patients or select unwanted patients when working in the same dataset.
 ```{r}
 # this step must be performed 2 times as there are some structural differences between the loaded data
 cgm_all_extra <- list()
@@ -276,13 +282,13 @@ for(i in 1:length(cgm_all_extra)){
 cgm_all_extra[[i]] <- cgm_all_extra[[i]] %>%
   mutate(date = dmy(ID),  # this date format is differently
          time = hm(Tijd),
-         time_num = as.numeric(time),
+         time_num = as.numeric(time), # Time is saved in seconds, which makes it possible to split all days based on a specific time. This is especially useful as not the full dates can be used for that as patients were monitored for different length and at different times
          year = year(date),
          month = month(date),
          mday = mday(date),
          wday = wday(date, label =TRUE),
          weekend = as.factor(case_when(wday == "Sa" |wday == "So" ~ "Weekend",
-                                       wday == "Mo" |wday == "Di" | wday == "Mi" |wday == "Do" |wday == "Fr" ~ "Week")),
+                                       wday == "Mo" |wday == "Di" | wday == "Mi" |wday == "Do" |wday == "Fr" ~ "Week")), # these are already features indicating the day of the week, as previous studies showed that this might have an influence on the risk of NH
          hour = hour(time),
          minute = minute(time),
          full_date = make_datetime(year,month,mday,hour,minute),
@@ -312,6 +318,7 @@ cgm_all_extra[[i]] <- cgm_all_extra[[i]] %>%
 ```
 
 ### Second data set
+Some time formats are not compatible so the approach is repeated for this second group of patients
 ```{r}
 # Second time - with exactly the same approach
 cgm_all <- list()
@@ -320,7 +327,7 @@ cgm_all <- list(cgm_574,cgm_597,cgm_598,cgm_605,cgm_606,cgm_607,cgm_609,cgm_611,
 
 for(i in 1:length(cgm_all)){
 cgm_all[[i]] <- cgm_all[[i]] %>%
-  mutate(date = ymd(ID),
+  mutate(date = ymd(ID), # some time formats are not compatible so the approach is repeated for this second group of patients
          time = hm(Tijd),
          time_num = as.numeric(time),
          year = year(date),
@@ -370,6 +377,7 @@ cgm_all <- list(cgm_all[[1]],cgm_all[[2]],cgm_all[[3]],cgm_all[[4]],cgm_all[[5]]
 - Exclusion criterion of at least two observations per assigned time interval per period
 
 ### Interval creation
+Based on the time of the very first date the intervals are constructed in a way to not waste any day, but have them in the right format. This is important in order to always have the same data available.
 ```{r}
 # there are different filtering options for the different intervals before the night time as I need to have the same starting format for each new observation
 for(i in 1:length(cgm_all)){
@@ -377,7 +385,7 @@ for(i in 1:length(cgm_all)){
     cgm_all[[i]] <- cgm_all[[i]] %>% 
       filter(!(date == date[1]))
     
-    intervals <- as.numeric(seq(ymd_hms(cgm_all[[i]]$full_date[1]), by = "24 hours", length.out = length(unique(cgm_all[[i]]$date))))
+    intervals <- as.numeric(seq(ymd_hms(cgm_all[[i]]$full_date[1]), by = "24 hours", length.out = length(unique(cgm_all[[i]]$date)))) # based on the time of the very first date the intervals are constructed in a way to not waste any day, but have them in the right format. This is important in order to always have the same data available. I.e., if a patient started tracking at 6pm the intervals before that needed for prediction are not available for that day. In this way, all of the days are seperated and brought in the same format.
     intervals <- intervals + 21600
     
     cgm_all[[i]] <- cgm_all[[i]] %>%
@@ -451,7 +459,7 @@ for(i in 1:length(cgm_all)){
 
 ### Exclusion criterion
 ```{r}
-# delete periods with less than 1 observation per interval to have an estimate for each category
+# delete periods with less multiple missing observations per interval to have an estimate for each category
 cgm_all_count <- list()
 for(i in 1:length(cgm_all)){
   cgm_all_count[[i]] <- cgm_all[[i]] %>%
@@ -475,7 +483,7 @@ for(i in 1:length(cgm_all)){
 ## Indices calculation with Iglu
 
 - New data set to avoid problems with original dataset
-- Exclusion of Nights to only calculate indices based on day time - otherwise we would use information we wouldn't have for the normal prediction (Last before bed - LBB)
+- Exclusion of night time to only calculate indices based on day time - otherwise we would use information we wouldn't have for the normal prediction (Last before bed - LBB)
 ```{r}
 # all days per person with valid features
 iglu_data <- rbind(cgm_all[[1]],cgm_all[[2]],cgm_all[[3]],cgm_all[[4]],cgm_all[[5]],cgm_all[[6]],cgm_all[[7]],cgm_all[[8]],cgm_all[[9]],cgm_all[[10]],cgm_all[[11]],cgm_all[[12]],cgm_all[[13]],cgm_all[[14]],cgm_all[[15]],cgm_all[[16]],cgm_all[[17]],cgm_all[[18]],cgm_all[[19]],cgm_all[[20]],cgm_all[[21]],cgm_all[[22]],cgm_all[[23]],cgm_all[[24]],cgm_all[[25]],cgm_all[[26]],cgm_all[[27]],cgm_all[[28]],cgm_all[[29]],cgm_all[[30]],cgm_all[[31]],cgm_all[[32]],cgm_all[[33]],cgm_all[[34]],cgm_all[[35]],cgm_all[[36]], cgm_all[[37]],cgm_all[[38]],cgm_all[[39]],cgm_all[[40]],cgm_all[[41]],cgm_all[[42]],cgm_all[[43]],cgm_all[[44]],cgm_all[[45]],cgm_all[[46]],cgm_all[[47]],cgm_all[[48]],cgm_all[[49]],cgm_all[[50]],cgm_all[[51]],cgm_all[[52]],cgm_all[[53]],cgm_all[[54]],cgm_all[[55]],cgm_all[[56]],cgm_all[[57]],cgm_all[[58]],cgm_all[[59]],cgm_all[[60]],cgm_all[[61]],cgm_all[[62]],cgm_all[[63]],cgm_all[[64]],cgm_all[[65]],cgm_all[[66]],cgm_all[[67]],cgm_all[[68]],cgm_all[[69]],cgm_all[[70]],cgm_all[[71]],cgm_all[[72]],cgm_all[[73]],cgm_all[[74]],cgm_all[[75]],cgm_all[[76]],cgm_all[[77]],cgm_all[[78]],cgm_all[[79]],cgm_all[[80]],cgm_all[[81]],cgm_all[[82]],cgm_all[[83]],cgm_all[[84]],cgm_all[[85]],cgm_all[[86]],cgm_all[[87]],cgm_all[[88]],cgm_all[[89]],cgm_all[[90]],cgm_all[[91]],cgm_all[[92]],cgm_all[[93]],cgm_all[[94]])
@@ -490,7 +498,7 @@ iglu_processed <- iglu_data %>%
 iglu_periods <- list()
 for(i in 1:length(iglu_processed)){
 iglu_periods[[i]]  <- iglu_processed[[i]]  %>%
-rename(id = patient, "gl_mmol/l" = Historie_glucose, time_old = time, time = full_date) %>%
+rename(id = patient, "gl_mmol/l" = Historie_glucose, time_old = time, time = full_date) %>% # for the data to be processed  by the iglu package they need to have specific variable names, which is done here accordingly
   select(id,time,"gl_mmol/l")
 }
 
@@ -500,6 +508,7 @@ iglu_periods[[i]]  <- process_data(iglu_periods[[i]], id = "id", timestamp = "ti
 ```
 ## Indices
 ```{r}
+# Multiple indices are extracted from the original data set and calculated already for each day individually, as this is the information we want to vary for each day.
 hbgi <- list()
 for(i in 1:length(iglu_periods)){
 hbgi[[i]] <- hbgi(iglu_periods[[i]])
@@ -537,6 +546,7 @@ in_range_percent[[i]] <- in_range_percent(iglu_periods[[i]])
 ```
 
 ```{r}
+# Bind all of the indices and add the corresponding period to make it possible to identify which indices are conducted for which period
 indic_per_1 <- list(in_range_percent[[1]],hypo_index[[1]],hyper_index[[1]],gmi[[1]],grade[[1]],lbgi[[1]],hbgi[[1]])
 indic_per_1 <- indic_per_1 %>%
   reduce(full_join, by="id") %>%
@@ -614,10 +624,11 @@ indic_per_15 <- indic_per_15 %>%
 
 indic_per <- rbind(indic_per_1,indic_per_2,indic_per_3,indic_per_4,indic_per_5,indic_per_6,indic_per_7,indic_per_8,indic_per_9,indic_per_10,indic_per_11,indic_per_12,indic_per_13,indic_per_14,indic_per_15)
 indic_per <- indic_per %>%
-  rename(patient = id)
+  rename(patient = id) # This can later be included in the full data set as information about the period and about the patient id is given, which is enough to join them.
 ```
 
 ## Features per time interval
+Feature extraction for each time interval for descritpive statistics like mean, sd, min, max
 ```{r}
 # This is needed to have this information in the data frame with the Historical glucose values
 # basic features are created based on other studies as well as definitions of the outcome variables
@@ -638,12 +649,13 @@ for(i in 1:length(cgm_all)){
 for(i in 1:length(cgm_all)){
   cgm_all[[i]] <- cgm_all[[i]] %>%
   group_by(periods) %>%
-     mutate(Night_class_hyper_30 = ifelse(sum(Night_class_hyper == 1 & Nocturnal == "Night") >= sum(Night_class_hyper == 0 & Nocturnal == "Night")*0.3, 1,0)) %>%
+     mutate(Night_class_hyper_30 = ifelse(sum(Night_class_hyper == 1 & Nocturnal == "Night") >= sum(Night_class_hyper == 0 & Nocturnal == "Night")*0.3, 1,0)) %>% # a second classification for Nocutrnal Hypreglycaemia which is suggested by the ADA
     ungroup()
 }
 ```
 
 # Working with a single data set
+This data set contains the historical data for each patient individually. On top of that already some distinctions and features are caluclated.
 ```{r}
 # all days per person with valid features
 all_patients_cgm <- rbind(cgm_all[[1]],cgm_all[[2]],cgm_all[[3]],cgm_all[[4]],cgm_all[[5]],cgm_all[[6]],cgm_all[[7]],cgm_all[[8]],cgm_all[[9]],cgm_all[[10]],cgm_all[[11]],cgm_all[[12]],cgm_all[[13]],cgm_all[[14]],cgm_all[[15]],cgm_all[[16]],cgm_all[[17]],cgm_all[[18]],cgm_all[[19]],cgm_all[[20]],cgm_all[[21]],cgm_all[[22]],cgm_all[[23]],cgm_all[[24]],cgm_all[[25]],cgm_all[[26]],cgm_all[[27]],cgm_all[[28]],cgm_all[[29]],cgm_all[[30]],cgm_all[[31]],cgm_all[[32]],cgm_all[[33]],cgm_all[[34]],cgm_all[[35]],cgm_all[[36]], cgm_all[[37]],cgm_all[[38]],cgm_all[[39]],cgm_all[[40]],cgm_all[[41]],cgm_all[[42]],cgm_all[[43]],cgm_all[[44]],cgm_all[[45]],cgm_all[[46]],cgm_all[[47]],cgm_all[[48]],cgm_all[[49]],cgm_all[[50]],cgm_all[[51]],cgm_all[[52]],cgm_all[[53]],cgm_all[[54]],cgm_all[[55]],cgm_all[[56]],cgm_all[[57]],cgm_all[[58]],cgm_all[[59]],cgm_all[[60]],cgm_all[[61]],cgm_all[[62]],cgm_all[[63]],cgm_all[[64]],cgm_all[[65]],cgm_all[[66]],cgm_all[[67]],cgm_all[[68]],cgm_all[[69]],cgm_all[[70]],cgm_all[[71]],cgm_all[[72]],cgm_all[[73]],cgm_all[[74]],cgm_all[[75]],cgm_all[[76]],cgm_all[[77]],cgm_all[[78]],cgm_all[[79]],cgm_all[[80]],cgm_all[[81]],cgm_all[[82]],cgm_all[[83]],cgm_all[[84]],cgm_all[[85]],cgm_all[[86]],cgm_all[[87]],cgm_all[[88]],cgm_all[[89]],cgm_all[[90]],cgm_all[[91]],cgm_all[[92]],cgm_all[[93]],cgm_all[[94]])
@@ -655,9 +667,10 @@ all_patients_cgm <- all_patients_cgm %>%
  distinct(patient, full_date, .keep_all = T)
 ```
 
-## Feature extraction - CGM point estimates
+## Feature extraction - Per interval
 
 ## Feature extraction - Slopes
+First also features are extracted based on the slopes of historical glucose values and the increasing time. This suggests trends over time and if they are decreasing or increasing in a specific interval. These features have been used in multiple studies for NH prediction already.
 ```{r, warning=FALSE}
   by_noc_per <- all_patients_cgm %>%
     group_by(Nocturnal, periods,patient)
@@ -691,6 +704,7 @@ slope_interval <- slope_interval %>%
 ```
 
 ### Extraction per Time interval
+Here it is grouped by the interval to have estimates for each interval
 ```{r}
 # Feature extraction to have the features for each observation separately
 cgm_per_day <- all_patients_cgm %>%
@@ -703,7 +717,8 @@ cgm_per_day <- all_patients_cgm %>%
   ungroup()
 ```
 
-### Extraction per Day time 
+### Extraction per Day time
+Here only estimates for either day or night are conducted.
 ```{r}
 # Feature extraction to have the features for each observation separately
 cgm_per_day_noc <- all_patients_cgm %>%
@@ -714,7 +729,7 @@ cgm_per_day_noc <- all_patients_cgm %>%
          max_glucose = max(Historie_glucose, na.rm = TRUE)) %>%
   ungroup()
 ```
-
+These are two additional features providing information about how many Hypo/Hyper events occured on a certain day (Day/Night)
 ```{r}
 # adding the number of hypo and hyper events in different time intervals
 cgm_all_patients_noc_extra <- all_patients_cgm %>%
@@ -728,6 +743,9 @@ cgm_all_patients_noc_extra <- all_patients_cgm %>%
 ```
 
 ### Pivoting the data sets 
+Now the data still needs to be in a format to make it easier to analyse. Therefore some of the rows are pivoted to be columns. This is done for all features extracted for specific time intervals. I.e., Mean for 1 hour before bedtime, Mean for 1 to 2 hours before bedtime, etc. as columns
+
+First, day night with night further seperated in early and late night
 ```{r}
 # Features for full day and for early and late night
  cgm_all_patients_noc <- cgm_per_day_noc %>%
@@ -738,6 +756,7 @@ cgm_all_patients_noc_extra <- all_patients_cgm %>%
   na.omit()
 ```
 
+Same for day and night division
 ```{r}
 cgm_all_patients_noc_extra <- cgm_all_patients_noc_extra %>%
   dplyr::select(patient,periods,Nocturnal_dicho,Hyper_events,Hypo_events,Night_class_hypo_out,Night_class_hyper_out,Night_class_hyper_30) %>%
@@ -749,6 +768,7 @@ cgm_all_patients_noc_extra <- cgm_all_patients_noc_extra %>%
 cgm_all_patients_noc <- merge(cgm_all_patients_noc, cgm_all_patients_noc_extra, by=c("periods", "patient"))
 ```
 
+Each interval before bedtime
 ```{r}
 # features for every time interval including full night
  cgm_all_patients <- cgm_per_day %>%
@@ -762,6 +782,7 @@ cgm_all_patients <- merge(cgm_all_patients, cgm_all_patients_noc, by=c("periods"
 ```
 
 ### Merging the data frames
+From here onwards all the data sets which were created are merged into a single data set including all CGM features
 ```{r}
 # Outcome variables defined
 merge_all_patients <- all_patients_cgm %>%
@@ -793,9 +814,9 @@ week_inf <- all_patients_cgm %>%
   select(patient,periods,wday,weekend)
 
 ```
-### Check distribution of days over patients
 
-cgm_all_patients <- merge(cgm_all_patients, week_inf, by=c("periods", "patient"))
+### Check distribution of days over patients
+From here onwards data are checked
 ```{r}
 #check this with 1 obs per interval
 number_of_days_pp <- cgm_all_patients %>%
@@ -804,7 +825,7 @@ number_of_days_pp <- cgm_all_patients %>%
 sort(number_of_days_pp$n)
 nrow(number_of_days_pp)
 ```
-
+One of the further exclusion criteria is that at least 5 days of full CGM measurements need to be conducted. Like this some patients with less are identified and excluded.
 ```{r}
 # based on this information filter out patients with less than 5 days full observations
 all_patients_cgm <- all_patients_cgm %>%
@@ -815,6 +836,7 @@ cgm_all_patients <- cgm_all_patients %>%
 ```
 
 ### Save data sets
+Data is saved for further analyses and to be joined by other data formats like physical acticvity and food entries.
 ```{r}
 # this data frame consists the general information about the hypoglycamic state based on the used definitions
 #write.csv(all_patients_cgm,"Data_processed/all_patients_cgm.csv", row.names = FALSE)

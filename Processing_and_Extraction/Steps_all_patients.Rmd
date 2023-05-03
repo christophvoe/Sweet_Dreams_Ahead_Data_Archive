@@ -10,13 +10,19 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-library(lubridate)
-library(tidyverse)
-library(ggplot2)
-library(readxl)
+library(lubridate) # manipulate dates
+library(tidyverse) # data processing
+library(ggplot2) # plotting
+library(readxl) # load xlsx files
 ```
 
+# Information
+- In this document the physical activity data is processed and features are extracted.
+- All data is already in the same format and only needs to be combined in a single data set
+- Two features are extracted and data is saved.
+
 # Loading all data sets
+All patients ordered by ID
 ```{r}
 X574_steps <- read_excel("Patients_all_sources/574/574-steps.xlsx")
 X597_steps <- read_excel("Patients_all_sources/597/597-steps.xlsx")
@@ -222,12 +228,16 @@ X761_steps$patient <- 761
 X1001_steps$patient <- 1001
 ```
 
+All patients PA in one list to be less prone to errors
 ```{r}
 steps_all <- list()
 steps_all <- list(X574_steps,X597_steps,X598_steps,X605_steps,X606_steps,X607_steps,X609_steps,X611_steps,X612_steps,X615_steps,X616_steps,X617_steps,X618_steps,X621_steps,X623_steps,X624_steps,X628_steps,X629_steps,X630_steps,X632_steps,X634_steps,X635_steps,X637_steps,X638_steps,X640_steps,X641_steps,X642_steps,X643_steps,X644_steps,X645_steps,X646_steps,X647_steps,X648_steps,X650_steps,X654_steps,X656_steps,X660_steps,X1001_steps,X601_steps,X608_steps,X662_steps,X667_steps,X672_steps,X676_steps,X680_steps,X683_steps,X684_steps,X687_steps,X690_steps,X691_steps,X692_steps,X695_steps,X699_steps,X702_steps,X703_steps,X708_steps,X709_steps,X712_steps,X713_steps,X716_steps,X719_steps,X729_steps,X651_steps,X745_steps,X746_steps,X748_steps,X749_steps,X750_steps,X751_steps,X752_steps,X753_steps,X754_steps,X756_steps,X665_steps,X633_steps,X636_steps,X639_steps,X649_steps,X658_steps,X661_steps,X664_steps,X666_steps,X669_steps,X671_steps,X674_steps,X677_steps,X678_steps,X681_steps,X682_steps,X686_steps,X688_steps,X694_steps,X696_steps,X697_steps,X698_steps,X757_steps,X759_steps,X760_steps,X761_steps)
 ```
 
 # Apply AOB formula
+For each patient apply the AOB formula explained in the report with some preset values. 
+And also extracting the full sum of steps as a feature.
+Also Exlcusion criteria of less then 50 steps a day is applied here.
 ```{r}
 # Extracting a feature for AOB
 AOB_f <- function(st,t){st*exp(-0.0115*t)}
@@ -243,7 +253,7 @@ steps_all[[i]] <- steps_all[[i]] %>%
   mutate(Sum_steps = sum(Steps),
          AOB_f = AOB_f(Steps,Diff),
          AOB = sum(AOB_f)) %>%
-  filter(Sum_steps > 0)%>%
+  filter(Sum_steps > 50)%>% # exclusion criteria
   select(patient,date,Sum_steps,AOB)
 
 steps_all[[i]] <- unique(steps_all[[i]])
@@ -256,8 +266,11 @@ steps_all[[i]] <- unique(steps_all[[i]])
 all_steps <- rbind(steps_all[[1]],steps_all[[2]],steps_all[[3]],steps_all[[4]],steps_all[[5]],steps_all[[6]],steps_all[[7]],steps_all[[8]],steps_all[[9]],steps_all[[10]],steps_all[[11]],steps_all[[12]],steps_all[[13]],steps_all[[14]],steps_all[[15]],steps_all[[16]],steps_all[[17]],steps_all[[18]],steps_all[[19]],steps_all[[20]],steps_all[[21]],steps_all[[22]],steps_all[[23]],steps_all[[24]],steps_all[[25]],steps_all[[26]],steps_all[[27]],steps_all[[28]],steps_all[[29]],steps_all[[30]],steps_all[[31]],steps_all[[32]],steps_all[[33]],steps_all[[34]],steps_all[[35]],steps_all[[36]],steps_all[[37]],steps_all[[38]],steps_all[[39]],steps_all[[40]],steps_all[[41]],steps_all[[42]],steps_all[[43]],steps_all[[44]],steps_all[[45]],steps_all[[46]],steps_all[[47]],steps_all[[48]],steps_all[[49]],steps_all[[50]],steps_all[[51]],steps_all[[52]],steps_all[[53]],steps_all[[54]],steps_all[[55]],steps_all[[56]],steps_all[[57]],steps_all[[58]],steps_all[[59]] ,steps_all[[60]],steps_all[[61]],steps_all[[62]],steps_all[[63]],steps_all[[64]],steps_all[[65]],steps_all[[66]],steps_all[[67]],steps_all[[68]],steps_all[[69]],steps_all[[70]],steps_all[[71]],steps_all[[72]],steps_all[[73]],steps_all[[74]],steps_all[[75]],steps_all[[76]],steps_all[[77]],steps_all[[78]],steps_all[[79]],steps_all[[80]],steps_all[[81]],steps_all[[82]],steps_all[[83]],steps_all[[84]],steps_all[[85]],steps_all[[86]],steps_all[[87]],steps_all[[88]],steps_all[[89]],steps_all[[90]],steps_all[[91]],steps_all[[92]],steps_all[[93]],steps_all[[94]],steps_all[[95]],steps_all[[96]],steps_all[[97]],steps_all[[97]],steps_all[[98]],steps_all[[99]])
 ```
 
+
 ## Optional - Data summary
+Small data summary about the PA data. Also the data is saved for further analyses.
 ```{r}
+nrow(all_steps)
 number_of_days_pp <- all_steps %>%
   group_by(patient) %>%
   summarise(n= n())

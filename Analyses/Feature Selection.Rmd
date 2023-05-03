@@ -10,18 +10,23 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Packages
-
 ```{r}
 # Processing
 library(readr) # read data
 library(tidyverse) # data manipulation
-
 # Feature Selection and Imbalance
 library(ggcorrplot) # features correlation
 library(caret) # find correlation function
 library(Boruta) # Boruta feature selection
 library(infotheo) # Mutual information feature importance
 ```
+
+# Information
+- In this document first the combined data set from pre-rpocessing is further cleaned for the purposes of this study.
+- Then data is plit to only perform any analyses on the training data, but not on the test data.
+- Next feature selection is performed. All steps are explained below in detail.
+  - Included are: Correlation checks, Mutual Information criteria, Boruta feature selection and expert knowledge.
+- Plots are generated used in the report and dfs are created and saved which are used for model training
 
 ## Load data sets which need to be balanced
 
@@ -34,7 +39,7 @@ source("Functions/data_split.R")
 full_data <- read_csv("~/GitHub/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/Processing_and_Extraction/Data_processed/full_data.csv")
 ```
 ## Cleaning of full data sets for different tasks (Hyper/Hypo) w/o Outcomes
-
+Only relevant variables are selected, variables are renamed to make them easier to understand for the reader, Two data conditions are subsetted. Full data condition and Lifestyle condition
 ```{r}
 # cleaning of unnecessary vars
 data <- full_data %>%
@@ -71,7 +76,7 @@ full_data_life_plus <- full_data %>% select(Night_class_hypo_out,Night_class_hyp
 #write.csv(full_data,"Data/Full_Data/full_data.csv", row.names = FALSE)
 ```
 
-## Data set preparation
+## Data set preparation - Selection of Outcome variable
 ```{r}
 full_data <- full_data %>% 
   mutate(Night_class_hypo_out = as.factor(Night_class_hypo_out),
@@ -101,9 +106,12 @@ Feature selection is performed in multiple steps.
 1. Correlations were checked, but only as an optional step to see how data is distributed
 2. Mutual Information is calculated based on similarities of features entropies with the outcome variable
 3. Boruta feature selection is performed for both data conditions, the Full data condition and the Lifestyle condition
+4. Features are selected based on both approaches.
+5. Expert knowledge is taken into account and additional features are selected for the analyses.
 
 ### Correlation approach - OPTIONAL
 
+This is just to get an impression of the data.
 ```{r}
 full_data_train_nums <- full_data_train %>%
   mutate(Night_class_hypo_out = as.numeric(Night_class_hypo_out)) %>%
@@ -127,7 +135,7 @@ cor_matrix_dv
 # Mutual information criteria
 
 ## Features based on Mutual Information are compared with the outcome variable
-A Threshold is applied with 0.01
+A Threshold is applied with 0.01 for Full data condition and 0.005 for Lifestyle condition
 ```{r}
 options(scipen = 999)
 all <- infotheo::discretize(full_data_train)
@@ -142,7 +150,7 @@ mut_inf <- mut_inf %>%
 print(mut_inf)
 ```
 
-Due to lower similarity with non CGM features a lower treshold is tested for only the variables in the Lifestyle condition. Values stay the same to the approach before as the mutual information approach is independent of any model and always produces the same estimates no matter how many variables are included.
+Due to lower similarity with non CGM features a lower treshold is tested for only the variables in the Lifestyle condition. *NOTE* Values stay the same to the approach before as the mutual information approach is independent of any model and always produces the same estimates no matter how many variables are included.
 ```{r}
 options(scipen = 999)
 life <- infotheo::discretize(full_data_life_plus_train)
@@ -160,6 +168,7 @@ print(mut_inf_life)
 ## Boruta Feature selectiom
 
 ## For Full data condition
+Boruta feature selection for full data condition. This is repeated for Lifestyle as importance scores change due to inclusion of certain variables.
 ```{r}
 set.seed(123)
 boruta_output_full <- Boruta(Night_class_hypo_out ~ ., data=full_data_train, doTrace=0)
@@ -176,6 +185,7 @@ plot(boruta_output_full, cex.axis=.7, las=2, xlab="", main="Variable Importance"
 ```
 
 ## For Lifestyle condition
+Boruta feature selection with lifestyle condition. 
 ```{r}
 boruta_output_life <- Boruta(Night_class_hypo_out ~ ., data=full_data_life_plus_train, doTrace=0)
 boruta_signif_life <- getSelectedAttributes(boruta_output_life, withTentative = TRUE)
@@ -193,6 +203,8 @@ plot(boruta_output_life, cex.axis=.7, las=2, xlab="", main="Variable Importance"
 
 ## Feature Importance plot based on Boruta feature selection
 This plot shows the mean Importance of variables over multiple iterations based on mean decrease accuracy as part of an RF approach.
+
+This plot is used in the report to emphasize which variables performed best.
 ```{r}
 varimp_full <- imps_full[order(-imps_full$meanImp), ] %>% select(-decision) %>% rownames_to_column("feature") %>% rename(importance = meanImp) %>% mutate(Condition = "Full data")
 varimp_life<- imps_life[order(-imps_life$meanImp), ] %>% select(-decision) %>% rownames_to_column("feature") %>% rename(importance = meanImp) %>% mutate(Condition = "Lifestyle data")
@@ -218,9 +230,31 @@ all_top <- ggplot(data = all_top_features,
   ylim(0, max(all_top_features$importance) * 1.01) + labs(y = "Feature Importance", x = "")
 print(all_top)
 ```
+For Supplementary Material also the 25 best variables based on MI overall
+```{r}
+all_top_features <- mut_inf[1:25,]
+
+all_top <- ggplot(data = all_top_features, 
+       aes(x = reorder(feature, importance), y = importance, fill = feature)) +
+  geom_bar(stat="identity", width = 0.8) + scale_fill_grey(start = 0.1, end = 0.5) + 
+  geom_text(aes(label = round(importance, 2)), color="black", size=4, hjust = -0.25, position = position_dodge(width = 0.5),inherit.aes = TRUE) + 
+  theme_bw(base_size = 12) + theme(legend.position = "none") + scale_x_discrete(guide = guide_axis(n.dodge=1)) + theme_bw(base_size = 13) +
+  theme(legend.position="",
+        panel.border = element_blank(),  # remove panel borders
+        panel.grid.major = element_blank(),  # remove major grid lines
+        panel.grid.minor = element_blank(),  # remove minor grid lines
+        axis.line = element_line(),  # set axis lines to bold
+        axis.text = element_text(size = 12, face = "bold"),  # set axis text to bold
+        axis.title = element_text(size = 14, face = "bold"),
+        plot.background = element_blank(),  # remove plot background
+        panel.background = element_blank()) + 
+  coord_flip() +
+  ylim(0, max(all_top_features$importance) * 1.02) + labs(y = "Mutual Information", x = "")
+print(all_top)
+```
 
 ## Extract common important features across approaches
-
+The overlapping features are directly included and some variables are further included based on Expert knowledge.
 ### Full data Condition
 ```{r}
 # Find the common features selected by both methods
@@ -239,6 +273,7 @@ missing_mi$feature
 extra_expert_full <- c("slope_0_1","tir_70_180","BMI","HbA1c","Weight","Height","T2D_Dur","Age")
 ```
 ### Lifestyle Condition
+Same for the Lifestyle condition. As the results of Boruta differ this has to be done again. The overlapping features are directly included and some variables are further included based on Expert knowledge.
 ```{r}
 # Find the common features selected by both methods
 missing_bor_life <- left_join(varimp_life, mut_inf_life, by="feature") 
@@ -257,18 +292,20 @@ extra_expert_life <- c("dos_fast","fast_ins")
 ```
 
 ## Final Selection both data conditions
+Combing the data sets and seeing how many features are selected
 ```{r}
 # Combining selected and expert knowledge for both data conditions
 
 full_data_sel <- full_data %>% select(Night_class_hypo_out,common_vars,extra_expert_full)
 
 full_data_life_plus_sel <- full_data_life_plus %>% select(Night_class_hypo_out,common_vars_life,extra_expert_life)
-colnames(full_data_sel)
-colnames(full_data_life_plus_sel)
+colnames(full_data_sel) # -1 for outcome variable = Features
+colnames(full_data_life_plus_sel) # -1 for outcome variable = Features
 ```
 
 
 ## Saved data and feature selection process
+Data is saved for further analyses.
 ```{r}
 #write.csv(full_data_sel,"Data/Full_data/full_data_sel.csv", row.names = FALSE)
 #write.csv(full_data_life_plus_sel,"Data/Full_data/full_data_life_plus_sel.csv", row.names = FALSE)

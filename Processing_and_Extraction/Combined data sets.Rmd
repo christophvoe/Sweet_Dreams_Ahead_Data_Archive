@@ -18,6 +18,13 @@ library(readxl) # load raw data
 library(haven) # for baseline stats
 ```
 
+# Information
+- In this document baseline patient data is processed and relevant features are extracted. Further new baseline stats are saved.
+- Next all pre-processed data sets are loaded.
+- Some last pre-processing of data from PA and Food is needed and afterwards all daata sets are combined.
+- Raw data from each patient needs to be processed in a way that all relevant features can get extracted.
+- Several features are extracted and data is saved.
+
 ## Loading and processing baseline characteristics
 ```{r}
 baseline_new <- read_sav("Patients_all_sources/new_baseline.sav")
@@ -40,6 +47,7 @@ cob_all_patients_new <- read_csv("Data_processed/cob_all_patients.csv")
 ```
 
 ## Combining the CGM data set with the AOB and the COB
+First data needs to be combined by date to check wether the days for PA, Food and CGM fit together. If not the days are excluded.
 ```{r}
 # new approach to work with all the patients
 all_patients_cgm_cob <- left_join(all_patients_cgm, cob_all_patients_new,by=c("patient","date"))
@@ -47,7 +55,7 @@ all_patients_cgm_cob_steps <- left_join(all_patients_cgm_cob, steps_all_patients
 ```
 
 ```{r}
-# get the final estimates for lifestyle features
+# get the final estimates for lifestyle features (mean and sd is needed as otherwise there is no information about the periods.)
 cob_steps_all_patients <- all_patients_cgm_cob_steps %>%
   group_by(patient,periods) %>%
   summarise(COB = mean(COB, na.rm=TRUE),
@@ -77,17 +85,14 @@ full_data <- full_data %>%
 ```
 
 ## FINAL Data
+One last patient is excluded as this one only had a single day left after combining all data sets.
 ```{r}
 full_data <- full_data %>%
   filter(!(patient == 597 ))
 ```
 
-```{r}
-#write.csv(full_data,"Data_processed/full_data.csv", row.names = FALSE)
-#write.csv(full_data,"~/GitHub/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/Analyses/Data/Full_data/full_data.csv", row.names = FALSE)
-```
-
 ## OPTIONAL - Data Summary
+Small data summary of full data. Also the data is saved for further analyses.
 ```{r}
 #check this with 1 obs per interval
 number_of_days_pp <- full_data %>%
@@ -95,4 +100,9 @@ number_of_days_pp <- full_data %>%
   summarise(n= n())
 sort(number_of_days_pp$n)
 nrow(number_of_days_pp)
+```
+It is saved within the preprocessing as well as in the analyses section.
+```{r}
+#write.csv(full_data,"Data_processed/full_data.csv", row.names = FALSE)
+#write.csv(full_data,"~/GitHub/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/Analyses/Data/Full_data/full_data.csv", row.names = FALSE)
 ```

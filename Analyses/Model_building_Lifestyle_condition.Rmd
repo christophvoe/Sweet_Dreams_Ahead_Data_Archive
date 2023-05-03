@@ -30,6 +30,18 @@ library(ggforce) #needed for XGB
 library(DMwR) # SMOTE in caret embedded
 ```
 
+# Information
+- In this document all models for the Lifestyle condition are trained.
+- First data is split with a SPECIFIC seed. NOTE: This document is run 3x times with different seed values.
+- Then data is split to only perform any analyses on the training data, but not on the test data.
+- 4 ML models are tested:
+  - Random Forest
+  - Support Vector Machines
+  - eXtreme Gradient Boosting
+  - Lasso Logistic Regression
+  - For only this data  condition resulting in 40 different models.
+- All estimates and probabilities are saved in dfs and just in later analyses
+
 ## Load Helper functions needed for analysis
 ```{r}
 source("Functions/data_split.R")
@@ -70,12 +82,12 @@ levels(full_data_life_plus_test$Night_class_hypo_out) <- c("No_Hypo", "Hypo")
 ```{r}
 # control settings are displayed for each model to ensure that each model building step is represented in a right way.
 # Here it is controlled the search strategy (grid, random) and sampling methods (smote, up)
-ctrl_out <- trainControl(method = "cv", 
-                         number = 10,
-                         classProbs = TRUE,
-                         summaryFunction = twoClassSummary,
-                         search = "grid",
-                         allowParallel = TRUE)
+ctrl_out <- trainControl(method = "cv", # Cross-validation is performed
+                         number = 10, # number of iterations in CV
+                         classProbs = TRUE, # this allows to get probabilities for each person in training and later test set
+                         summaryFunction = twoClassSummary, # this allows for the wanted evaluation metrics
+                         search = "grid", # the grid strategy is specified. Here, it is grid search. Can be customized in train command
+                         allowParallel = TRUE) # Allows to be run parallel - makes computation faster
 
 ctrl_ins_smote <- trainControl(method = "cv", 
                                number = 10,
@@ -125,13 +137,13 @@ ctrl_random_ins_smote <- trainControl(method = "cv",
 
 ```{r}
 # Default tuning length of 10 is selected, data is scaled and centered
-up_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
-                   method = "ranger",
-                   metric = "ROC",
-                   trControl = ctrl_ins_up,
-                   verbose = FALSE,
-                   preProc = c("center", "scale"),
-                   tuneLength=10)
+up_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train, # Outcome variable is predicted based on all features (.) in df, with a specific training data set
+                   method = "ranger", # this is the package used for the calculation, Ranger has a commonly used RF approach with multiple hyperparameters to tune
+                   metric = "ROC", # which metric is used
+                   trControl = ctrl_ins_up, # specified above
+                   verbose = FALSE, # indication about what to output
+                   preProc = c("center", "scale"), # data is centered and scaled
+                   tuneLength=10) # indicating the tuning strategy, Here the number of different tuning strategies is set to 10. Default is 3. Can also be customized, see below.
 
 smote_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "ranger",

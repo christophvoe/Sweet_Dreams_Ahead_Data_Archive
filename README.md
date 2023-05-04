@@ -3,9 +3,7 @@ DATA ARCHIVE - Sweet_Dreams_Ahead_Master_thesis
 
 *Background and Aims:* 
 
-Continuous glucose monitoring (CGM) is known to prevent adverse events such as nocturnal hypoglycemia (NH) in diabetes patients. However, due to its high cost, it is not feasible to provide CGM for the majority of Type 2 diabetes (T2D) patients, which implies a need for additional features to CGM that can help predict NH. While lifestyle factors such as diet and activity level are known to be related to T2D prevalence, the extent to which these factors can accurately predict NH has not yet been explored. To address this gap, this study developed predictive models for NH in T2D patients and compared the predictive performance of two feature conditions: one with CGM features included (Full data condition) and one without (Lifestyle condition). 
-
-For more information see the final [report](https://github.com/christophvoe/Sweet_Dreams_Ahead_Master_thesis_Code_ONLY/blob/main/Report/Sweet_Dreams_Ahead__Machine_Learning_Models_for_Accurate_Nocturnal_Hypoglycemia_Prediction_in_Diabetes_Type_2_Patients.pdf).
+Continuous glucose monitoring (CGM) is known to prevent adverse events such as nocturnal hypoglycemia (NH) in diabetes patients. However, due to its high cost, it is not feasible to provide CGM for the majority of Type 2 diabetes (T2D) patients, which implies a need for additional features to CGM that can help predict NH. While lifestyle factors such as diet and activity level are known to be related to T2D prevalence, the extent to which these factors can accurately predict NH has not yet been explored. To address this gap, this study developed predictive models for NH in T2D patients and compared the predictive performance of two feature conditions: one with CGM features included (Full data condition) and one without (Lifestyle condition).
 
 ---
 *Study Information:*
@@ -66,8 +64,6 @@ Including: [Prediction on Test set](https://github.com/christophvoe/Sweet_Dreams
 |[Analyses/Model Building - FULL](https://github.com/christophvoe/Sweet_Dreams_Ahead_Master_thesis_Code_ONLY/blob/main/Analyses/Model_building_Full_data_condition.Rmd) |R-Markdown-script to train models in the Full data condition. Object with final evaluation metrics is saved and list with probabilities of NH for each observation across MLs|
 |[Analyses/Model Building - LIFE](https://github.com/christophvoe/Sweet_Dreams_Ahead_Master_thesis_Code_ONLY/blob/main/Analyses/Model_building_Lifestyle_condition.Rmd) |R-Markdown-script to train models in the Lifestyle condition. Object with final evaluation metrics is saved and list with probabilities of NH for each observation across MLs|
 |[Analyses/Tables and Figures](https://github.com/christophvoe/Sweet_Dreams_Ahead_Master_thesis_Code_ONLY/blob/main/Analyses/Tables_and_Figures.Rmd) |R-Markdown-script that needs to be executed after model training. Final estimates are calculated and tables, figures and additional resources are created. Includes session_info as it is the last script to be executed|
-|[Report/Latex Code](https://github.com/christophvoe/Sweet_Dreams_Ahead_Master_thesis_Code_ONLY/tree/main/Report/Latex_Code) |Folder containing files to recreate the exact report for my master thesis including Figures obtained by the [Tables and Figures](https://github.com/christophvoe/Sweet_Dreams_Ahead_Master_thesis_Code_ONLY/blob/main/Analyses/Tables_and_Figures.Rmd) script|
-|[Report/Thesis](https://github.com/christophvoe/Sweet_Dreams_Ahead_Master_thesis_Code_ONLY/blob/main/Report/Sweet_Dreams_Ahead__Machine_Learning_Models_for_Accurate_Nocturnal_Hypoglycemia_Prediction_in_Diabetes_Type_2_Patients.pdf) |PDF-Document with the compiled version of the files in the [Latex Code](https://github.com/christophvoe/Sweet_Dreams_Ahead_Master_thesis_Code_ONLY/tree/main/Report/Latex_Code) folder|
 ---------
 
 

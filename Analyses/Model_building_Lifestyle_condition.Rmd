@@ -16,14 +16,13 @@ library(readr) # read data
 library(tidyverse) # data manipulation
 
 # Methods
-library(randomForest) # For RFE and Embedded
 library(ranger) # RF with more hypers to tune
 library(glmnet) # Lasso
 library(xgboost) # Boosting
 library(e1071) # SVM, most likely not used
 library(kernlab) #SVM with more hypers and more sophisticated algorithms
 
-# Feature Selection and Imbalance
+# Class Imbalance and Evaluation metrics
 library(caret) # Hyper training
 library(pROC) # AUC and ROC
 library(ggforce) #needed for XGB 

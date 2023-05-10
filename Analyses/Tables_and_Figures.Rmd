@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## packages
-```{r}
+```{r, warning=FALSE, results='hide', message=FALSE}
 library(readr) # read data
 library(tidyverse) # data manipulation
 library(RColorBrewer) # color palettes
@@ -33,13 +33,13 @@ library(data.table) # data frame preparation for descriptive stats
 - A Session Info command is the last code chunk as this is the last needed script to be run for this study.
 
 ## Load Helper functions needed for analysis
-```{r}
+```{r, warning=FALSE, results='hide', message=FALSE}
 source("Functions/calibration_helper.R") # helper function to make calibration plots
 ```
 
 ## Full data
 Load all results on evaluation metrics obtained by the model building scripts when run with different folds indicated by document name.
-```{r}
+```{r, warning=FALSE}
 # All produced data frames from the Model building docs
 full <- read_csv("Data/Model_results/all_models_full_123.csv") # 1. fold
 life <- read_csv("Data/Model_results/all_models_lifestyle_123.csv") # 1. fold
@@ -51,9 +51,23 @@ full_2 <- read_csv("Data/Model_results/all_models_full_2408.csv") # 3. fold
 life_2 <- read_csv("Data/Model_results/all_models_lifestyle_2408.csv") # 3. fold
 ```
 
+### Overview - Full data over Folds
+```{r}
+full[1:10,]
+full_1[11:20,]
+full_2[21:30,]
+```
+
+### Overview - Lifestyle data over Folds
+```{r}
+life[1:10,]
+life_1[11:20,]
+life_2[21:30,]
+```
+
 # Creating Estimates over folds
 Get the mean and SD over the three folds for each of the evaluation metrics.
-```{r}
+```{r, warning=FALSE}
 all_full <- rbind(full,full_1,full_2)
 
 all_full <- all_full %>%
@@ -82,7 +96,7 @@ all_full_cross <-  rbind(all_full,all_life)
 # Table of Model Results
 This is the pre-processing for the table with the best 32 models depicted in the report.
 # Pre-Processing for Table
-```{r}
+```{r, warning=FALSE}
 data <- all_full_cross 
 
 data <- data %>%
@@ -113,7 +127,7 @@ data <- data %>%
 
 ## Pre processing with only best 32 models
 Models are ordered in the way that it is strucured across all MLs
-```{r}
+```{r, warning=FALSE}
 data <- data %>%
   ungroup()
 
@@ -197,8 +211,20 @@ all_table <- cbind(data_long_rf,data_long_svm,data_long_xgb,data_long_lasso) # T
 all_table <- t(all_table)
 ```
 
-```{r}
-# Crearing Latex code based on x_table package
+### TABLE USED IN STUDY
+Column names in numbers refer to the following model building conditions.
+
+Condition == "Full_data" & Resample == "original" & Thres == TRUE ~ 1,
+                           Condition == "Full_data" & Resample == "original" & Thres == FALSE ~ 2,
+                           Condition == "Full_data" & Resample == "smote" & Thres == FALSE ~ 3,
+                           Condition == "Full_data" & Resample == "up" & Thres == FALSE ~ 4,
+                           Condition == "Lifestyle" & Resample == "original" & Thres == TRUE ~ 5,
+                           Condition == "Lifestyle" & Resample == "original" & Thres == FALSE ~ 6,
+                           Condition == "Lifestyle" & Resample == "smote" & Thres == FALSE ~ 7,
+                           Condition == "Lifestyle" & Resample == "up" & Thres == FALSE ~ 8)
+                           
+```{r, warning=FALSE}
+# Creating Latex code based on x_table package
 tbl <- xtable(all_table)
 tbl
 ```
@@ -208,7 +234,7 @@ tbl
 ## ROC
 
 # Load the probabilities for each patient in the test data set
-```{r}
+```{r, warning=FALSE}
 probabilities_full <- readRDS("Data/Model_results/Trained_models/probs_full_123.RData")
 probabilities_full_1 <- readRDS("Data/Model_results/Trained_models/probs_full_41263.RData")
 probabilities_full_2 <- readRDS("Data/Model_results/Trained_models/probs_full_2408.RData")
@@ -222,7 +248,7 @@ This step needs to be repeated for each of the three folds. The same code with d
 
 ## For 1. Fold
 For each fold some further pre-processing is needed.
-```{r}
+```{r, warning=FALSE}
 probabilities_full$rf$ML <- "RF"
 probabilities_full$svm$ML <- "SVM"
 probabilities_full$xgb$ML <- "XGB"
@@ -233,7 +259,6 @@ probabilities_life$svm$ML <- "SVM"
 probabilities_life$xgb$ML <- "XGB"
 probabilities_life$lasso$ML <- "Lasso"
 
--------------------------------------
   # Only for Full data condition
 probs_full_new <- rbind(probabilities_full$rf,probabilities_full$svm,probabilities_full$xgb,probabilities_full$lasso)
 
@@ -255,7 +280,6 @@ group_by(model,ML) %>%
   subset( select = -c(.metric,.estimator))
 
 probs_full_new <- left_join(probs_full_new,probs_full_new_auc, by= c("model","ML"))
---------------------------------------
   # THis needs to be repeated for Lifestyle Condition
 
 probs_life_new <- rbind(probabilities_life$rf,probabilities_life$svm,probabilities_life$xgb,probabilities_life$lasso)
@@ -284,7 +308,7 @@ probs_new$Fold <- "Fold 1"
 ```
 
 ## For 2. Fold
-```{r}
+```{r, warning=FALSE}
 probabilities_full_1$rf$ML <- "RF"
 probabilities_full_1$svm$ML <- "SVM"
 probabilities_full_1$xgb$ML <- "XGB"
@@ -343,7 +367,7 @@ probs_new_fold_1$Fold <- "Fold 2"
 ```
 
 ## For 3. Fold
-```{r}
+```{r, warning=FALSE}
 probabilities_full_2$rf$ML <- "RF"
 probabilities_full_2$svm$ML <- "SVM"
 probabilities_full_2$xgb$ML <- "XGB"
@@ -402,14 +426,14 @@ probs_new_fold_2$Fold <- "Fold 3"
 ```
 
 ## Combining all three folds
-```{r}
+```{r, warning=FALSE}
 probs_final <- rbind(probs_new,probs_new_fold_1,probs_new_fold_2)
 ```
 
 
 ## Last Pre-processing 
 Here the means are calculated to have the best performing model based on all model building choices, corresponding to the best model selected for the tables.
-```{r}
+```{r, warning=FALSE}
 full$Fold <- "Fold 1"
 full_1$Fold <- "Fold 2"
 full_2$Fold <- "Fold 3"
@@ -427,7 +451,7 @@ for_roc <- for_roc %>%
 
 ## Final data set needed to visualize ROC curves
 Again only the best performing Tuning and Sampling strategy is chosen to be depicted. However, this is depicted for each of the data folds to highlight the data variability in this data set. 
-```{r}
+```{r, warning=FALSE}
 probs_new_final <- left_join(probs_final,for_roc, by= c("model","ML","Condition","Fold")) # combine the roc curves data with the tables data
 
 probs_new_final <- probs_new_final %>%
@@ -449,7 +473,7 @@ probs_new_final <- probs_new_final %>%
 
 ## Seperate data sets for Mean depiction
 These extra dfs are containing information about the mean values which will be included in the plot.
-```{r}
+```{r, warning=FALSE}
 auc_values_full_mean <- probs_new_final %>%
   group_by(ML, Condition, Fold) %>%
   summarise(AUC = max(mean_AUC)) %>%
@@ -463,7 +487,7 @@ auc_values_life_mean <- probs_new_final %>%
 ```
 ## ROC plot across all folds
 The code which produces exactly the code needed for the figure in the report.
-```{r}
+```{r, warning=FALSE}
 ROC_compare_fold <- probs_new_final%>%
   ggplot(aes(1 - specificity, sensitivity, fill = Fold, color=Condition)) +
   geom_abline(lty = 2, color = "gray", size = 1,alpha = 0.8) +
@@ -492,10 +516,9 @@ ROC_compare_fold <- probs_new_final%>%
 print(ROC_compare_fold)
 ```
 
-------------------------------------------------------------------------------------------------------------------------
-## Descirptives Table 
+## Descriptives Table 
 Estimates are obtained for all included patients on baseline stats.
-```{r}
+```{r, warning=FALSE}
 full_data <- read_csv("Data/Full_data/full_data.csv") # raw data set is loaded
 
 # Preparation of dataset needed for descriptive stats
@@ -512,7 +535,7 @@ DT <- as.data.frame(DT)
 
 # Proportions and counts for factor variables
 For factors a different approach is used and values need to be included manually.
-```{r}
+```{r, warning=FALSE}
 table(full_data$Night_class_hypo_out)
 round(table(full_data$Night_class_hypo_out)[1]/(table(full_data$Night_class_hypo_out)[1]+table(full_data$Night_class_hypo_out)[2]),3)
 round(table(full_data$Night_class_hypo_out)[2]/(table(full_data$Night_class_hypo_out)[1]+table(full_data$Night_class_hypo_out)[2]),3)
@@ -521,7 +544,7 @@ round(table(full_data$Gender)[1]/(table(full_data$Gender)[1]+table(full_data$Gen
 round(table(full_data$Gender)[2]/(table(full_data$Gender)[1]+table(full_data$Gender)[2]),3)
 ```
 # Latex code for descriptives
-```{r}
+```{r, warning=FALSE}
 stargazer(DT, 
           type = 'latex', min.max=FALSE, mean.sd = TRUE, 
           nobs = FALSE, median = FALSE, iqr = FALSE,
@@ -529,10 +552,8 @@ stargazer(DT,
           title = "Summary Statistics")
 ```
 
-------------------------------------------------------------------------------------------------------------------------
-
 ## Calibration plots - OPTIONAL
-```{r}
+```{r, warning=FALSE}
 calibration_plots(probabilities_full$rf)
 calibration_plots(probabilities_full$svm)
 calibration_plots(probabilities_full$xgb)
@@ -545,7 +566,7 @@ calibration_plots(probabilities_life$lasso)
 ```
 
 ## Outcome frequency and Distribution of days - OPTIONAL INFORMATION
-```{r}
+```{r, warning=FALSE}
 descrip <- full_data
 number_of_days_pp <- descrip %>%
   group_by(patient) %>%
@@ -555,7 +576,7 @@ nrow(number_of_days_pp) # number of patients
 nrow(full_data) # number of individual observations
 ```
 
-```{r}
+```{r, warning=FALSE}
 # Visualisation for distribution of outcome variable
 ggplot(full_data %>%
       count(Night_class_hypo_out) %>% #Groups by team and role
@@ -569,7 +590,7 @@ ggplot(full_data %>%
 
 ### CGM visualisation
 Exemplary continous profiles of patients. Nocturnal Hypo-, and Hyperglyceamia are highlighted. On top it gets clear, where periods of glucose values are missing in the intended 14 day period
-```{r}
+```{r, warning=FALSE}
 all_patients_cgm <- read_csv("~/GitHub/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/Processing_and_Extraction/Data_processed/all_patients_cgm.csv")
 
 all_patients_cgm %>%
@@ -591,11 +612,5 @@ all_patients_cgm %>%
        x = "Time",
        y = "Glucose level in mmol/l",
        colour = "Nocturnal Hyperglycaemia")
-```
-
-## SESSION INFO
-As this is the last code needed to perform the analysis here a session info command is run.
-```{r}
-sessionInfo()
 ```
 

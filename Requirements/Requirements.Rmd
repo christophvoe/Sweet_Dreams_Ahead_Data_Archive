@@ -1,0 +1,83 @@
+---
+title: "Requirements"
+author: "Christoph Völtzke"
+date: '2023'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, warning=FALSE, results='hide', message=FALSE, echo=FALSE}
+# Tables and figures
+library(readr) # read data
+library(tidyverse) # data manipulation
+library(RColorBrewer) # color palettes
+library(xtable) # latex code for main results
+library(yardstick) # ROC curves with multiple curves
+library(stargazer) # latex code for descriptive stats
+library(data.table) # data frame preparation for descriptive stats
+```
+
+```{r, warning=FALSE, results='hide', message=FALSE, echo=FALSE}
+# Feature Selection
+library(readr) # read data
+library(tidyverse) # data manipulation
+# Feature Selection and Imbalance
+library(ggcorrplot) # features correlation
+library(caret) # find correlation function
+library(Boruta) # Boruta feature selection
+library(infotheo) # Mutual information feature importance
+```
+
+```{r, warning=FALSE, results='hide', message=FALSE, echo=FALSE}
+# Model Building (The same for both conditions)
+library(readr) # read data
+library(tidyverse) # data manipulation
+
+# Methods
+library(randomForest) # For RFE and Embedded
+library(ranger) # RF with more hypers to tune
+library(glmnet) # Lasso
+library(xgboost) # Boosting
+library(e1071) # SVM, most likely not used
+library(kernlab) #SVM with more hypers and more sophisticated algorithms
+
+# Feature Selection and Imbalance
+library(caret) #  Hyper training
+library(pROC) # AUC and ROC
+library(ggforce) #needed for XGB
+library(DMwR) # SMOTE in caret embedded, but need to be loaded
+```
+
+```{r, warning=FALSE, results='hide', message=FALSE, echo=FALSE}
+# Pre-processing
+library(lubridate) # process dates
+library(tidyverse) # process data
+library(ggplot2) # to plot
+library(readxl) # load raw data
+library(readr) # read data
+library(haven) # for baseline stats
+library(broom) # data processing
+library(iglu) # CGM indices
+```
+
+```{r, warning=FALSE, results='hide', message=FALSE, echo=FALSE}
+# Tables and figures
+library(readr) # read data
+library(tidyverse) # data manipulation
+library(RColorBrewer) # color palettes
+library(xtable) # latex code for main results
+library(yardstick) # ROC curves with multiple curves
+library(stargazer) # latex code for descriptive stats
+library(data.table) # data frame preparation for descriptive stats
+```
+
+# SESSION INFO
+All dependencies used in this study are included in this file.
+```{r, warning=FALSE}
+sessionInfo()
+```

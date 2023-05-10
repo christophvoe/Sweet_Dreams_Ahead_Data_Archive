@@ -21,7 +21,7 @@ library(haven) # for baseline stats
 # Information
 - In this document baseline patient data is processed and relevant features are extracted. Further new baseline stats are saved.
 - Next all pre-processed data sets are loaded.
-- Some last pre-processing of data from PA and Food is needed and afterwards all daata sets are combined.
+- Some last pre-processing of data from PA and Food is needed and afterwards all data sets are combined.
 - Raw data from each patient needs to be processed in a way that all relevant features can get extracted.
 - Several features are extracted and data is saved.
 

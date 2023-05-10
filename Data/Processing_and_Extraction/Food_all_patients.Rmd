@@ -716,6 +716,7 @@ number_of_days_pp <- food_pp_pd_1 %>%
   summarise(n= n())
 sort(number_of_days_pp$n)
 nrow(number_of_days_pp)
+summary(food_pp_pd_1)
 ```
 
 ```{r}

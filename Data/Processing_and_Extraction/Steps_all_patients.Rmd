@@ -1,8 +1,10 @@
 ---
 title: "Physical activity_all_patients"
 author: "Christoph Völtzke"
-date: "2022"
-output: html_document
+date: '2022'
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -277,6 +279,8 @@ number_of_days_pp <- all_steps %>%
 sort(number_of_days_pp$n)
 nrow(number_of_days_pp)
 number_of_days_pp
+
+summary(all_steps)
 ```
 
 ```{r}

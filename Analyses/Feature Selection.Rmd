@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Packages
-```{r}
+```{r, warning=FALSE, results='hide', message=FALSE}
 # Processing
 library(readr) # read data
 library(tidyverse) # data manipulation
@@ -30,17 +30,17 @@ library(infotheo) # Mutual information feature importance
 
 ## Load data sets which need to be balanced
 
-```{r}
+```{r, warning=FALSE, results='hide', message=FALSE}
 source("Functions/data_split.R")
 ```
 
 ## Original data
-```{r}
+```{r, warning=FALSE}
 full_data <- read_csv("~/GitHub/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/Processing_and_Extraction/Data_processed/full_data.csv")
 ```
 ## Cleaning of full data sets for different tasks (Hyper/Hypo) w/o Outcomes
 Only relevant variables are selected, variables are renamed to make them easier to understand for the reader, Two data conditions are subsetted. Full data condition and Lifestyle condition
-```{r}
+```{r, warning=FALSE}
 # cleaning of unnecessary vars
 data <- full_data %>%
   mutate(wday = factor(wday),
@@ -77,7 +77,7 @@ full_data_life_plus <- full_data %>% select(Night_class_hypo_out,Night_class_hyp
 ```
 
 ## Data set preparation - Selection of Outcome variable
-```{r}
+```{r, warning=FALSE}
 full_data <- full_data %>% 
   mutate(Night_class_hypo_out = as.factor(Night_class_hypo_out),
          Night_class_hyper_30 = as.factor(Night_class_hyper_30)) %>%
@@ -90,7 +90,7 @@ full_data_life_plus <- full_data_life_plus %>%
 ```
 
 ## Data split train/test
-```{r}
+```{r, warning=FALSE}
 full_data_split <- data_split(full_data,train_size= 0.75, seed = 123)
 full_data_train <- full_data_split[[1]]
 full_data_test <- full_data_split[[2]]
@@ -112,7 +112,7 @@ Feature selection is performed in multiple steps.
 ### Correlation approach - OPTIONAL
 
 This is just to get an impression of the data.
-```{r}
+```{r, warning=FALSE}
 full_data_train_nums <- full_data_train %>%
   mutate(Night_class_hypo_out = as.numeric(Night_class_hypo_out)) %>%
   select_if(is.numeric)
@@ -126,7 +126,7 @@ colnames(full_data_train_del)
 ncol(full_data_train_col)
 # Very high/Low correlations are detected for the CGM features - However, this is to be expected due to the same data origin for feature extration
 ```
-```{r}
+```{r, warning=FALSE}
 cor_matrix_dv <- cor_matrix %>% filter(cor_matrix$Night_class_hypo_out <= -0.5 | cor_matrix$Night_class_hypo_out >= 0.5)
 cor_matrix_dv
 # No variable has a correlation of 0.5/-0.5 or higher/lower with the DV
@@ -136,7 +136,7 @@ cor_matrix_dv
 
 ## Features based on Mutual Information are compared with the outcome variable
 A Threshold is applied with 0.01 for Full data condition and 0.005 for Lifestyle condition
-```{r}
+```{r, warning=FALSE}
 options(scipen = 999)
 all <- infotheo::discretize(full_data_train)
 mut_inf <- mutinformation(all,method= "emp")
@@ -151,7 +151,7 @@ print(mut_inf)
 ```
 
 Due to lower similarity with non CGM features a lower treshold is tested for only the variables in the Lifestyle condition. *NOTE* Values stay the same to the approach before as the mutual information approach is independent of any model and always produces the same estimates no matter how many variables are included.
-```{r}
+```{r, warning=FALSE}
 options(scipen = 999)
 life <- infotheo::discretize(full_data_life_plus_train)
 mut_inf_life <- mutinformation(life,method= "emp")
@@ -169,7 +169,7 @@ print(mut_inf_life)
 
 ## For Full data condition
 Boruta feature selection for full data condition. This is repeated for Lifestyle as importance scores change due to inclusion of certain variables.
-```{r}
+```{r, warning=FALSE}
 set.seed(123)
 boruta_output_full <- Boruta(Night_class_hypo_out ~ ., data=full_data_train, doTrace=0)
 boruta_signif_full <- getSelectedAttributes(boruta_output_full, withTentative = TRUE)
@@ -177,7 +177,7 @@ roughFixMod <- TentativeRoughFix(boruta_output_full)
 boruta_signif <- getSelectedAttributes(roughFixMod)
 ```
 
-```{r}
+```{r, warning=FALSE}
 # This plot shows the distribution of selected, tentative and rejected variables for the full data condition
 imps_full <- attStats(boruta_output_full)
 imps_full = imps_full[imps_full$decision != 'Rejected', c('meanImp', 'decision')]
@@ -186,14 +186,14 @@ plot(boruta_output_full, cex.axis=.7, las=2, xlab="", main="Variable Importance"
 
 ## For Lifestyle condition
 Boruta feature selection with lifestyle condition. 
-```{r}
+```{r, warning=FALSE}
 boruta_output_life <- Boruta(Night_class_hypo_out ~ ., data=full_data_life_plus_train, doTrace=0)
 boruta_signif_life <- getSelectedAttributes(boruta_output_life, withTentative = TRUE)
 roughFixMod <- TentativeRoughFix(boruta_output_life)
 boruta_signif <- getSelectedAttributes(roughFixMod)
 ```
 
-```{r}
+```{r, warning=FALSE}
 # This plot shows the distribution of selected, tentative and rejected variables for the Lifestyle condition
 imps_life <- attStats(boruta_output_life)
 imps_life = imps_life[imps_life$decision != 'Rejected', c('meanImp', 'decision')]
@@ -205,7 +205,7 @@ plot(boruta_output_life, cex.axis=.7, las=2, xlab="", main="Variable Importance"
 This plot shows the mean Importance of variables over multiple iterations based on mean decrease accuracy as part of an RF approach.
 
 This plot is used in the report to emphasize which variables performed best.
-```{r}
+```{r, warning=FALSE}
 varimp_full <- imps_full[order(-imps_full$meanImp), ] %>% select(-decision) %>% rownames_to_column("feature") %>% rename(importance = meanImp) %>% mutate(Condition = "Full data")
 varimp_life<- imps_life[order(-imps_life$meanImp), ] %>% select(-decision) %>% rownames_to_column("feature") %>% rename(importance = meanImp) %>% mutate(Condition = "Lifestyle data")
 
@@ -231,7 +231,7 @@ all_top <- ggplot(data = all_top_features,
 print(all_top)
 ```
 For Supplementary Material also the 25 best variables based on MI overall
-```{r}
+```{r, warning=FALSE}
 all_top_features <- mut_inf[1:25,]
 
 all_top <- ggplot(data = all_top_features, 
@@ -256,7 +256,7 @@ print(all_top)
 ## Extract common important features across approaches
 The overlapping features are directly included and some variables are further included based on Expert knowledge.
 ### Full data Condition
-```{r}
+```{r, warning=FALSE}
 # Find the common features selected by both methods
 missing_bor <- left_join(varimp_full, mut_inf, by="feature") 
 missing_bor <- missing_bor[is.na(missing_bor$importance.y), ]
@@ -274,7 +274,7 @@ extra_expert_full <- c("slope_0_1","tir_70_180","BMI","HbA1c","Weight","Height",
 ```
 ### Lifestyle Condition
 Same for the Lifestyle condition. As the results of Boruta differ this has to be done again. The overlapping features are directly included and some variables are further included based on Expert knowledge.
-```{r}
+```{r, warning=FALSE}
 # Find the common features selected by both methods
 missing_bor_life <- left_join(varimp_life, mut_inf_life, by="feature") 
 missing_bor_life <- missing_bor_life[is.na(missing_bor_life$importance.y), ]
@@ -293,7 +293,7 @@ extra_expert_life <- c("dos_fast","fast_ins")
 
 ## Final Selection both data conditions
 Combing the data sets and seeing how many features are selected
-```{r}
+```{r, warning=FALSE}
 # Combining selected and expert knowledge for both data conditions
 
 full_data_sel <- full_data %>% select(Night_class_hypo_out,common_vars,extra_expert_full)
@@ -306,7 +306,7 @@ colnames(full_data_life_plus_sel) # -1 for outcome variable = Features
 
 ## Saved data and feature selection process
 Data is saved for further analyses.
-```{r}
+```{r, warning=FALSE}
 #write.csv(full_data_sel,"Data/Full_data/full_data_sel.csv", row.names = FALSE)
 #write.csv(full_data_life_plus_sel,"Data/Full_data/full_data_life_plus_sel.csv", row.names = FALSE)
 

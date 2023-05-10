@@ -10,20 +10,19 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Packages
-```{r}
+```{r, warning=FALSE, results='hide', message=FALSE}
 # Processing
 library(readr) # read data
 library(tidyverse) # data manipulation
 
 # Methods
-library(randomForest) # For RFE and Embedded
 library(ranger) # RF with more hypers to tune
 library(glmnet) # Lasso
 library(xgboost) # Boosting
 library(e1071) # SVM, most likely not used
 library(kernlab) #SVM with more hypers and more sophisticated algorithms
 
-# Feature Selection and Imbalance
+# Class Imbalance and Evaluation metrics
 library(caret) #  Hyper training
 library(pROC) # AUC and ROC
 library(ggforce) #needed for XGB
@@ -43,7 +42,7 @@ library(DMwR) # SMOTE in caret embedded, but need to be loaded
 - All estimates and probabilities are saved in dfs and just in later analyses
 
 ## Load Helper functions needed for analysis
-```{r}
+```{r, warning=FALSE, results='hide', message=FALSE}
 # Each of them is explained in the respecitve R script available in the Functions folder
 source("Functions/data_split.R")
 source("Functions/confusion_matrix_function.R")
@@ -223,7 +222,7 @@ original_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
 
 ## Predictions for Test set
 ```{r}
-# a customized function is used which calculates all of the evaluation metrics needed and also gives the probablities in a single object
+# a customized function is used which calculates all of the evaluation metrics needed and also gives the probabilities in a single object
 pred_original <- rf_pred(original_t10,threshold = TRUE)
 pred_original_thres <- rf_pred(original_t10)
 

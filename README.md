@@ -19,7 +19,7 @@ Multiple machine learning algorithms were applied to data from 76 patients. Data
 
 ROC curve comparison - Full Data Condition and Lifestyle Condition across all ML algorithms.
 <p align="center">
-  <img src="https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Scripts/Functions/ROC_compare_folds_rs.png" width="100%">
+  <img src="https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Scripts/Functions/ROC_compare_folds_rs.png" width="90%">
 </p>
 
 *Conclusion*

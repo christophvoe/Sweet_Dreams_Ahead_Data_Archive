@@ -5,11 +5,11 @@ Output - Disclaimer
 
 Output is included only for the scripts with relevant analyses and results for the report. 
 
-This is the case for the two files [Feature Selection]() and [Tables and Figures]().
+This is the case for the two files [Feature Selection](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Output/Feature-Selection.pdf) and [Tables and Figures](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Output/Tables_and_Figures.pdf).
 
-* [Feature Selection]() uses the pre-processed data and performs the feature selection as described in the main study and also produces several figures used in the main study as well as additional figures not used in the main study.
+* [Feature Selection](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Output/Feature-Selection.pdf) uses the pre-processed data and performs the feature selection as described in the main study and also produces several figures used in the main study as well as additional figures not used in the main study. 
 
-* [Tables and Figures]() uses the estimates obtained by the scripts regarding model building and produces the exact results depicted in the report. 
+* [Tables and Figures](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Output/Tables_and_Figures.pdf) uses the estimates obtained by the scripts regarding model building and produces the exact results depicted in the report. 
 
 
 *NOTE*

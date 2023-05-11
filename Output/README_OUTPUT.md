@@ -14,7 +14,8 @@ This is the case for the two files [Feature Selection](https://github.com/christ
 
 *NOTE*
 
-* All other scripts are part of Pre-processing and Model building. For model building and data splitting in train and test sets, seed values are used as described in the corresponding scripts.
-* As Raw and Processed Data are not included due to sensible patient information, the output of the processing and model building does not yield any further results.
+* All other scripts are part of Pre-processing and Model building. 
+* For model building and data splitting in train and test sets, seed values are used as described in the corresponding scripts.
+* As Raw and Processed Data are not included due to sensible patient information, the output of the processing and model building does not yield any further results and no output is included here.
 
 ---

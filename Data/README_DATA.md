@@ -3,9 +3,12 @@ DATA - Disclaimer
 
 *How to obtain the data:*
 
-To obtain access to the data, interested parties must contact the Ziekenhuis Groep Twente directly and obtain clearance for data access. Please contact Kappert, Kilian: k.d.r.kappert@utwente.nl for more information as multiple parties are involved to get data clearance. TO obtain further information about this study, see [here](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Data/DIALECT_Study_Protocol.pdf).
+To obtain access to the data, interested parties must contact the Ziekenhuis Groep Twente directly and obtain clearance for data access. Please contact Kappert, Kilian: k.d.r.kappert@utwente.nl for more information as multiple parties are involved to get data clearance. To obtain further information about this study, see [here](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Data/DIALECT_Study_Protocol.pdf).
 
-* A token and a username will be provided with which you can log in here: https://www.zgt.nl/professionals/medewerkers/. In this way you will get access to the Intranet of the ZGT. * Follow this path: "J:\Twinz Trial\DIALECT\Data 2022\Patients_all_Sources" to access to folder including the data. The resulting folder is organized on a per-patient basis, with each patient having their own individual folder. This is the folder with exactly the patients and file names used in this study.
+* A token and a username will be provided with which you can log in here: https://www.zgt.nl/professionals/medewerkers/. In this way you will get access to the Intranet of the ZGT. 
+* Follow this path --> "J:\Twinz Trial\DIALECT\Data 2022\Patients_all_Sources" to access the folder including the data. 
+* The resulting folder is organized on a per-patient basis, with each patient having their own individual folder. 
+* This is the folder with exactly the patients and file names used in this study.
 
 *Each folder contains:*
 

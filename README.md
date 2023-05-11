@@ -22,6 +22,8 @@ ROC curve comparison - Full Data Condition and Lifestyle Condition across all ML
   <img src="https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Scripts/Functions/ROC_compare_folds_rs.png" width="90%">
 </p>
 
+Results show for the four tested ML algorithms that the Random Forest model produced the best results across both data conditions.
+
 *Conclusion*
 
 Predictive performance is highest for models including CGM. However, in the absence of CGM, the Lifestyle conditions showed high AUC and sensitivity. These results provide a cost- and time-effective way to identify T2D patients at risk.
@@ -30,9 +32,9 @@ Predictive performance is highest for models including CGM. However, in the abse
 
 # Ethics / Privacy / Security
 
-* Due to the sensitive nature of the patient data and in correspondence with the ZGT, raw as well as processed data cannot be made public. Scripts without the data sets used are provided. Data access must be obtained in the indicated way, see [here]. Results used in the final report are shown in the [output] folder.
+* Due to the sensitive nature of the patient data and in correspondence with the ZGT, raw as well as processed data cannot be made public. Scripts are provided to understand the workflow and can only be reproduced when data is obtained. For that, data access must be obtained in the indicated way, see [here]. Results used in the final report are shown in the [output] folder.
 * For more information about the study, please refer to the local institutional review boards (FETC, Filed number: 22-1863), where this study was registered and accepted. 
-* For more information about the study population please refer to the Netherlands Trial Register (NTR5855) or see [protocol](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Data/DIALECT_Study_Protocol.pdf).
+* For more information about the study population please refer to the Netherlands Trial Register (NTR5855) or see the  [protocol](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Data/DIALECT_Study_Protocol.pdf).
 * The study was performed according to the declaration of Helsinki, and written informed consent was obtained from all patients before participation.
 
 ---
@@ -62,7 +64,7 @@ Predictive performance is highest for models including CGM. However, in the abse
 
 | Files/Folders                 | Description   |
 | -----------------             | ------------- |
-|[README](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/README.md)      |This is the general README file including the information on how to reproduce the results. Also including study-, ethics-, and access information. Also included as an .html file for ease of reading|
+|[README](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/README.md)      |This is the general README file including the information on how to reproduce the results. Also including study-, ethics-, and access information|
 |[Requirements](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/tree/main/Requirements) |This folder includes an R-Markdown-script including the dependencies used and a compiled .html and .pdf version|
 |[Data](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/tree/main/Data) |This folder includes a README_DATA file on how to obtain the data, a .pdf file about the study population and a Folder with the pre-processing and feature extraction steps|
 |[Data/README_DATA](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Data/README_DATA.md) |File with exact details on how to obtain the data and how to store them to reproduce the results|
@@ -75,7 +77,7 @@ Predictive performance is highest for models including CGM. However, in the abse
 |[Data/Processing_and_Extraction/Combined data sets](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Data/Processing_and_Extraction/Combined%20data%20sets.Rmd) |R-Markdown-script to combine data sets from all three feature categories and to load baseline data and extract relevant features. Includes full data set before feature selection|
 |[Scripts](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/tree/main/Scripts)      | This folder contains all scripts to be run after the pre-processing This includes: 1 README_SCRIPTS file including information on how to run the scripts, 1 folder with scripts of helper functions, and 4 individual scripts which need to be run in the following order:  1. Feature Selection,  2/3. Model_building_Full_data_condition(Lifestyle_condition), 4. Tables_and_Figures|
 |[Scripts/README_SCRIPTS](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Scripts/README_SCRIPTS.md) | File with exact information on how to obtain the results used in the final report|
-|[Scripts/Functions](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/tree/main/Scripts/Functions) | Folder containing 4 .R files. These helper function are needed to run the scripts and get the intended evaluation metrics|
+|[Scripts/Functions](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/tree/main/Scripts/Functions) | Folder containing 4 .R files and a .png file with the original results plot used in the report. These helper function are needed to run the scripts and get the intended evaluation metrics|
 |[Scripts/Feature Selection](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Scripts/Feature%20Selection.Rmd) |R-Markdown-script that needs to be executed after Processing, which performs feature selection and contains final data sets used for model training|
 |[Scripts/Model Building - FULL](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Scripts/Model_building_Full_data_condition.Rmd) |R-Markdown-script to train models in the Full data condition. Object with final evaluation metrics is saved and list with probabilities of NH for each observation across MLs|
 |[Scripts/Model Building - LIFE](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Scripts/Model_building_Lifestyle_condition.Rmd) |R-Markdown-script to train models in the Lifestyle condition. Object with final evaluation metrics is saved and list with probabilities of NH for each observation across MLs|

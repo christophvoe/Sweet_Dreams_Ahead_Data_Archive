@@ -14,6 +14,12 @@ Multiple machine learning algorithms were applied to data from 76 patients. Data
 *Data information:*
 
  Data for the present study originates from the “Diabetes and Lifestyle Cohort Twente” (DIALECT). DIALECT is an observational cohort study performed in the Ziekenhuis Groep Twente (ZGT) (Netherlands) and is designed to investigate the effect of lifestyle and dietary habits as well as pharmacological treatment on outcomes in patients with T2D. See the [protocol](https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Data/DIALECT_Study_Protocol.pdf) for more information.
+ 
+*Results:*
+
+<p align="center">
+  <img alt="Light" title="ROC curve comparison - Full Data Condition and Lifestyle Condition across all ML algorithms." src="https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Scripts/Functions/ROC_compare_folds_rs.png" width="100%">
+</p>
 
 ---
 

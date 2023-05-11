@@ -1,8 +1,14 @@
+DATA - Disclaimer
+===
+
 *How to obtain the data:*
 
-To obtain access to the data, interested parties must contact the Ziekenhuis Groep Twente directly and obtain clearance for data access. Please contact Kappert, Kilian: k.d.r.kappert@utwente.nl for more information as multiple parties are involved to get data clearance. A token and a username will be provided with which you can log in here: https://www.zgt.nl/professionals/medewerkers/. In this way you will get access to the Intranet of the ZGT. Follow this path: "J:\Twinz Trial\DIALECT\Data 2022\Patients_all_Sources" to access to folder including the data. The resulting folder is organized on a per-patient basis, with each patient having their own individual folder. This is the folder with exactly the patients and file names used in this study.
+To obtain access to the data, interested parties must contact the Ziekenhuis Groep Twente directly and obtain clearance for data access. Please contact Kappert, Kilian: k.d.r.kappert@utwente.nl for more information as multiple parties are involved to get data clearance. 
+
+* A token and a username will be provided with which you can log in here: https://www.zgt.nl/professionals/medewerkers/. In this way you will get access to the Intranet of the ZGT. * Follow this path: "J:\Twinz Trial\DIALECT\Data 2022\Patients_all_Sources" to access to folder including the data. The resulting folder is organized on a per-patient basis, with each patient having their own individual folder. This is the folder with exactly the patients and file names used in this study.
 
 *Each folder contains:*
+
 * Historical CGM data, stored in a txt file. 
   * Columns needed are: "ID", "Tijd",	"Type_vastlegging",	"Historie_glucose"
 * Physical activity data, stored in a csv/xlsx file
@@ -12,6 +18,6 @@ To obtain access to the data, interested parties must contact the Ziekenhuis Gro
 
 
 *Additional file:*
-In the same folder is a single file stored in a .sav file including baseline patient characteristics: See "new_baseline"
 
-If you download the folder as it is and store it in the "Processing_and_Extraction" folder, exact results will be replicated.
+* In the same folder is a single file stored in a .sav file including baseline patient characteristics: See "new_baseline"
+* If you download the folder as it is and store it in the "Processing_and_Extraction" folder, exact results will be reproduced.

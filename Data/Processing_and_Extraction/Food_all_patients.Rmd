@@ -720,5 +720,5 @@ summary(food_pp_pd_1)
 ```
 
 ```{r}
-#write.csv(food_pp_pd_1,"Data_processed/cob_all_patients.csv", row.names = FALSE)
+write.csv(food_pp_pd_1,"Data_processed/cob_all_patients.csv", row.names = FALSE)
 ```

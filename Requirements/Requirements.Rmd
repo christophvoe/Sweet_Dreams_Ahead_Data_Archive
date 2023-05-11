@@ -3,8 +3,8 @@ title: "Requirements"
 author: "Christoph Völtzke"
 date: '2023'
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r, warning=FALSE, results='hide', message=FALSE, echo=FALSE}
-# Tables and figures
+# Dependencies used in: Tables and figures
 library(readr) # read data
 library(tidyverse) # data manipulation
 library(RColorBrewer) # color palettes
@@ -23,7 +23,7 @@ library(data.table) # data frame preparation for descriptive stats
 ```
 
 ```{r, warning=FALSE, results='hide', message=FALSE, echo=FALSE}
-# Feature Selection
+# Dependencies used in: Feature Selection
 library(readr) # read data
 library(tidyverse) # data manipulation
 # Feature Selection and Imbalance
@@ -34,7 +34,7 @@ library(infotheo) # Mutual information feature importance
 ```
 
 ```{r, warning=FALSE, results='hide', message=FALSE, echo=FALSE}
-# Model Building (The same for both conditions)
+# Dependencies used in: Model Building (The same for both conditions)
 library(readr) # read data
 library(tidyverse) # data manipulation
 
@@ -54,7 +54,7 @@ library(DMwR) # SMOTE in caret embedded, but need to be loaded
 ```
 
 ```{r, warning=FALSE, results='hide', message=FALSE, echo=FALSE}
-# Pre-processing
+# Dependencies used in: Pre-processing all scripts
 library(lubridate) # process dates
 library(tidyverse) # process data
 library(ggplot2) # to plot
@@ -63,17 +63,6 @@ library(readr) # read data
 library(haven) # for baseline stats
 library(broom) # data processing
 library(iglu) # CGM indices
-```
-
-```{r, warning=FALSE, results='hide', message=FALSE, echo=FALSE}
-# Tables and figures
-library(readr) # read data
-library(tidyverse) # data manipulation
-library(RColorBrewer) # color palettes
-library(xtable) # latex code for main results
-library(yardstick) # ROC curves with multiple curves
-library(stargazer) # latex code for descriptive stats
-library(data.table) # data frame preparation for descriptive stats
 ```
 
 # SESSION INFO

@@ -1,16 +1,20 @@
 Output - Disclaimer
 ===
 
-*Included Output*
+# Included Output
 
-Output is included only for the scripts with relevant Analyses for the report. 
+Output is included only for the scripts with relevant analyses and results for the report. 
 
-This is the case for the two files [Feature Selection](https://github.com/christophvoe/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/blob/main/Analyses/Feature%20Selection.Rmd) and [Tables and Figures](https://github.com/christophvoe/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/blob/main/Analyses/Tables_and_Figures.Rmd).
+This is the case for the two files [Feature Selection]() and [Tables and Figures]().
 
-* [Feature Selection](https://github.com/christophvoe/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/blob/main/Analyses/Feature%20Selection.Rmd) uses the pre-processed data and performs the feature selection as described in the main study and also produces several figures used in the main study as well as additional figures not used in the main study.
+* [Feature Selection]() uses the pre-processed data and performs the feature selection as described in the main study and also produces several figures used in the main study as well as additional figures not used in the main study.
 
-* [Tables and Figures](https://github.com/christophvoe/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/blob/main/Analyses/Tables_and_Figures.Rmd) uses the estimates obtained by the scripts regarding model building and produces the exact results depicted in the report. 
+* [Tables and Figures]() uses the estimates obtained by the scripts regarding model building and produces the exact results depicted in the report. 
 
-* All other scripts are part of Pre-processing and Model building. All information to obtain the data needed for the exact results is provided in the correpsonding scripts.
+
+*NOTE*
+
+* All other scripts are part of Pre-processing and Model building. For model building and data splitting in train and test sets, seed values are used as described in the corresponding scripts.
+* As Raw and Processed Data are not included due to sensible patient information, the output of the processing and model building does not yield any further results.
 
 ---

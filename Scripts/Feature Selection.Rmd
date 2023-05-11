@@ -1,8 +1,11 @@
 ---
 title: "Feature Selection"
 author: "Christoph Völtzke"
-date: "2023"
-output: html_document
+date: '2023'
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -23,7 +26,7 @@ library(infotheo) # Mutual information feature importance
 
 # Information
 - In this document first the combined data set from pre-rpocessing is further cleaned for the purposes of this study.
-- Then data is plit to only perform any analyses on the training data, but not on the test data.
+- Then data is split to only perform any analyses on the training data, but not on the test data.
 - Next feature selection is performed. All steps are explained below in detail.
   - Included are: Correlation checks, Mutual Information criteria, Boruta feature selection and expert knowledge.
 - Plots are generated used in the report and dfs are created and saved which are used for model training
@@ -38,6 +41,7 @@ source("Functions/data_split.R")
 ```{r, warning=FALSE}
 full_data <- read_csv("~/GitHub/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/Processing_and_Extraction/Data_processed/full_data.csv")
 ```
+
 ## Cleaning of full data sets for different tasks (Hyper/Hypo) w/o Outcomes
 Only relevant variables are selected, variables are renamed to make them easier to understand for the reader, Two data conditions are subsetted. Full data condition and Lifestyle condition
 ```{r, warning=FALSE}
@@ -45,35 +49,63 @@ Only relevant variables are selected, variables are renamed to make them easier 
 data <- full_data %>%
   mutate(wday = factor(wday),
          weekend = factor(weekend)) %>%
-  select(-periods,-DM_type,-Night_time_mean_glucose_ti,-Night_time_sd_glucose_ti,-Night_time_min_glucose_ti,-Night_time_max_glucose_ti,-Night_late_mean_glucose,-Night_late_sd_glucose,-Night_late_min_glucose,-Night_late_max_glucose,-Night_late_Hyper_events,-Night_late_Hypo_events,-Night_early_Night_class_hyper_out,-Night_late_Night_class_hyper_out,-Night_class_hyper_out,-Day_Night_class_hypo_out,-Day_Night_class_hyper_out,-Day_Night_class_hyper_30) %>%
+  select(-periods,-DM_type,-Night_time_mean_glucose_ti,-Night_time_sd_glucose_ti,
+         -Night_time_min_glucose_ti,-Night_time_max_glucose_ti,-Night_late_mean_glucose,
+         -Night_late_sd_glucose,-Night_late_min_glucose,-Night_late_max_glucose,
+         -Night_late_Hyper_events,-Night_late_Hypo_events,-Night_early_Night_class_hyper_out,
+         -Night_late_Night_class_hyper_out,-Night_class_hyper_out,-Day_Night_class_hypo_out,
+         -Day_Night_class_hyper_out,-Day_Night_class_hyper_30) %>%
   na.omit()
 
 # cleaning for full night 
 full_data <- data %>%
   mutate(Night_class_hyper_30 = factor(Night_class_hyper_30),
           Night_class_hypo_out = factor(Night_class_hypo_out)) %>%
-  select(-Night_early_mean_glucose,-Night_early_sd_glucose,-Night_early_min_glucose,-Night_early_max_glucose,-Night_early_Hyper_events,-Night_early_Hypo_events,-Night_early_Night_class_hypo_out,-Night_late_Night_class_hypo_out,-Night_early_Night_class_hyper_30,-Night_late_Night_class_hyper_30) %>%
-  select(Night_class_hypo_out,Night_class_hyper_30,patient,hour_0_1_before_mean_glucose_ti:slope_day,COB,Sum_carbs,Sum_calories,Sum_Fat,Num_Meals,Last_meal,AOB,Sum_steps,wday,weekend,Geslacht:dosA10BB)
+  select(-Night_early_mean_glucose,-Night_early_sd_glucose,-Night_early_min_glucose,
+         -Night_early_max_glucose,-Night_early_Hyper_events,-Night_early_Hypo_events,
+         -Night_early_Night_class_hypo_out,-Night_late_Night_class_hypo_out,
+         -Night_early_Night_class_hyper_30,-Night_late_Night_class_hyper_30) %>%
+  select(Night_class_hypo_out,Night_class_hyper_30,patient,
+         hour_0_1_before_mean_glucose_ti:slope_day,COB,Sum_carbs,Sum_calories,
+         Sum_Fat,Num_Meals,Last_meal,AOB,Sum_steps,wday,weekend,Geslacht:dosA10BB)
 
-# Features are renamed to make them easier to understand in the study as some names will be depicted in one of the tables
+# Features are renamed to make them easier to understand in the 
+# study as some names will be depicted in one of the tables
 full_data <- full_data %>%
-  rename(mean_0_1 = hour_0_1_before_mean_glucose_ti, mean_1_2 =hours_1_2_before_mean_glucose_ti,mean_2_3 =hours_2_3_before_mean_glucose_ti,
-         mean_3_4 =hours_3_4_before_mean_glucose_ti,mean_4_5 =hours_4_5_before_mean_glucose_ti,mean_5_6 =hours_5_6_before_mean_glucose_ti,mean_6pl =hours_7_plus_mean_glucose_ti,
-         sd_0_1 = hour_0_1_before_sd_glucose_ti, sd_1_2 =hours_1_2_before_sd_glucose_ti,sd_2_3 =hours_2_3_before_sd_glucose_ti,
-         sd_3_4 =hours_3_4_before_sd_glucose_ti,sd_4_5 =hours_4_5_before_sd_glucose_ti,sd_5_6 =hours_5_6_before_sd_glucose_ti,sd_6pl =hours_7_plus_sd_glucose_ti,
-         min_0_1 = hour_0_1_before_min_glucose_ti, min_1_2 =hours_1_2_before_min_glucose_ti,min_2_3 =hours_2_3_before_min_glucose_ti,
-         min_3_4 =hours_3_4_before_min_glucose_ti,min_4_5 =hours_4_5_before_min_glucose_ti,min_5_6 =hours_5_6_before_min_glucose_ti,min_6pl =hours_7_plus_min_glucose_ti,
-         max_0_1 = hour_0_1_before_max_glucose_ti, max_1_2 =hours_1_2_before_max_glucose_ti,max_2_3 =hours_2_3_before_max_glucose_ti,
-         max_3_4 =hours_3_4_before_max_glucose_ti,max_4_5 =hours_4_5_before_max_glucose_ti,max_5_6 =hours_5_6_before_max_glucose_ti,max_6pl =hours_7_plus_max_glucose_ti,
-         mean_day = Day_mean_glucose, sd_day = Day_sd_glucose, min_day = Day_min_glucose,max_day = Day_max_glucose,Hyper_n = Day_Hyper_events, Hypo_n = Day_Hypo_events,
-         hyper_Ind = hyper_index, hypo_Ind = hypo_index, tir_70_180 = in_range_70_180, tir_63_140 = in_range_63_140, slope_0_1 = hour_0_1_before_slope_day, slope_1_2 = hours_1_2_before_slope_day, Steps = Sum_steps, Carbs = Sum_carbs, Calories = Sum_calories,Fat= Sum_Fat, Height = Lengte_poli1, Weight = Gewicht_poli1, Gender = Geslacht, Age = Leeftijd_poli1, T2D_Dur = Diabetes_Length, T2D_Start = Leeftijd_aanvangDM2, HbA1c = SerumHbA1c_1, insulin = insulin_bin, fast_ins = atcA10AB, dos_fast = dosA10AB, int_long = atcA10AD, dos_int_long = dosA10AD, long_ins = atcA10AE, dos_long = dosA10AE, SU_der = atcA10BB, dos_SU = dosA10BB)
+  rename(mean_0_1 = hour_0_1_before_mean_glucose_ti, mean_1_2 =hours_1_2_before_mean_glucose_ti,
+         mean_2_3 =hours_2_3_before_mean_glucose_ti, mean_3_4 =hours_3_4_before_mean_glucose_ti,
+         mean_4_5 =hours_4_5_before_mean_glucose_ti, mean_5_6 =hours_5_6_before_mean_glucose_ti,
+         mean_6pl =hours_7_plus_mean_glucose_ti,
+         sd_0_1 = hour_0_1_before_sd_glucose_ti, sd_1_2 =hours_1_2_before_sd_glucose_ti,
+         sd_2_3 =hours_2_3_before_sd_glucose_ti, sd_3_4 =hours_3_4_before_sd_glucose_ti,
+         sd_4_5 =hours_4_5_before_sd_glucose_ti,sd_5_6 =hours_5_6_before_sd_glucose_ti,
+         sd_6pl =hours_7_plus_sd_glucose_ti,
+         min_0_1 = hour_0_1_before_min_glucose_ti, min_1_2 =hours_1_2_before_min_glucose_ti,
+         min_2_3 =hours_2_3_before_min_glucose_ti, min_3_4 =hours_3_4_before_min_glucose_ti,
+         min_4_5 =hours_4_5_before_min_glucose_ti,min_5_6 =hours_5_6_before_min_glucose_ti,
+         min_6pl =hours_7_plus_min_glucose_ti,
+         max_0_1 = hour_0_1_before_max_glucose_ti, max_1_2 =hours_1_2_before_max_glucose_ti,
+         max_2_3 =hours_2_3_before_max_glucose_ti, max_3_4 =hours_3_4_before_max_glucose_ti,
+         max_4_5 =hours_4_5_before_max_glucose_ti,max_5_6 =hours_5_6_before_max_glucose_ti,
+         max_6pl =hours_7_plus_max_glucose_ti,
+         mean_day = Day_mean_glucose, sd_day = Day_sd_glucose, min_day = Day_min_glucose,
+         max_day = Day_max_glucose,Hyper_n = Day_Hyper_events, Hypo_n = Day_Hypo_events,
+         hyper_Ind = hyper_index, hypo_Ind = hypo_index, tir_70_180 = in_range_70_180,
+         tir_63_140 = in_range_63_140, slope_0_1 = hour_0_1_before_slope_day,
+         slope_1_2 = hours_1_2_before_slope_day, Steps = Sum_steps,
+         Carbs = Sum_carbs, Calories = Sum_calories,Fat= Sum_Fat,
+         Height = Lengte_poli1, Weight = Gewicht_poli1, Gender = Geslacht, Age = Leeftijd_poli1,
+         T2D_Dur = Diabetes_Length, T2D_Start = Leeftijd_aanvangDM2, HbA1c = SerumHbA1c_1,
+         insulin = insulin_bin, fast_ins = atcA10AB, dos_fast = dosA10AB, int_long = atcA10AD,
+         dos_int_long = dosA10AD, long_ins = atcA10AE, dos_long = dosA10AE, SU_der = atcA10BB,
+         dos_SU = dosA10BB)
 
 
 # LIFESTYLE DATA
 full_data_life_plus <- full_data %>% select(Night_class_hypo_out,Night_class_hyper_30,patient,
                                             COB:Last_meal, AOB:Steps,wday:dos_SU)
 
-#write.csv(full_data,"Data/Full_Data/full_data.csv", row.names = FALSE)
+write.csv(full_data,"Data/full_data.csv", row.names = FALSE)
 ```
 
 ## Data set preparation - Selection of Outcome variable
@@ -91,7 +123,9 @@ full_data_life_plus <- full_data_life_plus %>%
 
 ## Data split train/test
 ```{r, warning=FALSE}
-full_data_split <- data_split(full_data,train_size= 0.75, seed = 123)
+full_data_split <- data_split(full_data,train_size= 0.75, seed = 123) 
+# the seed of the first fold is used to do the feature selection,
+# In correspondence with senior researchers this approach is sufficient
 full_data_train <- full_data_split[[1]]
 full_data_test <- full_data_split[[2]]
 
@@ -117,6 +151,7 @@ full_data_train_nums <- full_data_train %>%
   mutate(Night_class_hypo_out = as.numeric(Night_class_hypo_out)) %>%
   select_if(is.numeric)
 cor_matrix <- data.frame(cor(full_data_train_nums))
+# Very high correlations between many CGM features, based on the same origin of the features
 
 ggcorrplot(cor_matrix)
 del_vars <- findCorrelation(cor(cor_matrix), cutoff=0.995)
@@ -124,10 +159,13 @@ full_data_train_del <- full_data_train[,del_vars] # to see which vars to delete
 full_data_train_col <- full_data_train[,-del_vars]
 colnames(full_data_train_del)
 ncol(full_data_train_col)
-# Very high/Low correlations are detected for the CGM features - However, this is to be expected due to the same data origin for feature extration
+# Very high/Low correlations are detected for the CGM features 
+# However, this is to be expected due to the same data origin for feature extration
 ```
+
 ```{r, warning=FALSE}
-cor_matrix_dv <- cor_matrix %>% filter(cor_matrix$Night_class_hypo_out <= -0.5 | cor_matrix$Night_class_hypo_out >= 0.5)
+cor_matrix_dv <- cor_matrix %>% 
+  filter(cor_matrix$Night_class_hypo_out <= -0.5 | cor_matrix$Night_class_hypo_out >= 0.5)
 cor_matrix_dv
 # No variable has a correlation of 0.5/-0.5 or higher/lower with the DV
 ```
@@ -170,7 +208,7 @@ print(mut_inf_life)
 ## For Full data condition
 Boruta feature selection for full data condition. This is repeated for Lifestyle as importance scores change due to inclusion of certain variables.
 ```{r, warning=FALSE}
-set.seed(123)
+set.seed(123) # as Boruta is an iterative process a seed value is necessary
 boruta_output_full <- Boruta(Night_class_hypo_out ~ ., data=full_data_train, doTrace=0)
 boruta_signif_full <- getSelectedAttributes(boruta_output_full, withTentative = TRUE)
 roughFixMod <- TentativeRoughFix(boruta_output_full)
@@ -178,7 +216,8 @@ boruta_signif <- getSelectedAttributes(roughFixMod)
 ```
 
 ```{r, warning=FALSE}
-# This plot shows the distribution of selected, tentative and rejected variables for the full data condition
+# This plot shows the distribution of selected, tentative and 
+# rejected variables for the full data condition
 imps_full <- attStats(boruta_output_full)
 imps_full = imps_full[imps_full$decision != 'Rejected', c('meanImp', 'decision')]
 plot(boruta_output_full, cex.axis=.7, las=2, xlab="", main="Variable Importance") 
@@ -194,7 +233,8 @@ boruta_signif <- getSelectedAttributes(roughFixMod)
 ```
 
 ```{r, warning=FALSE}
-# This plot shows the distribution of selected, tentative and rejected variables for the Lifestyle condition
+# This plot shows the distribution of selected, tentative and 
+# rejected variables for the Lifestyle condition
 imps_life <- attStats(boruta_output_life)
 imps_life = imps_life[imps_life$decision != 'Rejected', c('meanImp', 'decision')]
 plot(boruta_output_life, cex.axis=.7, las=2, xlab="", main="Variable Importance") 
@@ -206,8 +246,12 @@ This plot shows the mean Importance of variables over multiple iterations based 
 
 This plot is used in the report to emphasize which variables performed best.
 ```{r, warning=FALSE}
-varimp_full <- imps_full[order(-imps_full$meanImp), ] %>% select(-decision) %>% rownames_to_column("feature") %>% rename(importance = meanImp) %>% mutate(Condition = "Full data")
-varimp_life<- imps_life[order(-imps_life$meanImp), ] %>% select(-decision) %>% rownames_to_column("feature") %>% rename(importance = meanImp) %>% mutate(Condition = "Lifestyle data")
+varimp_full <- imps_full[order(-imps_full$meanImp), ] %>% select(-decision)%>% 
+  rownames_to_column("feature") %>% rename(importance = meanImp) %>%
+  mutate(Condition = "Full data")
+varimp_life<- imps_life[order(-imps_life$meanImp), ] %>% select(-decision) %>%
+  rownames_to_column("feature") %>% rename(importance = meanImp) %>% 
+  mutate(Condition = "Lifestyle data")
 
 all_top_features <- rbind(varimp_full[1:10,],varimp_life[1:10,])
 
@@ -215,8 +259,10 @@ all_top <- ggplot(data = all_top_features,
        aes(x = reorder(feature, importance), y = importance, fill = feature)) +
   facet_wrap(~ Condition,scales="free",ncol=1) +
   geom_bar(stat="identity", width = 0.8) + scale_fill_grey(start = 0.1, end = 0.5) + 
-  geom_text(aes(label = round(importance, 2)), color="black", size=4, hjust = -0.25, position = position_dodge(width = 0.5),inherit.aes = TRUE) + 
-  theme_bw(base_size = 12) + theme(legend.position = "none") + scale_x_discrete(guide = guide_axis(n.dodge=1)) + theme_bw(base_size = 13) +
+  geom_text(aes(label = round(importance, 2)), color="black", 
+            size=4, hjust = -0.25, position = position_dodge(width = 0.5),inherit.aes = TRUE) + 
+  theme_bw(base_size = 12) + theme(legend.position = "none") + 
+  scale_x_discrete(guide = guide_axis(n.dodge=1)) + theme_bw(base_size = 13) +
   theme(legend.position="",
         panel.border = element_blank(),  # remove panel borders
         panel.grid.major = element_blank(),  # remove major grid lines
@@ -237,8 +283,10 @@ all_top_features <- mut_inf[1:25,]
 all_top <- ggplot(data = all_top_features, 
        aes(x = reorder(feature, importance), y = importance, fill = feature)) +
   geom_bar(stat="identity", width = 0.8) + scale_fill_grey(start = 0.1, end = 0.5) + 
-  geom_text(aes(label = round(importance, 2)), color="black", size=4, hjust = -0.25, position = position_dodge(width = 0.5),inherit.aes = TRUE) + 
-  theme_bw(base_size = 12) + theme(legend.position = "none") + scale_x_discrete(guide = guide_axis(n.dodge=1)) + theme_bw(base_size = 13) +
+  geom_text(aes(label = round(importance, 2)), color="black", 
+            size=4, hjust = -0.25, position = position_dodge(width = 0.5),inherit.aes = TRUE) + 
+  theme_bw(base_size = 12) + theme(legend.position = "none") + 
+  scale_x_discrete(guide = guide_axis(n.dodge=1)) + theme_bw(base_size = 13) +
   theme(legend.position="",
         panel.border = element_blank(),  # remove panel borders
         panel.grid.major = element_blank(),  # remove major grid lines
@@ -298,7 +346,8 @@ Combing the data sets and seeing how many features are selected
 
 full_data_sel <- full_data %>% select(Night_class_hypo_out,common_vars,extra_expert_full)
 
-full_data_life_plus_sel <- full_data_life_plus %>% select(Night_class_hypo_out,common_vars_life,extra_expert_life)
+full_data_life_plus_sel <- full_data_life_plus %>% 
+  select(Night_class_hypo_out,common_vars_life,extra_expert_life)
 colnames(full_data_sel) # -1 for outcome variable = Features
 colnames(full_data_life_plus_sel) # -1 for outcome variable = Features
 ```
@@ -307,9 +356,11 @@ colnames(full_data_life_plus_sel) # -1 for outcome variable = Features
 ## Saved data and feature selection process
 Data is saved for further analyses.
 ```{r, warning=FALSE}
-#write.csv(full_data_sel,"Data/Full_data/full_data_sel.csv", row.names = FALSE)
-#write.csv(full_data_life_plus_sel,"Data/Full_data/full_data_life_plus_sel.csv", row.names = FALSE)
+write.csv(full_data_sel,"Data/full_data_sel.csv", row.names = FALSE)
+write.csv(full_data_life_plus_sel,"Data/full_data_life_plus_sel.csv", row.names = FALSE)
 
-#feature_selection <- list(boruta_full= boruta_output_full, boruta_sig_full = boruta_signif_full, Vari_imp_full = varimp_full,boruta_life= boruta_output_life, boruta_sig_life = boruta_signif_life, Vari_imp_life = varimp_life)
-#saveRDS(feature_selection, file = "Data/Feature_Selection/feature_selection.RData")
+feature_selection <- list(boruta_full= boruta_output_full, boruta_sig_full = boruta_signif_full,
+                          Vari_imp_full = varimp_full,boruta_life= boruta_output_life, 
+                          boruta_sig_life = boruta_signif_life, Vari_imp_life = varimp_life)
+saveRDS(feature_selection, file = "Data/feature_selection.RData")
 ```

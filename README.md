@@ -1,55 +1,80 @@
-DATA ARCHIVE - Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes
+RESEARCH ARCHIVE - Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes
 ===
 
-*Background and Aims:* Continuous glucose monitoring (CGM) is known to prevent adverse events such as nocturnal hypoglycemia (NH) in diabetes patients. However, due to its high cost, it is not feasible to provide CGM for the majority of Type 2 diabetes (T2D) patients, which implies a need for additional features to CGM that can help predict NH. While lifestyle factors such as diet and activity level are known to be related to T2D prevalence, the extent to which these factors can accurately predict NH has not yet been explored. To address this gap, this study developed predictive models for NH in T2D patients and compared the predictive performance of two feature conditions: one with CGM features included (Full data condition) and one without (Lifestyle condition)
+# Study Information
 
----
-*Study Information:*
-Data for the present study originates from the “Diabetes and Lifestyle Cohort Twente” (DIALECT). DIALECT is an observational cohort study performed in the Ziekenhuis Groep Twente (Netherlands) and is designed to investigate the effect of lifestyle and dietary habits as well as pharmacological treatment on outcomes in patients with T2D. The study included adult male and female patients with T2D (N=76) who were monitored with a CGM system, a physical activity tracker, and kept dietary entries for up to 14 days.
+*Background and Aims:* 
 
----
+Continuous glucose monitoring (CGM) is known to prevent adverse events such as nocturnal hypoglycemia (NH) in diabetes patients. However, due to its high cost, it is not feasible to provide CGM for the majority of Type 2 diabetes (T2D) patients, which implies a need for additional features to CGM that can help predict NH. While lifestyle factors such as diet and activity level are known to be related to T2D prevalence, the extent to which these factors can accurately predict NH has not yet been explored. To address this gap, this study developed predictive models for NH in T2D patients and compared the predictive performance of two feature conditions: one with CGM features included (Full data condition) and one without (Lifestyle condition).
 
-Due to the sensitive nature of the patient data, it cannot be made public. For more information about the study, please refer to the local institutional review boards (FERB, Filed number: 22-1863) and the Netherlands Trial Register (NTR5855). The study was performed according to the declaration of Helsinki, and written informed consent was obtained from all patients before participation.
+*Methods:* 
 
----
+Multiple machine learning algorithms were applied to data from 76 patients. Data was obtained from CGM, food diaries, physical activity trackers, and patient characteristics. Population models with multiple sampling and tuning strategies were trained with 10-fold cross-validation on a training set (75%). In  addition, the area under the receiver operating characteristic curve, sensitivity, and specificity were evaluated on a separate test set (25%). For both data conditions, models across each ML algorithm were trained
 
-*Monitoring:*
-* Blood glucose measurements were taken every 15 minutes using the Abbott FreeStyle Libre
-* Physical activity (amount of steps) was measured every minute using a non-invasive Fitbit wristband
-* Food diary were conducted by patients including details of the time, type, and quantity of food intake.
+*Data information:*
 
-If you obtained the data in the indicated way, data needs to be stored according to the information provided in the scripts. If the data is successfully stored all analyses can be reproduced.
+ Data for the present study originates from the “Diabetes and Lifestyle Cohort Twente” (DIALECT). DIALECT is an observational cohort study performed in the Ziekenhuis Groep Twente (ZGT) (Netherlands) and is designed to investigate the effect of lifestyle and dietary habits as well as pharmacological treatment on outcomes in patients with T2D. See the [protocol]() for more information.
 
 ---
 
-*Process:* First, data processing, feature extraction, and feature selection have been applied. 
-Second, multiple ML algorithms have been trained and optimized for two subsets of features with one including (Full data condition) and one excluding CGM (Lifestyle condition) to build population models.
-Third, the predictive performance between ML algorithms and also between the two data conditions have been compared. 
-Last, the results have been critically evaluated to assess their impact on the existing literature and their contribution to the diabetes management of T2D patients.
+# Ethics / Privacy / Security
+
+* Due to the sensitive nature of the patient data and in correspondence with the ZGT, raw as well as processed data cannot be made public. Scripts without the data sets used are provided. Data access must be obtained in the indicated way, see [here]. Results used in the final report are shown in the [output] folder.
+* For more information about the study, please refer to the local institutional review boards (FETC, Filed number: 22-1863), where this study was registered and accepted. 
+* For more information about the study population please refer to the Netherlands Trial Register (NTR5855) or see [protocol]().
+* The study was performed according to the declaration of Helsinki, and written informed consent was obtained from all patients before participation.
 
 ---
 
-For clarification some information about the corresponding scripts is provided.
+# Permission and access
 
+* The archive is accessible on [GitHub]() as well as through a ZIP file that can be obtained by contacting the responsible author for this archive, Christoph Völtzke (c.voltzke@stud.uu.nl).
+* This Archive is licensed under the `apache-2.0` license.
+* As no sensitive information is included the archive is publicly available and can be used for further studies to reproduce the results or to use the same pre-processing, feature extraction/selection and model building steps.
+
+---
+
+
+# ORDER OF SCRIPTS
+
+- 1. README - Understand the purpose and data usage
+- 2. Requirements - Download necessary packages and dependencies 
+- 3. Data/README_DATA - In order to obtain the data
+- 4. Data/Pre-Processing - Run all scripts, See README_PRE_PROCESSING for more information and order of scripts
+- 5. Scripts - Run all scripts - Run all scripts, See README_SCRIPTS for more information and order of scripts
+- 6. Output - OPTIONAL - See results of original study 
+
+
+*For further clarification: Detailed folder structure including a short description.*
 ---
 
 | Files/Folders                 | Description   |
 | -----------------             | ------------- |
-|[Processing_and_Extraction](https://github.com/christophvoe/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/tree/main/Processing_and_Extraction)      |Folder containing all 4 scripts to be run before the Analyses folder - This includes scripts which need to be run in the following order: 1/2/3. CGM_all_patients, Food_all_patients, Steps_all_patients, 4. Combined data sets|
-|[Processing_and_Extraction/CGM_all_patients](https://github.com/christophvoe/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/blob/main/Processing_and_Extraction/CGM_all_patients.Rmd) |R-Markdown-script to process the raw CGM data and extract all relevant CGM-features|
-|[Processing_and_Extraction/Food_all_patients](https://github.com/christophvoe/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/blob/main/Processing_and_Extraction/Food_all_patients.Rmd) |R-Markdown-script to process the raw food diaries and extract all relevant dietary-features|
-|[Processing_and_Extraction/Steps_all_patients](https://github.com/christophvoe/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/blob/main/Processing_and_Extraction/Steps_all_patients.Rmd) |R-Markdown-script to process the raw Physical activity data and extract all relevant Physical Activity-features|
-|[Processing_and_Extraction/Combined data sets](https://github.com/christophvoe/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/blob/main/Processing_and_Extraction/Combined%20data%20sets.Rmd) |R-Markdown-script to combine data sets from all three feature categories and to load baseline data and extract relevant features. Includes full data set before feature selection|
-|[Analyses](https://github.com/christophvoe/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/tree/main/Analyses)      |Folder containing all scripts to be run after the pre-processing - This includes: Subfolder with scripts of helper functions, and 4 individual scripts which need to be run in the following order: 1. Feature Selection, 2/3. Model_buildingFull_data_condition(Lifestyle_condition), 4. Tables_and_Figures|
-|[Analyses/Functions](https://github.com/christophvoe/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/tree/main/Analyses/Functions) |Folder containing 4 R scripts. These helper function are needed to run the analyses and get the intended evaluation metrics|
-|[Analyses/Feature Selection](https://github.com/christophvoe/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/blob/main/Analyses/Feature%20Selection.Rmd) |R-Markdown-script that needs to be executed after Processing, which performs feature selection and contains final data sets used for model training|
-|[Analyses/Model Building - FULL](https://github.com/christophvoe/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/blob/main/Analyses/Model_building_Full_data_condition.Rmd) |R-Markdown-script to train models in the Full data condition. Object with final evaluation metrics is saved and list with probabilities of NH for each observation across MLs|
-|[Analyses/Model Building - LIFE](https://github.com/christophvoe/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/blob/main/Analyses/Model_building_Lifestyle_condition.Rmd) |R-Markdown-script to train models in the Lifestyle condition. Object with final evaluation metrics is saved and list with probabilities of NH for each observation across MLs|
-|[Analyses/Tables and Figures](https://github.com/christophvoe/Sweet_Dreams_Ahead_Machine_Learning_Models_for_Nocturnal_Hypoglycemia_Prediction_in_Type_2_Diabetes/blob/main/Analyses/Tables_and_Figures.Rmd) |R-Markdown-script that needs to be executed after model training. Final estimates are caluclated and tables, figures and additional resources are created. Includes session_info as it is the last script to be executed|
+|[README]()      |This is the general README file including the information on how to reproduce the results. Also including study-, ethics-, and access information. Also included as an .html file for ease of reading|
+|[Requirements]() |This folder includes an R-Markdown-script including the dependencies used and a compiled .html and .pdf version|
+|[Data]() |This folder includes a README_DATA file on how to obtain the data, a .pdf file about the study population and a Folder with the pre-processing and feature extraction steps|
+|[Data/README_DATA]() |File with exact details on how to obtain the data and how to store them to reproduce the results|
+|[Data/DIALECT_Study_Protocol]() |Study Protocol of population investigated in this study|
+|[Scripts/README_PRE_PROCESSING]() | File with exact information on how to process the raw data|
+|[Data/Pre-Processing]() |This folder contains all 4 scripts to be run before the Scripts folder - This includes scripts which need to be run in the following order: 1/2/3. CGM_all_patients, Food_all_patients, Steps_all_patients, 4. Combined data sets|
+|[Data/Processing_and_Extraction/CGM_all_patients]() |R-Markdown-script to process the raw CGM data and extract all relevant CGM-features|
+|[Data/Processing_and_Extraction/Food_all_patients]() |R-Markdown-script to process the raw food diaries and extract all relevant dietary-features|
+|[Data/Processing_and_Extraction/Steps_all_patients]() |R-Markdown-script to process the raw Physical activity data and extract all relevant Physical Activity-features|
+|[Data/Processing_and_Extraction/Combined data sets]() |R-Markdown-script to combine data sets from all three feature categories and to load baseline data and extract relevant features. Includes full data set before feature selection|
+|[Scripts]()      | This folder contains all scripts to be run after the pre-processing This includes: 1 README_SCRIPTS file including information on how to run the scripts, 1 folder with scripts of helper functions, and 4 individual scripts which need to be run in the following order:  1. Feature Selection,  2/3. Model_building_Full_data_condition(Lifestyle_condition), 4. Tables_and_Figures|
+|[Scripts/README_SCRIPTS]() | File with exact information on how to obtain the results used in the final report|
+|[Scripts/Functions]() | Folder containing 4 .R files. These helper function are needed to run the scripts and get the intended evaluation metrics|
+|[Scripts/Feature Selection]() |R-Markdown-script that needs to be executed after Processing, which performs feature selection and contains final data sets used for model training|
+|[Scripts/Model Building - FULL]() |R-Markdown-script to train models in the Full data condition. Object with final evaluation metrics is saved and list with probabilities of NH for each observation across MLs|
+|[Scripts/Model Building - LIFE]() |R-Markdown-script to train models in the Lifestyle condition. Object with final evaluation metrics is saved and list with probabilities of NH for each observation across MLs|
+|[Scripts/Tables and Figures]() |R-Markdown-script that needs to be executed after model training. Final estimates are calculated and tables, figures and additional resources are created. Includes session_info as it is the last script to be executed|
+|[Output]()      | This folder contains a README_OUTPUT file indicating which results are displayed and two .html and  two .pdf files displaying the results. The .html/.pdf files contain the same information about the files 1. [Feature Selection], 2. [Tables_and_Figures] |
+|[Output/README_OUTPUT]()      | File indicating which results are replicated and how to obtain these results|
+|[Output/Feature Selection]()      | One .html and one .pdf file. Including exact results of feature selection approach used in report. Both versions are included as only raw html code is displayed on GitHub.|
+|[Output/Tables_and_Figures]()      | One .html and one .pdf file. Including all tables and figures used in report. Here, final estimates are evaluated. Both versions are included as only raw html code is displayed on GitHub.|
 ---------
 
-
-For any help with the files or questions about contact persons to obtain access to the data, please contact Christoph Völtzke (voeltzke.christoph@gmail.com). 
+For any help with the files or questions on how to obtain access to the data, please contact Christoph Völtzke (c.voltzke@stud.uu.nl).
 
 ---
 License

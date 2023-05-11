@@ -284,5 +284,5 @@ summary(all_steps)
 ```
 
 ```{r}
-#write.csv(all_steps,"Data_processed/steps_all_patients.csv", row.names = FALSE)
+write.csv(all_steps,"Data_processed/steps_all_patients.csv", row.names = FALSE)
 ```

@@ -839,8 +839,8 @@ cgm_all_patients <- cgm_all_patients %>%
 Data is saved for further analyses and to be joined by other data formats like physical acticvity and food entries.
 ```{r}
 # this data frame consists the general information about the hypoglycamic state based on the used definitions
-#write.csv(all_patients_cgm,"Data_processed/all_patients_cgm.csv", row.names = FALSE)
-#write.csv(cgm_all_patients,"Data_processed/cgm_all_patients.csv", row.names = FALSE)
+write.csv(all_patients_cgm,"Data_processed/all_patients_cgm.csv", row.names = FALSE)
+write.csv(cgm_all_patients,"Data_processed/cgm_all_patients.csv", row.names = FALSE)
 
 #View(all_patients_cgm)
 #View(cgm_all_patients)

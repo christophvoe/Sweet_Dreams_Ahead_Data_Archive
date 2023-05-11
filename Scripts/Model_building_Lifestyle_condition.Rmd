@@ -1,5 +1,5 @@
 ---
-title: "Model_building_Full_data_Condition"
+title: "Model_building_Lifestyle_condition"
 author: "Christoph Völtzke"
 date: "2023"
 output: html_document
@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Packages
-```{r, warning=FALSE, results='hide', message=FALSE}
+```{r}
 # Processing
 library(readr) # read data
 library(tidyverse) # data manipulation
@@ -23,14 +23,14 @@ library(e1071) # SVM, most likely not used
 library(kernlab) #SVM with more hypers and more sophisticated algorithms
 
 # Class Imbalance and Evaluation metrics
-library(caret) #  Hyper training
+library(caret) # Hyper training
 library(pROC) # AUC and ROC
-library(ggforce) #needed for XGB
-library(DMwR) # SMOTE in caret embedded, but need to be loaded
+library(ggforce) #needed for XGB 
+library(DMwR) # SMOTE in caret embedded
 ```
 
 # Information
-- In this document all models for the full data condition are trained.
+- In this document all models for the Lifestyle condition are trained.
 - First data is split with a SPECIFIC seed. NOTE: This document is run 3x times with different seed values.
 - Then data is split to only perform any analyses on the training data, but not on the test data.
 - 4 ML models are tested:
@@ -42,8 +42,7 @@ library(DMwR) # SMOTE in caret embedded, but need to be loaded
 - All estimates and probabilities are saved in dfs and just in later analyses
 
 ## Load Helper functions needed for analysis
-```{r, warning=FALSE, results='hide', message=FALSE}
-# Each of them is explained in the respecitve R script available in the Functions folder
+```{r}
 source("Functions/data_split.R")
 source("Functions/confusion_matrix_function.R")
 source("Functions/rf_pred_helper.R")
@@ -52,34 +51,49 @@ source("Functions/rf_pred_helper.R")
 ## Data set preparation
 ```{r}
 # Load the data set with the feature set selected by the feature selection process
-full_data <- read_csv("Data/Full_data/full_data_sel.csv")
-full_data <- full_data %>% 
+full_data_life_plus <- read_csv("Data/Full_data/full_data_life_plus_sel.csv")
+full_data_life_plus <- full_data_life_plus %>% 
   mutate(Night_class_hypo_out = as.factor(Night_class_hypo_out))
 ```
 
 ## Data split train/test
+
 **NOTE**
-This is very important to consider. This script is run 3 seperate times with different seeds for the training and test data.
-If you want to reproduce the exact same results you need to run the script with the following seeds:
+
+This is very important to consider. This script is run 3 separate times with different seeds for the training and test data.
+If you want to reproduce the exact same results you need to run the script 3 TIMES with the following seeds:
+
 1. Fold: Seed = 123
 2. Fold: Seed = 41263
 3. Fold: Seed = 2408
 
 ```{r}
-full_data_split <- data_split(full_data,train_size= 0.75, seed = 123)
-full_data_train <- full_data_split[[1]]
-full_data_test <- full_data_split[[2]]
+# THIS IS THE EXAMPLARY SCRIPT WITH THE 1. FOLD
+full_data_life_plus_split <- data_split(full_data_life_plus,train_size= 0.75, seed = 123) 
+# with this code the results of the first fold will be reproduced.
+full_data_life_plus_train <- full_data_life_plus_split[[1]]
+full_data_life_plus_test <- full_data_life_plus_split[[2]]
 
-levels(full_data_train$Night_class_hypo_out) <- c("No_Hypo", "Hypo")
-levels(full_data_test$Night_class_hypo_out) <- c("No_Hypo", "Hypo")
+levels(full_data_life_plus_train$Night_class_hypo_out) <- c("No_Hypo", "Hypo")
+levels(full_data_life_plus_test$Night_class_hypo_out) <- c("No_Hypo", "Hypo")
 ```
+
 # Model tuning
 
 ## Control settings - For ALL ML algorithms
-*NOTE* All control settings have a seed integrated ensuring that the results are the same if you want to reproduce them with the exact same settings. 
+
+*NOTE* 
+
+All control settings have a seed integrated ensuring that the results are the same if you want to reproduce them with the exact same settings. 
+
+ALSO: These control settings are used for each ML algorithm and are not newly defined.
+
 ```{r}
 # control settings are displayed for each model to ensure that each model building step is represented in a right way.
 # Here it is controlled the search strategy (grid, random) and sampling methods (smote, up)
+
+
+# THE CODE IS ANNOTATED ONLY ONCE 
 ctrl_out <- trainControl(method = "cv", # Cross-validation is performed
                          number = 10, # number of iterations in CV
                          classProbs = TRUE, # this allows to get probabilities for each person in training and later test set
@@ -92,7 +106,7 @@ ctrl_ins_smote <- trainControl(method = "cv",
                                summaryFunction = twoClassSummary,
                                search = "grid",
                                classProbs = TRUE,
-                               sampling = "smote",
+                               sampling = "smote", # smote included
                                allowParallel = TRUE)
 
 ctrl_ins_up <- trainControl(method = "cv", 
@@ -100,30 +114,30 @@ ctrl_ins_up <- trainControl(method = "cv",
                             classProbs = TRUE,
                             summaryFunction = twoClassSummary,
                             search = "grid",
-                            sampling = "up",
+                            sampling = "up", # up sampling included
                             allowParallel = TRUE)
 
 ctrl_random <- trainControl(method = "cv",
                             number = 10,
                             classProbs = TRUE,
                             summaryFunction = twoClassSummary,
-                            search = "random",
+                            search = "random", # random tuning instead of default grid
                             allowParallel = TRUE)
 
 ctrl_random_ins_up <- trainControl(method = "cv", 
                                    number = 10,
                                    classProbs = TRUE,
                                    summaryFunction = twoClassSummary,
-                                   search = "random",
-                                   sampling = "up",
+                                   search = "random", # random tuning instead of default grid
+                                   sampling = "up", # up sampling included
                                    allowParallel = TRUE)
 
 ctrl_random_ins_smote <- trainControl(method = "cv", 
                                       number = 10,
                                       classProbs = TRUE,
                                       summaryFunction = twoClassSummary,
-                                      search = "random",
-                                      sampling = "smote",
+                                      search = "random", # random tuning instead of default grid
+                                      sampling = "smote", # smote included
                                       allowParallel = TRUE)
 ```
 
@@ -133,9 +147,13 @@ ctrl_random_ins_smote <- trainControl(method = "cv",
 
 ## DEFAULT
 
+The code is annotated once here as it is repeated for each combination of Tuning strategy and Sampling procedure. Only the parameters tuneLength and trControl vary across the models.
+
 ```{r}
 # Default tuning length of 10 is selected, data is scaled and centered
-up_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_train, # Outcome variable is predicted based on all features (.) in df, with a specific training data set
+
+
+up_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train, # Outcome variable is predicted based on all features (.) in df, with a specific training data set
                    method = "ranger", # this is the package used for the calculation, Ranger has a commonly used RF approach with multiple hyperparameters to tune
                    metric = "ROC", # which metric is used
                    trControl = ctrl_ins_up, # specified above
@@ -143,34 +161,35 @@ up_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_train, 
                    preProc = c("center", "scale"), # data is centered and scaled
                    tuneLength=10) # indicating the tuning strategy, Here the number of different tuning strategies is set to 10. Default is 3. Can also be customized, see below.
 
-smote_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+smote_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "ranger",
                    metric = "ROC",
-                   trControl = ctrl_ins_smote,
+                   trControl = ctrl_ins_smote, # specified above
                    verbose = FALSE,
                    preProc = c("center", "scale"),
                    tuneLength=10)
 
-original_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_train, 
+original_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train, 
                   method = "ranger",
                   metric = "ROC",
-                  trControl = ctrl_out,
+                  trControl = ctrl_out, # specified above
                   verbose = FALSE,
                   reProc = c("center", "scale"),
                   tuneLength=10)
 ```
+
 ## RANDOM
 ```{r}
 # 20 random grids are selected
-up_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+up_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "ranger",
                    metric = "ROC",
                    trControl = ctrl_random_ins_up,
                    verbose = FALSE,
                    preProc = c("center", "scale"),
-                  tuneLength=20)
+                  tuneLength=20) # NEW TUNING LENGTH
 
-smote_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+smote_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "ranger",
                    metric = "ROC",
                    trControl = ctrl_random_ins_smote,
@@ -178,7 +197,7 @@ smote_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_trai
                    preProc = c("center", "scale"),
                    tuneLength=20)
 
-original_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_train, 
+original_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train, 
                   method = "ranger",
                   metric = "ROC",
                   trControl = ctrl_random,
@@ -190,101 +209,121 @@ original_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
 ## Other Own Grid
 ```{r}
 # A customized grid is used for all of the options based on the results of the two previous approaches and based on the literature
-rangerGrid <-  expand.grid(mtry = c(2,5,12,18,25,30:36,41),
-                           splitrule = c("extratrees","gini"),
-                           min.node.size = seq(from = 1, to = 16, length.out = 5))
 
-up_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+rangerGrid <-  expand.grid(mtry = c(2:19),
+                           splitrule = c("extratrees","gini"),
+                           min.node.size = seq(from = 1, to = 16, length.out = 7))
+
+up_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "ranger",
                    metric = "ROC",
                    trControl = ctrl_ins_up,
                    verbose = FALSE,
                    preProc = c("center", "scale"),
-                   tuneGrid= rangerGrid)
+                   tuneGrid= rangerGrid) # CUSTOMIZED GRID IS USED
 
-smote_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+smote_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "ranger",
                    metric = "ROC",
                    trControl = ctrl_ins_smote,
                    verbose = FALSE,
                    preProc = c("center", "scale"),
-                   tuneGrid= rangerGrid)
+                   tuneGrid= rangerGrid) # CUSTOMIZED GRID IS USED
 
-original_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_train, 
+original_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train, 
                   method = "ranger",
                   metric = "ROC",
                   trControl = ctrl_out,
                   verbose = FALSE,
                   reProc = c("center", "scale"),
-                  tuneGrid= rangerGrid)
+                  tuneGrid= rangerGrid) # CUSTOMIZED GRID IS USED
 
 ```
+
 
 ## Predictions for Test set
 ```{r}
 # a customized function is used which calculates all of the evaluation metrics needed and also gives the probabilities in a single object
-pred_original <- rf_pred(original_t10,threshold = TRUE)
-pred_original_thres <- rf_pred(original_t10)
 
-pred_smote_inside_t10 <- rf_pred(smote_inside_t10)
-pred_up_inside_t10 <- rf_pred(up_inside_t10)
+# SEE source code of helper function for more information
+
+# OVERALL 10 models are tested!
+pred_original <- rf_pred(original_t10,threshold = TRUE, test = full_data_life_plus_test)
+pred_original_thres <- rf_pred(original_t10, test = full_data_life_plus_test)
+
+pred_smote_inside_t10 <- rf_pred(smote_inside_t10, test = full_data_life_plus_test)
+pred_up_inside_t10 <- rf_pred(up_inside_t10, test = full_data_life_plus_test)
 # Tune own
-pred_up_inside_own <- rf_pred(up_inside_own)
-pred_smote_inside_own <- rf_pred(smote_inside_own)
-pred_original_own <- rf_pred(original_own)
+pred_up_inside_own <- rf_pred(up_inside_own, test = full_data_life_plus_test)
+pred_smote_inside_own <- rf_pred(smote_inside_own, test = full_data_life_plus_test)
+pred_original_own <- rf_pred(original_own, test = full_data_life_plus_test)
 # Tune random
-pred_up_inside_ran <- rf_pred(up_inside_ran)
-pred_smote_inside_ran <- rf_pred(smote_inside_ran)
-pred_original_ran <- rf_pred(original_ran)
+pred_up_inside_ran <- rf_pred(up_inside_ran, test = full_data_life_plus_test)
+pred_smote_inside_ran <- rf_pred(smote_inside_ran, test = full_data_life_plus_test)
+pred_original_ran <- rf_pred(original_ran, test = full_data_life_plus_test)
 ```
 
 ## probabilities results
-Probabilities are saved to get ROC curves and also are used for later comparisons between models and also calibration is checked.
-```{r}
-probs <- cbind(pred_original$class_probs,pred_original_thres$class_probs,pred_smote_inside_t10$class_probs,pred_up_inside_t10$class_probs,pred_up_inside_own$class_probs,pred_smote_inside_own$class_probs,pred_original_own$class_probs,pred_up_inside_ran$class_probs,pred_smote_inside_ran$class_probs,pred_original_ran$class_probs)
+Probabilities are saved to check for probabilities and also are used for later comparisons between models.
 
-probabilities_data <- cbind(full_data_test$Night_class_hypo_out,probs)
+```{r}
+probs <- cbind(pred_original$class_probs,pred_original_thres$class_probs,pred_smote_inside_t10$class_probs,pred_up_inside_t10$class_probs,pred_up_inside_own$class_probs,pred_smote_inside_own$class_probs,pred_original_own$class_probs,pred_up_inside_ran$class_probs,pred_smote_inside_ran$class_probs,pred_original_ran$class_probs) # Probabilities for each model, All bind by column for each patient in the test set
+
+probabilities_data <- cbind(full_data_life_plus_test$Night_class_hypo_out,probs)
 colnames(probabilities_data) <-  c("outcome","original","original_cost","smote_def","up_def",
-           "up_own","smote_own","original_own","up_ran","smote_ran","original_ran")
+           "up_own","smote_own","original_own","up_ran","smote_ran","original_ran") # naming the columns to have them in line for each ML and also to distinguish models
+
 probabilities_data <- as.data.frame(probabilities_data)
-probabilities_data$outcome <- factor(probabilities_data$outcome)
+probabilities_data$outcome <- factor(probabilities_data$outcome) # process outcome variable
 levels(probabilities_data$outcome) <- c("No_Hypo", "Hypo")
-probabilities_data_rf <- probabilities_data
+probabilities_data_rf <- probabilities_data # save object for RF
 ```
 
 ## Saving the results 
 The estimates are saved in a way that it is possible to differentiate between different model building decisions. 
+
 ```{r}
 auc <- rbind(pred_original$auc,pred_original_thres$auc,pred_smote_inside_t10$auc,pred_up_inside_t10$auc,pred_up_inside_own$auc,pred_smote_inside_own$auc,pred_original_own$auc,pred_up_inside_ran$auc,pred_smote_inside_ran$auc,pred_original_ran$auc)
+# ALL AUC VALUES ARE SAVED HERE IN ONE COLUMN 
 
 sens <- rbind(pred_original$metrics[[1]],pred_original_thres$metrics[[1]],pred_smote_inside_t10$metrics[[1]],pred_up_inside_t10$metrics[[1]],pred_up_inside_own$metrics[[1]],pred_smote_inside_own$metrics[[1]],pred_original_own$metrics[[1]],pred_up_inside_ran$metrics[[1]],pred_smote_inside_ran$metrics[[1]],pred_original_ran$metrics[[1]])
+# ALL SENSITIVITY VALUES ARE SAVED HERE IN ONE COLUMN 
 
 spec <- rbind(pred_original$metrics[[2]],pred_original_thres$metrics[[2]],pred_smote_inside_t10$metrics[[2]],pred_up_inside_t10$metrics[[2]],pred_up_inside_own$metrics[[2]],pred_smote_inside_own$metrics[[2]],pred_original_own$metrics[[2]],pred_up_inside_ran$metrics[[2]],pred_smote_inside_ran$metrics[[2]],pred_original_ran$metrics[[2]])
+# ALL SPECIFICITY VALUES ARE SAVED HERE IN ONE COLUMN 
 
 accuracy <- rbind(pred_original$metrics[[4]],pred_original_thres$metrics[[4]],pred_smote_inside_t10$metrics[[4]],pred_up_inside_t10$metrics[[4]],pred_up_inside_own$metrics[[4]],pred_smote_inside_own$metrics[[4]],pred_original_own$metrics[[4]],pred_up_inside_ran$metrics[[4]],pred_smote_inside_ran$metrics[[4]],pred_original_ran$metrics[[4]])
+# ALL ACCURACY VALUES ARE SAVED HERE IN ONE COLUMN - OPTIONAL OUTCOME VARIABLE
 
 model <-  c("original","original_cost","smote_def","up_def",
-           "up_own","smote_own","original_own","up_ran","smote_ran","original_ran")
-metrics_rf <- cbind(model,auc,sens,spec,accuracy)
-metrics_rf <- as.data.frame(metrics_rf)
-colnames(metrics_rf) <- c("model","AUC","Sensitivity","Specificity","Accuracy")
-metrics_rf <- metrics_rf %>%
+           "up_own","smote_own","original_own","up_ran","smote_ran","original_ran") # Specifying each model building decision (tuning/sampling combination)
+metrics_rf_life_plus <- cbind(model,auc,sens,spec,accuracy) # binding all metrics in one df
+
+metrics_rf_life_plus <- as.data.frame(metrics_rf_life_plus)
+colnames(metrics_rf_life_plus) <- c("model","AUC","Sensitivity","Specificity","Accuracy") # renaming columns to have it in line for each ML
+metrics_rf_life_plus <- metrics_rf_life_plus %>% # last processing of evaluation metrics
   mutate(model = factor(model),
          AUC = as.numeric(AUC),
          Sensitivity = as.numeric(Sensitivity),
          Specificity = as.numeric(Specificity),
          Accuracy = as.numeric(Accuracy),
-         ML = "RF",
-         Condition = "Full_data") %>%
+         ML = "RF", # Specifying the ML used
+         Condition = "Lifestyle") %>% # Specifying the condition
   mutate_if(is.numeric,round,digits=3)
+
+# OVERALL, for each ML it results in 10 independent models
 ```
 
 *NOTE*
+
 This procedure is repeated for each of the four ML algorithms:
 1. Random Forest (as documented above)
-2. Support Vector Machine
-3. eXtreme Gradient Boosting
-4. Lasso Logistic regression
+2. Support Vector Machine # method = "svmRadial"
+3. eXtreme Gradient Boosting # method = "xgbTree"
+4. Lasso Logistic regression # method = "glmnet"
+
+ONLY THE TUNING LENGTH AND THE CUSTOMIZED GRID IS CHANGED ACROSS THE MODELS. THEREFORE, NO ANNOTATION IS DONE FOR THESE MODELS. SEE ABOVE IF CODE IS UNCLEAR.
+
 
 ################################################################################
 # SVM
@@ -293,15 +332,15 @@ This procedure is repeated for each of the four ML algorithms:
 ## DEFAULT
 
 ```{r}
-svm_up_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
-                   method = "svmRadial",
+svm_up_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
+                   method = "svmRadial", # NEW METHOD
                    metric = "ROC",
                    trControl = ctrl_ins_up,
                    verbose = FALSE,
                    preProc = c("center", "scale"),
                    tuneLength=10)
 
-svm_smote_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+svm_smote_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "svmRadial",
                    metric = "ROC",
                    trControl = ctrl_ins_smote,
@@ -309,7 +348,7 @@ svm_smote_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_
                    preProc = c("center", "scale"),
                    tuneLength=10)
 
-svm_original_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_train, 
+svm_original_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train, 
                   method = "svmRadial",
                   metric = "ROC",
                   trControl = ctrl_out,
@@ -320,7 +359,7 @@ svm_original_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_trai
 
 ## RANDOM
 ```{r}
-svm_up_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+svm_up_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "svmRadial",
                    metric = "ROC",
                    trControl = ctrl_random_ins_up,
@@ -328,7 +367,7 @@ svm_up_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_tra
                    preProc = c("center", "scale"),
                   tuneLength=20)
 
-svm_smote_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+svm_smote_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "svmRadial",
                    metric = "ROC",
                    trControl = ctrl_random_ins_smote,
@@ -336,7 +375,7 @@ svm_smote_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_
                    preProc = c("center", "scale"),
                    tuneLength=20)
 
-svm_original_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_train, 
+svm_original_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train, 
                   method = "svmRadial",
                   metric = "ROC",
                   trControl = ctrl_random,
@@ -346,12 +385,11 @@ svm_original_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_trai
 ```
 
 ## Other Own Grid
-Each grid is performed here based on the results of the training data and also based on recommendations from the literature.
 ```{r}
 svm_Grid <-  expand.grid(sigma = c(seq(from = 0.001, to = 0.01, length.out = 8),seq(from = 0.011, to = 0.25, length.out = 6)),
                         C = c(seq(from = 0.1, to = 2, length.out = 12),seq(from = 3, to = 100, length.out = 12)))
 
-svm_up_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+svm_up_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "svmRadial",
                    metric = "ROC",
                    trControl = ctrl_ins_up,
@@ -359,7 +397,7 @@ svm_up_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_tra
                    preProc = c("center", "scale"),
                    tuneGrid= svm_Grid)
 
-svm_smote_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+svm_smote_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "svmRadial",
                    metric = "ROC",
                    trControl = ctrl_ins_smote,
@@ -367,7 +405,7 @@ svm_smote_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_
                    preProc = c("center", "scale"),
                    tuneGrid= svm_Grid)
 
-svm_original_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_train, 
+svm_original_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train, 
                   method = "svmRadial",
                   metric = "ROC",
                   trControl = ctrl_out,
@@ -378,27 +416,27 @@ svm_original_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_trai
 
 ## Predictions for Test set
 ```{r}
-pred_svm_original <- rf_pred(svm_original_t10,threshold = TRUE)
-pred_svm_original_thres <- rf_pred(svm_original_t10)
+pred_svm_original <- rf_pred(svm_original_t10,threshold = TRUE, test = full_data_life_plus_test)
+pred_svm_original_thres <- rf_pred(svm_original_t10, test = full_data_life_plus_test)
 
-pred_svm_smote_inside_t10 <- rf_pred(svm_smote_inside_t10)
-pred_svm_up_inside_t10 <- rf_pred(svm_up_inside_t10)
+pred_svm_smote_inside_t10 <- rf_pred(svm_smote_inside_t10, test = full_data_life_plus_test)
+pred_svm_up_inside_t10 <- rf_pred(svm_up_inside_t10, test = full_data_life_plus_test)
 # Tune own
-pred_svm_up_inside_own <- rf_pred(svm_up_inside_own)
-pred_svm_smote_inside_own <- rf_pred(svm_smote_inside_own)
-pred_svm_original_own <- rf_pred(svm_original_own)
+pred_svm_up_inside_own <- rf_pred(svm_up_inside_own, test = full_data_life_plus_test)
+pred_svm_smote_inside_own <- rf_pred(svm_smote_inside_own, test = full_data_life_plus_test)
+pred_svm_original_own <- rf_pred(svm_original_own, test = full_data_life_plus_test)
 # Tune random
-pred_svm_up_inside_ran <- rf_pred(svm_up_inside_ran)
-pred_svm_smote_inside_ran <- rf_pred(svm_smote_inside_ran)
-pred_svm_original_ran <- rf_pred(svm_original_ran)
+pred_svm_up_inside_ran <- rf_pred(svm_up_inside_ran, test = full_data_life_plus_test)
+pred_svm_smote_inside_ran <- rf_pred(svm_smote_inside_ran, test = full_data_life_plus_test)
+pred_svm_original_ran <- rf_pred(svm_original_ran, test = full_data_life_plus_test)
 ```
 
 ## probabilities
 ```{r}
 probs <- cbind(pred_svm_original$class_probs,pred_svm_original_thres$class_probs,pred_svm_smote_inside_t10$class_probs,pred_svm_up_inside_t10$class_probs,pred_svm_up_inside_own$class_probs,pred_svm_smote_inside_own$class_probs,pred_svm_original_own$class_probs,pred_svm_up_inside_ran$class_probs,pred_svm_smote_inside_ran$class_probs,pred_svm_original_ran$class_probs)
 
-probabilities_data <- cbind(full_data_test$Night_class_hypo_out,probs)
-colnames(probabilities_data) <- c("outcome","original","original_cost","smote_def","up_def",
+probabilities_data <- cbind(full_data_life_plus_test$Night_class_hypo_out,probs)
+colnames(probabilities_data) <-  c("outcome","original","original_cost","smote_def","up_def",
            "up_own","smote_own","original_own","up_ran","smote_ran","original_ran")
 probabilities_data <- as.data.frame(probabilities_data)
 probabilities_data$outcome <- factor(probabilities_data$outcome)
@@ -418,17 +456,17 @@ accuracy <- rbind(pred_svm_original$metrics[[4]],pred_svm_original_thres$metrics
 
 model <-  c("original","original_cost","smote_def","up_def",
            "up_own","smote_own","original_own","up_ran","smote_ran","original_ran")
-metrics_svm <- cbind(model,auc,sens,spec,accuracy)
-metrics_svm <- as.data.frame(metrics_svm)
-colnames(metrics_svm) <- c("model","AUC","Sensitivity","Specificity","Accuracy")
-metrics_svm <- metrics_svm %>%
+metrics_svm_life_plus <- cbind(model,auc,sens,spec,accuracy)
+metrics_svm_life_plus <- as.data.frame(metrics_svm_life_plus)
+colnames(metrics_svm_life_plus) <- c("model","AUC","Sensitivity","Specificity","Accuracy")
+metrics_svm_life_plus <- metrics_svm_life_plus %>%
   mutate(model = factor(model),
          AUC = as.numeric(AUC),
          Sensitivity = as.numeric(Sensitivity),
          Specificity = as.numeric(Specificity),
          Accuracy = as.numeric(Accuracy),
          ML = "SVM",
-         Condition = "Full_data") %>%
+         Condition = "Lifestyle") %>%
   mutate_if(is.numeric,round,digits=3)
 ```
 
@@ -440,7 +478,7 @@ metrics_svm <- metrics_svm %>%
 
 ```{r}
 # Due to high computational time the default length is reduced to 5 compared to the other MLs
-xgb_up_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+xgb_up_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "xgbTree",
                    metric = "ROC",
                    trControl = ctrl_ins_up,
@@ -448,7 +486,7 @@ xgb_up_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_tra
                    preProc = c("center", "scale"),
                    tuneLength=5)
 
-xgb_smote_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+xgb_smote_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "xgbTree",
                    metric = "ROC",
                    trControl = ctrl_ins_smote,
@@ -456,7 +494,7 @@ xgb_smote_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_
                    preProc = c("center", "scale"),
                    tuneLength=5)
 
-xgb_original_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_train, 
+xgb_original_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train, 
                   method = "xgbTree",
                   metric = "ROC",
                   trControl = ctrl_out,
@@ -468,7 +506,7 @@ xgb_original_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_trai
 ## RANDOM
 ```{r}
 # Due to high computational time the default length is reduced to 12 compared to the other MLs
-xgb_up_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+xgb_up_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "xgbTree",
                    metric = "ROC",
                    trControl = ctrl_random_ins_up,
@@ -476,7 +514,7 @@ xgb_up_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_tra
                    preProc = c("center", "scale"),
                   tuneLength=12)
 
-xgb_smote_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+xgb_smote_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "xgbTree",
                    metric = "ROC",
                    trControl = ctrl_random_ins_smote,
@@ -484,7 +522,7 @@ xgb_smote_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_
                    preProc = c("center", "scale"),
                    tuneLength=12)
 
-xgb_original_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_train, 
+xgb_original_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train, 
                   method = "xgbTree",
                   metric = "ROC",
                   trControl = ctrl_random,
@@ -503,7 +541,7 @@ xgb_Grid <-  expand.grid(eta = seq(from = 0.3, to = 0.8, length.out = 3),
                          nrounds = seq(from = 50, to = 500, length.out = 3),
                          gamma = seq(from = 0, to = 1.5, length.out = 2))
 
-xgb_up_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+xgb_up_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "xgbTree",
                    metric = "ROC",
                    trControl = ctrl_ins_up,
@@ -511,7 +549,7 @@ xgb_up_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_tra
                    preProc = c("center", "scale"),
                    tuneGrid= xgb_Grid)
 
-xgb_smote_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+xgb_smote_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "xgbTree",
                    metric = "ROC",
                    trControl = ctrl_ins_smote,
@@ -519,7 +557,7 @@ xgb_smote_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_
                    preProc = c("center", "scale"),
                    tuneGrid= xgb_Grid)
 
-xgb_original_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_train, 
+xgb_original_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train, 
                   method = "xgbTree",
                   metric = "ROC",
                   trControl = ctrl_out,
@@ -530,27 +568,26 @@ xgb_original_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_trai
 
 ## Predictions for Test set
 ```{r}
-pred_xgb_original <- rf_pred(xgb_original_t10,threshold = TRUE)
-pred_xgb_original_thres <- rf_pred(xgb_original_t10)
+pred_xgb_original <- rf_pred(xgb_original_t10,threshold = TRUE, test = full_data_life_plus_test)
+pred_xgb_original_thres <- rf_pred(xgb_original_t10, test = full_data_life_plus_test)
 
-pred_xgb_smote_inside_t10 <- rf_pred(xgb_smote_inside_t10)
-pred_xgb_up_inside_t10 <- rf_pred(xgb_up_inside_t10)
+pred_xgb_smote_inside_t10 <- rf_pred(xgb_smote_inside_t10, test = full_data_life_plus_test)
+pred_xgb_up_inside_t10 <- rf_pred(xgb_up_inside_t10, test = full_data_life_plus_test)
 # Tune own
-pred_xgb_up_inside_own <- rf_pred(xgb_up_inside_own)
-pred_xgb_smote_inside_own <- rf_pred(xgb_smote_inside_own)
-pred_xgb_original_own <- rf_pred(xgb_original_own)
+pred_xgb_up_inside_own <- rf_pred(xgb_up_inside_own, test = full_data_life_plus_test)
+pred_xgb_smote_inside_own <- rf_pred(xgb_smote_inside_own, test = full_data_life_plus_test)
+pred_xgb_original_own <- rf_pred(xgb_original_own, test = full_data_life_plus_test)
 # Tune random
-pred_xgb_up_inside_ran <- rf_pred(xgb_up_inside_ran)
-pred_xgb_smote_inside_ran <- rf_pred(xgb_smote_inside_ran)
-pred_xgb_original_ran <- rf_pred(xgb_original_ran)
-pred_xgb_smote_inside_ran
+pred_xgb_up_inside_ran <- rf_pred(xgb_up_inside_ran, test = full_data_life_plus_test)
+pred_xgb_smote_inside_ran <- rf_pred(xgb_smote_inside_ran, test = full_data_life_plus_test)
+pred_xgb_original_ran <- rf_pred(xgb_original_ran, test = full_data_life_plus_test)
 ```
 
 ## probabilities
 ```{r}
 probs <- cbind(pred_xgb_original$class_probs,pred_xgb_original_thres$class_probs,pred_xgb_smote_inside_t10$class_probs,pred_xgb_up_inside_t10$class_probs,pred_xgb_up_inside_own$class_probs,pred_xgb_smote_inside_own$class_probs,pred_xgb_original_own$class_probs,pred_xgb_up_inside_ran$class_probs,pred_xgb_smote_inside_ran$class_probs,pred_xgb_original_ran$class_probs)
 
-probabilities_data <- cbind(full_data_test$Night_class_hypo_out,probs)
+probabilities_data <- cbind(full_data_life_plus_test$Night_class_hypo_out,probs)
 colnames(probabilities_data) <-  c("outcome","original","original_cost","smote_def","up_def",
            "up_own","smote_own","original_own","up_ran","smote_ran","original_ran")
 probabilities_data <- as.data.frame(probabilities_data)
@@ -571,17 +608,17 @@ accuracy <- rbind(pred_xgb_original$metrics[[4]],pred_xgb_original_thres$metrics
 
 model <-  c("original","original_cost","smote_def","up_def",
            "up_own","smote_own","original_own","up_ran","smote_ran","original_ran")
-metrics_xgb <- cbind(model,auc,sens,spec,accuracy)
-metrics_xgb <- as.data.frame(metrics_xgb)
-colnames(metrics_xgb) <- c("model","AUC","Sensitivity","Specificity","Accuracy")
-metrics_xgb <- metrics_xgb %>%
+metrics_xgb_life_plus <- cbind(model,auc,sens,spec,accuracy)
+metrics_xgb_life_plus <- as.data.frame(metrics_xgb_life_plus)
+colnames(metrics_xgb_life_plus) <- c("model","AUC","Sensitivity","Specificity","Accuracy")
+metrics_xgb_life_plus <- metrics_xgb_life_plus %>%
   mutate(model = factor(model),
          AUC = as.numeric(AUC),
          Sensitivity = as.numeric(Sensitivity),
          Specificity = as.numeric(Specificity),
          Accuracy = as.numeric(Accuracy),
          ML = "XGB",
-         Condition = "Full_data") %>%
+         Condition = "Lifestyle") %>%
   mutate_if(is.numeric,round,digits=3)
 ```
 
@@ -592,7 +629,7 @@ metrics_xgb <- metrics_xgb %>%
 ## DEFAULT
 
 ```{r}
-lasso_up_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+lasso_up_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "glmnet",
                    metric = "ROC",
                    trControl = ctrl_ins_up,
@@ -600,7 +637,7 @@ lasso_up_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_t
                    preProc = c("center", "scale"),
                    tuneLength=10)
 
-lasso_smote_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+lasso_smote_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "glmnet",
                    metric = "ROC",
                    trControl = ctrl_ins_smote,
@@ -608,7 +645,7 @@ lasso_smote_inside_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_dat
                    preProc = c("center", "scale"),
                    tuneLength=10)
 
-lasso_original_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_train, 
+lasso_original_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train, 
                   method = "glmnet",
                   metric = "ROC",
                   trControl = ctrl_out,
@@ -619,7 +656,7 @@ lasso_original_t10 <- caret::train(Night_class_hypo_out ~ ., data = full_data_tr
 
 ## RANDOM
 ```{r}
-lasso_up_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+lasso_up_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "glmnet",
                    metric = "ROC",
                    trControl = ctrl_random_ins_up,
@@ -627,7 +664,7 @@ lasso_up_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_t
                    preProc = c("center", "scale"),
                   tuneLength=20)
 
-lasso_smote_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+lasso_smote_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "glmnet",
                    metric = "ROC",
                    trControl = ctrl_random_ins_smote,
@@ -635,7 +672,7 @@ lasso_smote_inside_ran <- caret::train(Night_class_hypo_out ~ ., data = full_dat
                    preProc = c("center", "scale"),
                    tuneLength=20)
 
-lasso_original_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_train, 
+lasso_original_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train, 
                   method = "glmnet",
                   metric = "ROC",
                   trControl = ctrl_random,
@@ -649,7 +686,7 @@ lasso_original_ran <- caret::train(Night_class_hypo_out ~ ., data = full_data_tr
 lasso_Grid <-  expand.grid(alpha  = seq(from = 0.1, to = 1, length.out = 20),
                          lambda = seq(from = 0.00001, to = 0.1, length.out = 30))
 
-lasso_up_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+lasso_up_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "glmnet",
                    metric = "ROC",
                    trControl = ctrl_ins_up,
@@ -657,7 +694,7 @@ lasso_up_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_t
                    preProc = c("center", "scale"),
                    tuneGrid= lasso_Grid)
 
-lasso_smote_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_train,
+lasso_smote_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train,
                    method = "glmnet",
                    metric = "ROC",
                    trControl = ctrl_ins_smote,
@@ -665,7 +702,7 @@ lasso_smote_inside_own <- caret::train(Night_class_hypo_out ~ ., data = full_dat
                    preProc = c("center", "scale"),
                    tuneGrid= lasso_Grid)
 
-lasso_original_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_train, 
+lasso_original_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_life_plus_train, 
                   method = "glmnet",
                   metric = "ROC",
                   trControl = ctrl_out,
@@ -676,26 +713,26 @@ lasso_original_own <- caret::train(Night_class_hypo_out ~ ., data = full_data_tr
 
 ## Predictions for Test set
 ```{r}
-pred_lasso_original <- rf_pred(lasso_original_t10,threshold = TRUE)
-pred_lasso_original_thres <- rf_pred(lasso_original_t10)
+pred_lasso_original <- rf_pred(lasso_original_t10,threshold = TRUE, test = full_data_life_plus_test, boundary = .17)
+pred_lasso_original_thres <- rf_pred(lasso_original_t10, test = full_data_life_plus_test)
 
-pred_lasso_smote_inside_t10 <- rf_pred(lasso_smote_inside_t10)
-pred_lasso_up_inside_t10 <- rf_pred(lasso_up_inside_t10)
+pred_lasso_smote_inside_t10 <- rf_pred(lasso_smote_inside_t10, test = full_data_life_plus_test)
+pred_lasso_up_inside_t10 <- rf_pred(lasso_up_inside_t10, test = full_data_life_plus_test)
 # Tune own
-pred_lasso_up_inside_own <- rf_pred(lasso_up_inside_own)
-pred_lasso_smote_inside_own <- rf_pred(lasso_smote_inside_own)
-pred_lasso_original_own <- rf_pred(lasso_original_own)
+pred_lasso_up_inside_own <- rf_pred(lasso_up_inside_own, test = full_data_life_plus_test)
+pred_lasso_smote_inside_own <- rf_pred(lasso_smote_inside_own, test = full_data_life_plus_test)
+pred_lasso_original_own <- rf_pred(lasso_original_own, test = full_data_life_plus_test)
 # Tune random
-pred_lasso_up_inside_ran <- rf_pred(lasso_up_inside_ran)
-pred_lasso_smote_inside_ran <- rf_pred(lasso_smote_inside_ran)
-pred_lasso_original_ran <- rf_pred(lasso_original_ran)
+pred_lasso_up_inside_ran <- rf_pred(lasso_up_inside_ran, test = full_data_life_plus_test)
+pred_lasso_smote_inside_ran <- rf_pred(lasso_smote_inside_ran, test = full_data_life_plus_test)
+pred_lasso_original_ran <- rf_pred(lasso_original_ran, test = full_data_life_plus_test)
 ```
 
 ## probabilities
 ```{r}
 probs <- cbind(pred_lasso_original$class_probs,pred_lasso_original_thres$class_probs,pred_lasso_smote_inside_t10$class_probs,pred_lasso_up_inside_t10$class_probs,pred_lasso_up_inside_own$class_probs,pred_lasso_smote_inside_own$class_probs,pred_lasso_original_own$class_probs,pred_lasso_up_inside_ran$class_probs,pred_lasso_smote_inside_ran$class_probs,pred_lasso_original_ran$class_probs)
 
-probabilities_data <- cbind(full_data_test$Night_class_hypo_out,probs)
+probabilities_data <- cbind(full_data_life_plus_test$Night_class_hypo_out,probs)
 colnames(probabilities_data) <-  c("outcome","original","original_cost","smote_def","up_def",
            "up_own","smote_own","original_own","up_ran","smote_ran","original_ran")
 probabilities_data <- as.data.frame(probabilities_data)
@@ -716,27 +753,27 @@ accuracy <- rbind(pred_lasso_original$metrics[[4]],pred_lasso_original_thres$met
 
 model <-  c("original","original_cost","smote_def","up_def",
            "up_own","smote_own","original_own","up_ran","smote_ran","original_ran")
-metrics_lasso <- cbind(model,auc,sens,spec,accuracy)
-metrics_lasso <- as.data.frame(metrics_lasso)
-colnames(metrics_lasso) <- c("model","AUC","Sensitivity","Specificity","Accuracy")
-metrics_lasso <- metrics_lasso %>%
+metrics_lasso_life_plus <- cbind(model,auc,sens,spec,accuracy)
+metrics_lasso_life_plus <- as.data.frame(metrics_lasso_life_plus)
+colnames(metrics_lasso_life_plus) <- c("model","AUC","Sensitivity","Specificity","Accuracy")
+metrics_lasso_life_plus <- metrics_lasso_life_plus %>%
   mutate(model = factor(model),
          AUC = as.numeric(AUC),
          Sensitivity = as.numeric(Sensitivity),
          Specificity = as.numeric(Specificity),
          Accuracy = as.numeric(Accuracy),
          ML = "Lasso",
-         Condition = "Full_data") %>%
+         Condition = "Lifestyle") %>%
   mutate_if(is.numeric,round,digits=3)
 ```
 
 # COMBINE ALL RESULTS
 All results are combined and saved in multiple data sets / lists.
 ```{r}
-all_models_full_cgm <- rbind(metrics_rf,metrics_xgb,metrics_lasso,metrics_svm)
-#write.csv(all_models_full_cgm,"Data/Model_results/all_models_cgm_full_123.csv", row.names = FALSE)
-#probs_full_cgm <- list(rf= probabilities_data_rf, svm = probabilities_data_svm,xgb= probabilities_data_xgb, lasso =probabilities_data_lasso)
-#saveRDS(probs_full_cgm, file = "Data/Model_results/Trained_models/probs_full_123.RData")
+all_models_lifestyle <- rbind(metrics_rf_life_plus,metrics_xgb_life_plus,metrics_lasso_life_plus,metrics_svm_life_plus)
+write.csv(all_models_lifestyle,"Data/all_models_lifestyle_123.csv", row.names = FALSE)
+#View(all_models_lifestyle)
+
+probs_lifestyle_123 <- list(rf= probabilities_data_rf, svm = probabilities_data_svm,xgb= probabilities_data_xgb, lasso =probabilities_data_lasso)
+saveRDS(probs_lifestyle_123, file = "Data/probs_lifestyle_123.RData")
 ```
-
-

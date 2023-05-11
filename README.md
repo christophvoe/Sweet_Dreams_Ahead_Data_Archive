@@ -17,9 +17,14 @@ Multiple machine learning algorithms were applied to data from 76 patients. Data
  
 *Results:*
 
+ROC curve comparison - Full Data Condition and Lifestyle Condition across all ML algorithms.
 <p align="center">
-  <img alt="Light" title="ROC curve comparison - Full Data Condition and Lifestyle Condition across all ML algorithms." src="https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Scripts/Functions/ROC_compare_folds_rs.png" width="100%">
+  <img src="https://github.com/christophvoe/Sweet_Dreams_Ahead_Data_Archive/blob/main/Scripts/Functions/ROC_compare_folds_rs.png" width="100%">
 </p>
+
+*Conclusion*
+
+Predictive performance is highest for models including CGM. However, in the absence of CGM, the Lifestyle conditions showed high AUC and sensitivity. These results provide a cost- and time-effective way to identify T2D patients at risk.
 
 ---
 

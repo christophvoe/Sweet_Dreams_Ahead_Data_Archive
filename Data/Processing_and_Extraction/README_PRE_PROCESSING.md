@@ -5,8 +5,10 @@ This folder includes 4 scripts which need to be run in the following order:
 
 * 1. CGM_all_patients
 * 2. Food_all_patients
-* 3. Steps_all_patients
+* 3. Steps_all_patients 
 * 4. Combined data sets
+
+* Script 1-3 can be run interchangeably.
 
 *NOTE*
 
